@@ -34,6 +34,8 @@ contains reusable blueprints, not an active project's agents or configuration.
 Keep those templates and the example specs/sample fixtures in the factory.
 The factory keeps reusable assets at its root and checked-in standalone implementations under `Standalone project/`.
 
+For standalone-project documentation, use [the standalone project index](Standalone%20project/README.md) and [the reusable README template](Standalone%20project/README_TEMPLATE.md). Each implementation must also maintain its own completed README, such as [the CPP project README](Standalone%20project/CPP-PM000003-Parity-Analysis/README.md).
+
 ## How to create a project
 
 ### With Copilot (recommended)
