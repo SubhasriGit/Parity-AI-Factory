@@ -217,8 +217,8 @@ def generate_mismatch_csvs(input_dir: Path, cpp: dict[str, list[dict]]) -> tuple
                 "Message Id": f"SYN-CPP-{day_index:02d}-{store}",
             })
 
-    cdcs_path = input_dir / "Diff-mismatch-synthetic-CDCS-missing-in-CPP.csv"
-    cpp_path = input_dir / "Diff-mismatch-synthetic-CPP-missing-in-CDCS.csv"
+    cdcs_path = input_dir / "Diff-mismatch-CDCS-missing-in-CPP.csv"
+    cpp_path = input_dir / "Diff-mismatch-CPP-missing-in-CDCS.csv"
     headers = ["Timestamp", "Store", "Message", "Message Id"]
     write_csv(cdcs_path, headers, cdcs_rows)
     write_csv(cpp_path, headers, cpp_rows)
@@ -239,9 +239,9 @@ def generate_config(cdcs_path: Path, cpp_path: Path) -> Path:
         "analysisColumns": ["comparisonDirection", "store", "timestamp", "priceType", "dealNumber", "offeringNumber", "effectiveDate", "dealerCostPrice", "retailPrice", "castingPrice", "possibleCause", "possibleCauseDetails", "classification", "kdCode"],
         "analysisSheetSuffix": "_analysis",
         "summaryMetrics": ["totalParsedRows", "uniqueRows", "regCount", "promoCount", "castingCount", "unknownCount", "rowsWithNonZeroRetailPrice"],
-        "outputPath": str(ROOT / "reports" / "synthetic_pm000003_analysis.xlsx"),
+        "outputPath": str(ROOT / "reports" / "pm000003_analysis.xlsx"),
     }
-    path = ROOT / "config" / "synthetic-run.json"
+    path = ROOT / "config" / "generated-run.json"
     path.write_text(json.dumps(config, indent=2), encoding="utf-8")
     return path
 
@@ -284,22 +284,22 @@ def main() -> int:
         synthetic_db.unlink()
 
     cpp = generate_cpp_files(ROOT / "cpp_data")
-    generate_ims_source(ROOT / "ims_data" / "synthetic_source.db", cpp)
+    generate_ims_source(ROOT / "ims_data" / "ims_source.db", cpp)
     cdcs_rows, cpp_rows = generate_mismatch_csvs(ROOT / "input", cpp)
-    config = generate_config(ROOT / "input" / "Diff-mismatch-synthetic-CDCS-missing-in-CPP.csv",
-                             ROOT / "input" / "Diff-mismatch-synthetic-CPP-missing-in-CDCS.csv")
+    config = generate_config(ROOT / "input" / "Diff-mismatch-CDCS-missing-in-CPP.csv",
+                             ROOT / "input" / "Diff-mismatch-CPP-missing-in-CDCS.csv")
 
     run(["scripts/init_database.py", "--db", str(synthetic_db)])
     run(["scripts/load_cpp_snapshot_to_db.py", "--db",
         str(synthetic_db), "--csv-dir", str(ROOT / "cpp_data"), "--keep-empty-bodies"])
-    run(["scripts/migrate_ims_snapshot_to_db.py", "--source", str(ROOT / "ims_data" / "synthetic_source.db"),
+    run(["scripts/migrate_ims_snapshot_to_db.py", "--source", str(ROOT / "ims_data" / "ims_source.db"),
         "--db", str(synthetic_db), "--day-map", str(ROOT / "ims_data" / "day-map.json")])
     run(["pm000003_mismatch_report.py", "--config",
         str(config), "--persist-to-db", str(synthetic_db)])
     run(["scripts/classify_kd.py", "run", "--db",
         str(synthetic_db), "--analysis-date", DAYS[-1].isoformat()])
-    candidates_path = ROOT / "output" / "synthetic_llm_candidates.json"
-    findings_path = ROOT / "output" / "synthetic_llm_findings.json"
+    candidates_path = ROOT / "output" / "llm_candidates.json"
+    findings_path = ROOT / "output" / "llm_findings.json"
     run(["scripts/llm_bridge.py", "export", "--db",
         str(synthetic_db), "--output", str(candidates_path)])
     candidate_data = json.loads(candidates_path.read_text(encoding="utf-8"))
@@ -318,14 +318,14 @@ def main() -> int:
     run(["scripts/llm_bridge.py", "import", "--db",
         str(synthetic_db), "--file", str(findings_path)])
     run(["scripts/review_and_report.py", "report", "--db", str(synthetic_db),
-        "--output", str(ROOT / "reports" / "synthetic_pm000003_analysis.xlsx")])
+        "--output", str(ROOT / "reports" / "pm000003_analysis.xlsx")])
     run(["scripts/validate_outputs.py", "--db", str(synthetic_db),
-        "--workbook", str(ROOT / "reports" / "synthetic_pm000003_analysis.xlsx")])
+        "--workbook", str(ROOT / "reports" / "pm000003_analysis.xlsx")])
     print(json.dumps({
         "database": str(synthetic_db),
         "cpp_snapshot_rows": sum(len(rows) for rows in cpp.values()),
         "mismatch_log_rows": len(cdcs_rows) + len(cpp_rows),
-        "report": str(ROOT / "reports" / "synthetic_pm000003_analysis.xlsx"),
+        "report": str(ROOT / "reports" / "pm000003_analysis.xlsx"),
         "private_originals": str(backup_root),
     }, indent=2))
     return 0

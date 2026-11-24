@@ -14,7 +14,7 @@ from pptx.util import Inches, Pt
 
 ROOT = Path(__file__).resolve().parent.parent
 DATA_PATH = ROOT / "reports" / "production_metrics.json"
-OUTPUT = ROOT / "reports" / "Project1_PM000003_Production_Metrics_Synthetic.pptx"
+OUTPUT = ROOT / "reports" / "Project1_PM000003_Production_Metrics.pptx"
 
 NAVY = RGBColor(20, 35, 52)
 INK = RGBColor(28, 39, 46)

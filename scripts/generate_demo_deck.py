@@ -14,7 +14,7 @@ from pptx.enum.dml import MSO_THEME_COLOR
 from pptx.util import Inches, Pt
 
 ROOT = Path(__file__).resolve().parent.parent
-OUTPUT = ROOT / "reports" / "Project1_Parity_AI_Factory_Demo_Synthetic.pptx"
+OUTPUT = ROOT / "reports" / "Project1_Parity_AI_Factory_Demo.pptx"
 
 NAVY = RGBColor(20, 35, 52)
 INK = RGBColor(28, 39, 46)
