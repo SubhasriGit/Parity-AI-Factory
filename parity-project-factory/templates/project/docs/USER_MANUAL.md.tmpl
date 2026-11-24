@@ -1,0 +1,62 @@
+# {{project_name}} — User Manual
+
+## 1. One-time setup
+1. Install Python 3.9+ and the dependencies: `{{python}} -m pip install -r requirements.txt`.
+2. Create the local DB: `{{python}} scripts/parity.py init-db` (safe to rerun; it never deletes data).
+3. Check configuration and inputs: `{{python}} scripts/parity.py precheck`.
+
+## 2. Data preparation
+
+Before loading data, run `init-db` so the local SQLite database and every configured `raw_<dataset>` table are created from the mappings. Then run `precheck`; it blocks missing raw tables, mapped columns, required inputs, and invalid snapshot configuration.
+
+{{datasets_table}}
+
+Analysis snapshots and required reference data are declared in `config/config.yaml` under `analysis_snapshots`. A required snapshot must be loaded and filtered before classification starts; the pipeline stops if its `flt_<dataset>` table is missing or empty.
+
+Rules:
+- Put files in the folder for each dataset. The file name must match the pattern; with `latest` selection the newest file is used.
+- Do not edit input files. If a file has the wrong layout, update the mapping (see the `add-dataset` skill) rather than the file.
+- `replace` datasets are fully replaced by each load. `append` datasets keep history and skip duplicate rows, so loading overlapping snapshots is safe.
+- Loading the identical file twice is skipped automatically.
+
+## 3. Running with agents (recommended)
+
+Open Copilot Chat, select **{{project_name}} Orchestrator**, and describe the goal:
+- "Full run" — every stage end to end.
+- "Data is already loaded, rerun the analysis" — starts at classify.
+- "Load the new target file only" — loader + filter.
+- "Regenerate the report" — reporter only.
+- "Import my review from output/reports/<file>.xlsx" — manual review import.
+
+The orchestrator calls worker agents ({{agent_names_inline}}). Each worker runs one script command and reports its counts.
+
+## 4. Running from the command line
+
+| Stage | Command |
+|---|---|
+{{cli_table}}
+
+Partial runs: `{{python}} scripts/parity.py run --from <stage> --to <stage> [--skip <stage>]`.
+
+## 5. Outputs
+- `output/reports/<slug>_mismatch_report_<run_id>.csv`: base mismatch report exported immediately after comparison or supplied-report ingestion, before classification enrichment.
+- `output/reports/<slug>_parity_<run_id>.xlsx`: working review workbook with Summary, Classification_summary, Results, Potential_issues, Field_diffs, and KD_catalogue.
+- `output/reports/<slug>_parity_<run_id>_results.csv`: enriched result report without the Excel row limit.
+- `output/reports/<slug>_final_review_<run_id>.xlsx`: final workbook generated automatically after `review-import`; contains Summary, Mismatches, Missing_In_Source, Missing_In_Target, Duplicate_Keys, and supporting audit sheets.
+- `output/llm/<run_id>/batch_NNN.json` and `findings_NNN.json`: LLM hand-off files.
+- `output/feedback/<run_id>_review_feedback.json`: where reviewers disagreed with automation.
+
+## 6. Manual review
+1. Open the report, go to **Results** (or **Potential_issues** to see what to review first).
+2. Fill `reviewed_classification` ({{classification_names}}), `reviewed_kd_code` and `review_notes` in the **Results** sheet.
+3. Run `review-import --file <workbook>`. It imports manual verdicts and automatically generates `<slug>_final_review_<run_id>.xlsx` with the final counts and separate mismatch/missing sheets.
+4. Use the `tune-from-review` skill to turn the feedback into rule and prompt improvements; rerun on the same data until results are stable.
+
+## 7. Troubleshooting
+| Symptom | Likely cause / action |
+|---|---|
+| `missing column(s)` on load | File layout changed: update `config/mappings/<dataset>.mapping.json` |
+| Almost every record is "missing" | Key format differs between sides (padding, case, date format): adjust key normalisation in config |
+| `SKIPPED (identical file already loaded)` | Expected. Use `load --force` only if you really want to reload |
+| `Cannot write ... file is probably open in Excel` | Close the workbook and rerun `report` |
+| A rule never fires | Check its `when` paths/values with the `investigate-result` skill; rerun from `classify` |

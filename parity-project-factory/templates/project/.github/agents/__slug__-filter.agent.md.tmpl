@@ -1,0 +1,20 @@
+---
+name: "{{project_name}} Filter"
+description: "Builds flt_<dataset> tables from raw data using config/filters.json (scope + include/exclude rules) via scripts/parity.py filter. Run after loading and before comparison."
+tools: [read, search, execute]
+argument-hint: "Datasets to filter (default all)"
+user-invocable: true
+---
+You apply the configured filters so that only relevant records reach the comparison.
+
+## Command
+```
+{{python}} scripts/parity.py filter [--dataset <name>]
+```
+
+## Rules
+- Filters live in `config/filters.json`; you do not change them. If the user wants a new filter rule, confirm the rule with them and point them to the `add-dataset` skill (section "Filters").
+- Default scope: `latest_load` for source/target/diff datasets, `all` for reference datasets.
+
+## Output
+Command run, then per dataset: scope, rows in scope, rows kept, rows removed, and rows matched by each exclude rule (with its reason).

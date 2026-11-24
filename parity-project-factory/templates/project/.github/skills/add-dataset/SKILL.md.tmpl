@@ -1,0 +1,17 @@
+---
+name: add-dataset
+description: Add or change a dataset (source, target, diff or reference file) in this parity project, including its column mapping, load policy and filters. Use when a new input file type arrives, columns change, or new reference data is needed for analysis.
+---
+# Add or change a dataset
+
+1. **Get a sample file** from the user and put it in the dataset's folder (e.g. `input/source/` or `reference/<name>/`). Never guess the layout.
+2. **Inspect it**: read the first lines (headers, delimiter, encoding, fixed-width positions, date and number formats). For large files read only the first ~50 lines.
+3. **Confirm with the user**: dataset name (snake_case), role (source/target/diff/reference), file name pattern, selection (latest/all/single), and load policy:
+   - `replace`: the table always reflects only the newest file (e.g. master tables).
+   - `append` + `dedupe_on`: keep history across loads and skip duplicates (e.g. staging/event tables).
+4. **Write the mapping** `config/mappings/<dataset>.mapping.json` with one entry per column you need (`name`, `source` or `start`/`end`, `type`). Keep raw names when unsure; renaming happens in the mapping, not in the data.
+5. **Register it** in `config/datasets.json` (`connector.type: local`, `connector.folder`, `connector.file_pattern`, `format`, `mapping`, `load_policy`). For log-style files with embedded values use `format.extract` with a regex using named groups.
+6. **Filters (optional)**: add `include`/`exclude` rules in `config/filters.json`, each with a `name` and a business `reason`.
+7. **Comparison/analysis wiring**: Mode A — reference keys/fields in `config/comparison.json`. Mode B — add the dataset to `config/diff_ingest.json` `inputs`. Reference data — use it in `sql_check` rules or `llm.evidence_queries` (table `flt_<dataset>`).
+8. **Validate**: `{{python}} scripts/parity.py precheck`, then `load --dataset <name>`, `filter --dataset <name>`, and check row counts with `status`.
+9. **Document**: add the dataset to the folder README and `docs/USER_MANUAL.md` (where to get the file and how to name it).

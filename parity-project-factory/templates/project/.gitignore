@@ -1,0 +1,17 @@
+# Data never goes to git (folder READMEs are kept)
+input/**
+!input/**/
+!input/**/README.md
+reference/**
+!reference/**/
+!reference/**/README.md
+db/*
+!db/README.md
+output/*
+!output/README.md
+logs/
+.factory-backup/
+__pycache__/
+*.pyc
+.venv*/
+~$*.xlsx

@@ -1,0 +1,30 @@
+---
+name: investigate-result
+description: Look up a parity result and its related data in the local DB with read-only queries. Use to explain a specific mismatch, gather evidence for the LLM analyst, or prepare a new known-discrepancy rule.
+---
+# Investigate a parity result (read-only)
+
+Database: `{{db_path}}` ({{engine}}). Only read-only queries are allowed; the command rejects anything other than SELECT/WITH.
+
+```
+{{python}} scripts/parity.py query "SELECT ... " [--limit 200]
+```
+
+## Useful tables
+| Table | Content |
+|---|---|
+| `parity_run` | one row per run (`run_id`, mode, stats_json) |
+| `parity_result` | results per run: `result_id`, `result_type`, `record_key`, `key_json`, `mismatch_fields`, `source_json`, `target_json`, `details_json` |
+| `verdict` | verdicts per result and source (`rule`, `llm`, `manual`) |
+| `raw_<dataset>` | data exactly as loaded (+ `_load_id`, `_source_file`, `_line_no`) |
+| `flt_<dataset>` | data after filters (input to comparison/analysis) |
+| `_loads` | which file was loaded when, row counts |
+| `_norm_source`, `_norm_target` | Mode A normalised values used for the last comparison |
+
+## Typical queries
+- A result: `SELECT * FROM parity_result WHERE run_id = '<run>' AND result_id = <id>`
+- Its verdicts: `SELECT verdict_source, classification, kd_code, confidence, hypothesis FROM verdict WHERE run_id='<run>' AND result_id=<id>`
+- All rows for a key in a dataset: `SELECT * FROM flt_<dataset> WHERE <key_col> = '<value>'`
+- History for a key in an append dataset: `SELECT _source_file, * FROM raw_<dataset> WHERE <key_col> = '<value>' ORDER BY _load_id`
+
+Datasets in this project: {{dataset_names}}.

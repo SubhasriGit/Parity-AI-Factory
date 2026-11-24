@@ -1,0 +1,20 @@
+---
+name: define-known-discrepancy
+description: Add or refine a known discrepancy (KD) rule so the deterministic classifier explains a recurring mismatch pattern without the LLM. Use when the user describes an expected difference, a data issue pattern, or when LLM/manual review keeps finding the same root cause.
+---
+# Define a known discrepancy
+
+The goal is to move every pattern that can be proven with data out of the LLM stage and into a deterministic rule (cheaper, faster, repeatable).
+
+1. **Collect from the user**: the business explanation, an example record (result_id or key), the expected classification ({{classification_names}}), and how a QA would confirm it (which table/field to look at).
+2. **Find the signal** in the data: inspect the example in the latest report or query the local DB (see `investigate-result` skill). Identify what distinguishes it: result_type, which fields differ, values on each side, related rows in reference tables.
+3. **Write the rule** in `rules/known_discrepancies.json`:
+   - `code` (next free KD-n), `title`, `description` (business wording — this text is shown to the LLM and in the report), `classification`, `confidence`, `evidence_needed`.
+   - `applies_to`: result types it can apply to.
+   - `when`: field conditions on the record (e.g. `{"field": "mismatch_fields", "op": "eq", "value": ["retail_price"]}`).
+   - `sql_check` when other tables must be checked: `{"query": "SELECT 1 FROM flt_<ref> WHERE sku = :sku", "params": {"sku": "key.sku"}, "expect": "exists"}`.
+   - `python_check` only if conditions + SQL cannot express it; add the function to `rules/custom_rules.py` (signature `fn(record, db) -> bool | dict`).
+   - `priority`: lower runs first. Put specific rules before general ones; similar-looking KDs need careful ordering.
+4. **Update `docs/ANALYSIS_FLOW.md`** (KD section) with the same explanation so humans and agents read the same logic.
+5. **Dry run**: `{{python}} scripts/parity.py run --from classify --to report` on known data. Check the new code's count in Classification_summary and spot-check a few rows. Make sure no previously correct rows changed classification unexpectedly.
+6. Repeat until the rule identifies the intended cases only.

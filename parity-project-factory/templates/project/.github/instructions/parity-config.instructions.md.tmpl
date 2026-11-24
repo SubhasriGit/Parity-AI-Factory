@@ -1,0 +1,13 @@
+---
+applyTo: "config/**,rules/**"
+---
+# Editing parity configuration
+
+- Keep JSON and YAML valid. After any change run `{{python}} scripts/parity.py precheck`; it validates every file and cross-reference.
+- Dataset and column names: letters, digits and underscores only. Column names must not start with `_` (reserved for framework columns such as `_rid`, `_load_id`).
+- `config/datasets.json`: `role` is one of source | target | diff | reference; `format.type` is csv | fixed_width | jsonl; `load_policy.mode` is replace | append (`dedupe_on` lists the columns that identify a duplicate row for append).
+- `config/mappings/<dataset>.mapping.json`: `name` = column name in the DB, `source` = header in the file (csv/jsonl), `start`/`end` = 1-based inclusive positions (fixed_width), `index` = 0-based position (headerless csv), `type` = string | integer | decimal | date | datetime (used as documentation and default comparison type).
+- `config/filters.json`: per dataset `scope` (latest_load | all), `include` and `exclude` lists of `{name, reason, condition}`. Condition ops: eq, ne, in, not_in, gt, ge, lt, le, between, like, not_like, is_empty, not_empty; combine with `all` / `any` / `not`.
+- `config/config.yaml` (`analysis_snapshots`): declare each reference snapshot with `name`, `dataset`, `required_for_analysis`, `lookup_keys`, optional `snapshot_date_column`, and description. The generator supplies `table`, selection, and load policy from the dataset. A required snapshot must have a non-empty filtered table before classification.
+- `rules/known_discrepancies.json`: rules run by ascending `priority`; first full match wins. Each rule needs `code`, `title`, `description`, `classification` (declared in `classifications`), and at least one of `when`, `sql_check` (SELECT only, `:name` params mapped from record paths), `python_check` (function in `rules/custom_rules.py`). Record paths: `result_type`, `mismatch_fields`, `key.<name>`, `source.<column>`, `target.<column>`, `details.<field>.source|target`. Extra ops for rules: contains, not_contains, regex, days_diff, abs_diff_le, and `field2` to compare two fields.
+- After changing rules, rerun from `classify` and check the distribution before trusting it (dry run on known data).

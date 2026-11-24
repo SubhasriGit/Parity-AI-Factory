@@ -1,0 +1,396 @@
+{
+  "spec_version": 1,
+  "project": {
+    "name": "Mismatch Report Demo",
+    "slug": "mismatch-report-demo",
+    "description": "Demo Mode B project modelled on PM000003: two mismatch exports (in source but missing in target, and the reverse) are parsed from log messages, paired into value mismatches and explained with the price master snapshot.",
+    "owner": "Parity team",
+    "mode": "B",
+    "python": "python"
+  },
+  "database": {
+    "engine": "sqlite",
+    "path": "db/parity.db"
+  },
+  "processing": {
+    "batch_size": 50000
+  },
+  "datasets": [
+    {
+      "name": "diff_src_only",
+      "role": "diff",
+      "description": "Mismatch export: records present in the source (legacy) but missing in the target (cloud). Export from the monitoring tool as CSV.",
+      "connector": {
+        "type": "local",
+        "folder": "input/diff",
+        "file_pattern": "diff_in_source_missing_in_target_*.csv",
+        "selection": "latest"
+      },
+      "format": {
+        "type": "csv",
+        "delimiter": ",",
+        "header": true,
+        "extract": {
+          "from_column": "Message",
+          "pattern": "PromoDealPriceDto\\(dealNumber=(?P<dealNumber>[^,]*), offeringNumber=(?P<offeringNumber>[^,]*), effectiveDate=(?P<effectiveDate>[^,]*), dealerCostPrice=(?P<dealerCostPrice>[^,]*), retailPrice=(?P<retailPrice>[^,]*), castingPrice=(?P<castingPrice>[^)]*)\\)",
+          "on_no_match": "skip"
+        }
+      },
+      "load_policy": {
+        "mode": "replace"
+      },
+      "columns": [
+        {
+          "name": "timestamp",
+          "source": "Timestamp",
+          "type": "datetime"
+        },
+        {
+          "name": "store",
+          "source": "Store",
+          "type": "string"
+        },
+        {
+          "name": "message",
+          "source": "Message",
+          "type": "string"
+        },
+        {
+          "name": "deal_number",
+          "source": "dealNumber",
+          "type": "string"
+        },
+        {
+          "name": "offering_number",
+          "source": "offeringNumber",
+          "type": "string"
+        },
+        {
+          "name": "effective_date",
+          "source": "effectiveDate",
+          "type": "date"
+        },
+        {
+          "name": "dealer_cost_price",
+          "source": "dealerCostPrice",
+          "type": "decimal"
+        },
+        {
+          "name": "retail_price",
+          "source": "retailPrice",
+          "type": "decimal"
+        },
+        {
+          "name": "casting_price",
+          "source": "castingPrice",
+          "type": "decimal"
+        }
+      ]
+    },
+    {
+      "name": "diff_tgt_only",
+      "role": "diff",
+      "description": "Mismatch export: records present in the target (cloud) but missing in the source (legacy).",
+      "connector": {
+        "type": "local",
+        "folder": "input/diff",
+        "file_pattern": "diff_in_target_missing_in_source_*.csv",
+        "selection": "latest"
+      },
+      "format": {
+        "type": "csv",
+        "delimiter": ",",
+        "header": true,
+        "extract": {
+          "from_column": "Message",
+          "pattern": "PromoDealPriceDto\\(dealNumber=(?P<dealNumber>[^,]*), offeringNumber=(?P<offeringNumber>[^,]*), effectiveDate=(?P<effectiveDate>[^,]*), dealerCostPrice=(?P<dealerCostPrice>[^,]*), retailPrice=(?P<retailPrice>[^,]*), castingPrice=(?P<castingPrice>[^)]*)\\)",
+          "on_no_match": "skip"
+        }
+      },
+      "load_policy": {
+        "mode": "replace"
+      },
+      "columns": [
+        {
+          "name": "timestamp",
+          "source": "Timestamp",
+          "type": "datetime"
+        },
+        {
+          "name": "store",
+          "source": "Store",
+          "type": "string"
+        },
+        {
+          "name": "message",
+          "source": "Message",
+          "type": "string"
+        },
+        {
+          "name": "deal_number",
+          "source": "dealNumber",
+          "type": "string"
+        },
+        {
+          "name": "offering_number",
+          "source": "offeringNumber",
+          "type": "string"
+        },
+        {
+          "name": "effective_date",
+          "source": "effectiveDate",
+          "type": "date"
+        },
+        {
+          "name": "dealer_cost_price",
+          "source": "dealerCostPrice",
+          "type": "decimal"
+        },
+        {
+          "name": "retail_price",
+          "source": "retailPrice",
+          "type": "decimal"
+        },
+        {
+          "name": "casting_price",
+          "source": "castingPrice",
+          "type": "decimal"
+        }
+      ]
+    },
+    {
+      "name": "price_master",
+      "role": "reference",
+      "description": "Target-side price master snapshot used to confirm target prices. Fully replaced on each load.",
+      "connector": {
+        "type": "local",
+        "folder": "reference/price_master",
+        "file_pattern": "price_master_*.csv",
+        "selection": "latest"
+      },
+      "format": {
+        "type": "csv",
+        "delimiter": ",",
+        "header": true
+      },
+      "load_policy": {
+        "mode": "replace"
+      },
+      "columns": [
+        {
+          "name": "offering_number",
+          "source": "offering_number",
+          "type": "string"
+        },
+        {
+          "name": "deal_number",
+          "source": "deal_number",
+          "type": "string"
+        },
+        {
+          "name": "retail_price",
+          "source": "retail_price",
+          "type": "decimal"
+        },
+        {
+          "name": "dealer_cost_price",
+          "source": "dealer_cost_price",
+          "type": "decimal"
+        }
+      ]
+    }
+  ],
+  "filters": {
+    "diff_src_only": {
+      "exclude": [
+        {
+          "name": "test_store",
+          "reason": "Store 99 is a test store and out of scope",
+          "condition": {
+            "column": "store",
+            "op": "eq",
+            "value": "99"
+          }
+        }
+      ]
+    }
+  },
+  "analysis_snapshots": [
+    {
+      "name": "price_master_snapshot",
+      "dataset": "price_master",
+      "required_for_analysis": true,
+      "lookup_keys": [
+        "offering_number",
+        "deal_number"
+      ],
+      "description": "Target-side price master snapshot required to confirm target values."
+    }
+  ],
+  "diff_ingest": {
+    "inputs": [
+      {
+        "dataset": "diff_src_only",
+        "result_type": "MISSING_IN_TARGET"
+      },
+      {
+        "dataset": "diff_tgt_only",
+        "result_type": "MISSING_IN_SOURCE"
+      }
+    ],
+    "keys": [
+      {
+        "name": "store",
+        "column": "store",
+        "type": "string"
+      },
+      {
+        "name": "offering_number",
+        "column": "offering_number",
+        "type": "string"
+      },
+      {
+        "name": "deal_number",
+        "column": "deal_number",
+        "type": "string"
+      },
+      {
+        "name": "effective_date",
+        "column": "effective_date",
+        "type": "date"
+      }
+    ],
+    "compare_fields": [
+      {
+        "name": "dealer_cost_price",
+        "column": "dealer_cost_price",
+        "type": "decimal"
+      },
+      {
+        "name": "retail_price",
+        "column": "retail_price",
+        "type": "decimal"
+      },
+      {
+        "name": "casting_price",
+        "column": "casting_price",
+        "type": "decimal"
+      }
+    ],
+    "pair_opposite_directions": true
+  },
+  "known_discrepancies": {
+    "classifications": {
+      "EXPECTED": "Known, accepted difference",
+      "DATA_ISSUE": "Bad or late data in one system, not a logic defect",
+      "POTENTIAL_ISSUE": "Unexplained difference; needs investigation"
+    },
+    "default": {
+      "classification": "POTENTIAL_ISSUE",
+      "confidence": 0.0,
+      "hypothesis": "No known discrepancy matched",
+      "evidence_needed": "Check events and master tables for this offering"
+    },
+    "rules": [
+      {
+        "code": "KD-1",
+        "title": "One-sided dealer/retail update sent by source",
+        "description": "The legacy side sends only the changed price side; the unchanged side arrives as 0 while the cloud keeps both prices. Paired rows differ only in the side that is 0 in the source.",
+        "classification": "EXPECTED",
+        "priority": 10,
+        "confidence": 0.9,
+        "applies_to": [
+          "MISMATCH"
+        ],
+        "when": {
+          "any": [
+            {
+              "all": [
+                {
+                  "field": "mismatch_fields",
+                  "op": "eq",
+                  "value": [
+                    "dealer_cost_price"
+                  ]
+                },
+                {
+                  "field": "details.dealer_cost_price.source",
+                  "op": "eq",
+                  "value": 0
+                }
+              ]
+            },
+            {
+              "all": [
+                {
+                  "field": "mismatch_fields",
+                  "op": "eq",
+                  "value": [
+                    "retail_price"
+                  ]
+                },
+                {
+                  "field": "details.retail_price.source",
+                  "op": "eq",
+                  "value": 0
+                }
+              ]
+            }
+          ]
+        },
+        "hypothesis": "Source sent a one-sided price for offering {key.offering_number} (mismatch on {mismatch_fields})",
+        "evidence_needed": "Opposite side in the source equals the target value on a previous day"
+      },
+      {
+        "code": "KD-5",
+        "title": "Target price confirmed by price master",
+        "description": "The record exists only in the target, and the target price master holds the same offering/deal/retail price, so the target is correct and the source did not send the price.",
+        "classification": "EXPECTED",
+        "priority": 20,
+        "confidence": 0.8,
+        "applies_to": [
+          "MISSING_IN_SOURCE"
+        ],
+        "sql_check": {
+          "query": "SELECT 1 FROM flt_price_master WHERE offering_number = :offering AND deal_number = :deal AND CAST(retail_price AS REAL) = CAST(:retail AS REAL)",
+          "params": {
+            "offering": "key.offering_number",
+            "deal": "key.deal_number",
+            "retail": "target.retail_price"
+          },
+          "expect": "exists"
+        },
+        "hypothesis": "Target price {target.retail_price} matches price master for offering {key.offering_number}",
+        "evidence_needed": "Source event log shows no price for this offering on the day"
+      }
+    ]
+  },
+  "llm": {
+    "enabled": true,
+    "classifications": [
+      "POTENTIAL_ISSUE"
+    ],
+    "max_rows_per_batch": 50,
+    "max_batches": 10,
+    "evidence_queries": [
+      {
+        "name": "price_master_for_offering",
+        "query": "SELECT * FROM flt_price_master WHERE offering_number = :offering",
+        "params": {
+          "offering": "key.offering_number"
+        }
+      }
+    ]
+  },
+  "reports": {
+    "formats": [
+      "xlsx",
+      "csv"
+    ]
+  },
+  "samples": {
+    "diff_src_only": "samples/diff_in_source_missing_in_target_20261110.csv",
+    "diff_tgt_only": "samples/diff_in_target_missing_in_source_20261110.csv",
+    "price_master": "samples/price_master_20261110.csv"
+  }
+}

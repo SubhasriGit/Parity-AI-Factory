@@ -1,0 +1,336 @@
+PARITY PROJECT FACTORY - SIMPLE PROJECT FLOW
+============================================================
+
+1. PROJECT DESIGN
+
+   User explains the parity requirement
+                    |
+                    v
+   Parity Project Designer asks and confirms:
+     - Project purpose and owner
+     - Whether this one project needs comparison, supplied-report input, or both
+     - Input datasets and file formats
+     - Keys, compared fields, filters, and tolerances
+     - Input acquisition for each dataset (manual folder placement, local connector,
+       SQL, FTP/SFTP, blob, S3, GCS)
+     - Output delivery target for CSV/Excel/report files (manual collection, local
+       folder, shared folder, or automated publisher)
+     - Known discrepancies and classifications
+     - Confirmation evidence required for each matched KD
+     - LLM scope and reports
+     - Telemetry requirements, cost/throughput targets, and retention
+                    |
+                    v
+   Save confirmed design
+   specs/<project-slug>.spec.json
+                    |
+                    v
+   Validate the specification
+                    |
+                    v
+   Generate ONE standalone project
+   ../parity-projects/<project-slug>/
+   (The two starting workflows stay inside this same project and database.)
+
+
+2. GENERATED PROJECT EXECUTION
+
+   PRE-REQUISITE 1: DATABASE AND PARSING CONTRACT
+
+   The project agent reads:
+     - config/datasets.json
+     - config/mappings/<dataset>.mapping.json
+     - config/config.yaml (analysis_snapshots section)
+     - filters and comparison/diff settings
+
+   The orchestrator selects the run mode:
+     - full pipeline
+     - resume from recorded task state
+     - run one task independently
+     - start from a middle stage when prerequisites have success evidence
+
+   The agent confirms ambiguous files. Worker agents run focused commands;
+   Python scripts perform parsing and data processing. Agents do not mutate
+   data outside the scripts and recorded review workflows.
+
+   Skills provide reusable project-maintenance procedures such as add-dataset,
+   define-known-discrepancy, investigate-result, and tune-from-review.
+
+   Input acquisition options
+     1. Manual placement (default and simplest): the user copies files into the
+        configured dataset folders before running the pipeline.
+     2. Local connector: the same manual folder is selected automatically by
+        file pattern and selection policy (latest, all, or single).
+     3. SQL connector: run a configured read-only query and export the result.
+     4. FTP/SFTP/blob/S3/GCS connector: download matching files to the dataset folder.
+     5. Every acquired or manually placed file is fingerprinted and recorded during load.
+
+   Current implementation ships with local/manual placement. Remote and database
+   connectors are extension points and must be implemented before selection.
+   If they are unavailable, retrieve/export the file externally, place it in the
+   configured folder, and run connector.type: local. No automated connector is
+   required for a valid parity run.
+
+   Manual landing folders for the selected run
+     - input/source/       Source extract for comparison workflow
+     - input/target/       Target extract for comparison workflow
+     - input/diff/         Supplied mismatch report workflow
+     - reference/<name>/   Supporting evidence or master data
+                    |
+                    v
+   init-db
+   Create/check the local SQLite database, core tables, and one raw table
+   per configured dataset: raw_<dataset>.
+   Every mapped column is created as a TEXT column; framework columns track
+   row id, load id, source file, source line, and row hash.
+                    |
+                    v
+   precheck
+   STOP unless configuration, input files, dependencies, database connection,
+   raw table names, and every mapped raw column are valid.
+                    |
+                    v
+   load
+   A dataset parser reads CSV, fixed-width, JSONL, or embedded-message data
+   according to config/datasets.json and its mapping, then stores the parsed
+   raw columns in the local SQLite raw_<dataset> table.
+                    |
+                    v
+   analysis snapshot load
+   Retrieve every reference/snapshot needed for classification and save it to
+   raw_<snapshot_dataset>; retrieve locations, selection, load policy, lookup
+   keys, and snapshot date coverage are declared in:
+     config/config.yaml (analysis_snapshots section)
+                    |
+                    v
+   filter
+   Apply confirmed business filters
+   Raw tables remain unchanged
+                    |
+                    v
+          User selects one starting workflow
+             /                              \
+            /                                \
+           v                                  v
+   WORKFLOW 1                           WORKFLOW 2
+   Source/target comparison             Supplied mismatch report
+
+   Compare filtered source and          Load the report with a
+   target tables on keys confirmed       confirmed mapping and apply
+   by the user.                          optional analysis filters.
+            \                                /
+             \                              /
+              v                            v
+          Persist both paths into the SAME parity_result table
+                    |
+                    v
+   mismatch-report export
+   Immediately generate:
+     <slug>_mismatch_report_<run_id>.csv
+   This is the base mismatch report with unclassified rows.
+                    |
+                    v
+   classify
+   Apply ordered known-discrepancy rules.
+
+   A matched KD keeps its business classification (for example EXPECTED)
+   even when the supporting evidence is incomplete. Add separate fields:
+     - confirmation_status: CONFIRMED | CONFIRMATION_REQUIRED
+     - confirmation_reason: what the user/analyst must verify
+     - missing_evidence: exact datasets, events, or lineage needed
+
+   Only rows with no matched KD remain POTENTIAL_ISSUE.
+                    |
+             +------+------+
+             |             |
+             v             v
+   Deterministic verdict   Candidates for LLM second pass
+   already explained,      POTENTIAL_ISSUE, DATA/IMS issue,
+   optionally requiring     or another configured class
+   user confirmation
+             |                 |
+             |                 v
+             |       llm-export
+             |       Write controlled JSON batch
+             |                 |
+             |                 v
+             |       LLM Analyst reviews evidence
+             |       and writes structured findings
+             |                 |
+             |                 v
+             |       llm-import
+             |       Preserve verdict when evidence is insufficient
+             |             |
+             +------+------+
+                    |
+                    v
+   report
+   Generate the enriched review workbook and enriched CSV.
+   Required views include:
+     - Summary: totals, directions, classifications, paired groups
+     - Classification_Summary: classification, KD, count, percentage
+     - Row details: rule, LLM, confidence, hypothesis and evidence
+     - confirmation_status / confirmation_reason / missing_evidence
+     - Human review fields and category sheets
+                    |
+                    v
+   Human review
+   Confirm or change classifications, KD codes, and analysis notes.
+                    |
+                    v
+   review-import
+   Save manual verdicts and review feedback.
+                    |
+                    v
+   FINAL REPORT GENERATION
+   Create <slug>_final_review_<run_id>.xlsx with:
+     - Summary: total and category counts
+     - Mismatches
+     - Missing_In_Source
+     - Missing_In_Target
+     - Duplicate_Keys
+     - All_Results and supporting analysis/audit sheets
+                    |
+                    v
+   Output delivery
+     1. Manual collection (default): the user opens or copies the generated files
+        from output/reports/ and output/feedback/ to the required destination.
+     2. Local delivery: a business user reads or receives the generated files directly.
+     3. Optional publisher connector: upload/copy the approved final workbook or CSV
+       to a shared folder, SFTP/FTP site, blob storage, S3, or an API destination
+
+   Current implementation has local output only. Implement an output publisher only
+   when delivery must be automated; keep report generation and delivery separate.
+                    |
+                    v
+   Publish final reviewed report to the business user.
+                    |
+                    v
+   Record run evidence and optional telemetry
+     - stage/task status and prerequisite evidence
+     - input/output row counts and reconciliation
+     - duration, throughput, retries and failures
+     - LLM candidates, model, latency, tokens and cost
+     - user-confirmation queue and closure rate
+     - human agreement, overrides and rework
+
+   Telemetry is observability only: it must never alter a classification.
+                    |
+                    v
+   Tune rules or prompts when evidence supports the change
+                    |
+                    v
+   Resume or rerun only the required stages
+
+
+3. RESULT PRECEDENCE
+
+   Manual review
+        >
+   LLM finding
+        >
+   Deterministic rule
+
+   Earlier verdicts are retained for audit and reporting.
+
+
+4. HIGH-LEVEL ARCHITECTURE
+
+   +----------------------+
+   | Parity Project       |
+   | Factory              |
+   |                      |
+   | specs/               |
+   | templates/project/   |
+   | core/parity_core/    |
+   | factory scripts      |
+   +----------+-----------+
+              |
+              | generates
+              v
+   +----------------------+
+   | Standalone Project   |
+   |                      |
+   | config/              |
+   | rules/               |
+   | parity_core/         |
+   | scripts/             |
+   | agents and skills    |
+   | input/reference      |
+   | local database       |
+   | task/run evidence    |
+   | output/reports       |
+   | optional telemetry   |
+   +----------------------+
+              |
+              | runs
+              v
+   +----------------------+
+   | Parity Output        |
+   |                      |
+   | mismatch results     |
+   | classifications      |
+   | evidence and reports |
+   +----------------------+
+
+
+5. IMPORTANT CHECKPOINTS
+
+   [ ] Source, target, mismatch, and reference data cover the same scope.
+   [ ] Each dataset has a confirmed acquisition method and landing folder.
+   [ ] Credentials come from environment variables or a secret store, never spec/config files.
+   [ ] Manual placement is available: the user can copy inputs to configured folders and collect outputs from output/reports/.
+   [ ] SQL connectors are read-only and remote file connectors validate a file pattern/snapshot.
+   [ ] Final output has an explicit delivery target, owner, retention policy, and approval state.
+   [ ] Record keys uniquely identify the intended business records.
+   [ ] Field types, dates, decimal precision, nulls, and tolerances are correct.
+   [ ] Filters are explicitly confirmed by a user or project owner.
+   [ ] Required enrichment evidence is loaded before classification.
+   [ ] Known-discrepancy rule priority is reviewed.
+   [ ] Matched KDs retain their business classification; incomplete proof uses confirmation fields.
+   [ ] Only uncoded rows use the default POTENTIAL_ISSUE path unless the project explicitly says otherwise.
+   [ ] LLM candidate classes, batch size, and cost limits are appropriate.
+   [ ] User confirmation and reviewer queues are distinguishable from potential defects.
+   [ ] Credentials and production data are never committed to Git.
+   [ ] The generated project is opened separately from the factory.
+   [ ] A combined project explicitly selects the comparison or supplied-report workflow.
+   [ ] Primary and comparison columns are confirmed by the user before comparison.
+   [ ] The base mismatch CSV exists before classification enrichment.
+   [ ] Final Excel output is generated after human review import.
+   [ ] Classification_Summary reports classification, KD, count, and percentage.
+   [ ] The final Summary and category sheets use the final manual > LLM > rule verdict.
+   [ ] Independent or resumed tasks have explicit prerequisite and output evidence.
+   [ ] Telemetry is captured separately and never changes rule/LLM/manual verdicts.
+
+
+QUICK COMMAND FLOW
+============================================================
+
+Factory:
+  python factory/inspect_sample.py --file <sample-file>
+  python factory/new_project.py --spec specs/<slug>.spec.json --validate-only
+  python factory/new_project.py --spec specs/<slug>.spec.json \
+      --dest ../parity-projects/<slug>
+
+Generated project:
+  python scripts/parity.py init-db
+  python scripts/parity.py precheck
+  python scripts/parity.py run --workflow compare
+        OR
+  python scripts/parity.py run --workflow ingest-diff
+  python scripts/parity.py status
+
+A project that supports only one workflow does not need --workflow.
+
+After classification/LLM analysis:
+  python scripts/parity.py report --run-id <run-id>
+
+After human review is completed:
+  python scripts/parity.py review-import --file <reviewed-workbook.xlsx> --run-id <run-id>
+  -> creates <slug>_final_review_<run_id>.xlsx automatically
+
+After a rule change:
+  python scripts/parity.py classify --run-id <run-id>
+  python scripts/parity.py report --run-id <run-id>
+
+============================================================

@@ -1,0 +1,5 @@
+pandas>=1.3
+openpyxl>=3.0
+PyYAML>=6.0
+# Optional: set database.engine to "duckdb" in config/project.json for faster analytical queries
+# duckdb>=0.9

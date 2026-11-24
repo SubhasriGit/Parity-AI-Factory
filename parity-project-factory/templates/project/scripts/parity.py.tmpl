@@ -1,0 +1,12 @@
+"""{{project_name}} pipeline CLI. Run `python scripts/parity.py --help`."""
+
+import sys
+from pathlib import Path
+
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
+
+from parity_core.cli import main  # noqa: E402
+
+if __name__ == "__main__":
+    sys.exit(main(project_root=PROJECT_ROOT))

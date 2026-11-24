@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+.venv*/
+.env
+.env.*
+!.env.example
+# Never commit real project data or generated projects here
+generated/
+*.db
+*.duckdb

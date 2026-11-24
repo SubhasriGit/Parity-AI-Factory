@@ -9,9 +9,12 @@ permissions:
   contents: read
 
 jobs:
-  validate:
+  factory-validation:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: parity-project-factory
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -21,6 +24,30 @@ jobs:
         with:
           python-version: "3.11"
           cache: pip
+          cache-dependency-path: parity-project-factory/requirements.txt
+
+      - name: Install factory dependencies
+        run: python -m pip install -r requirements.txt
+
+      - name: Run factory tests
+        run: python -m unittest discover -s tests -v
+
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: Project1-PM000003-Parity-Analysis
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: Project1-PM000003-Parity-Analysis/requirements.txt
 
       - name: Install dependencies
         run: |
@@ -46,7 +73,7 @@ jobs:
         with:
           name: project1-validation-${{ github.run_id }}
           path: |
-            output/test-results.xml
-            output/ci-validation.db
+            Project1-PM000003-Parity-Analysis/output/test-results.xml
+            Project1-PM000003-Parity-Analysis/output/ci-validation.db
           if-no-files-found: warn
           retention-days: 14

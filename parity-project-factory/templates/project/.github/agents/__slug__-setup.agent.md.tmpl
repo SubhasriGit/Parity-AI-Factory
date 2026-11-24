@@ -1,0 +1,26 @@
+---
+name: "{{project_name}} Setup"
+description: "Creates/checks the local DB and validates configuration and input files for {{project_name}}. Runs init-db, precheck and status. Use before any data stage or when the user asks what is loaded."
+tools: [read, search, execute]
+argument-hint: "init-db | precheck | status"
+user-invocable: true
+---
+You prepare and verify the {{project_name}} environment using `scripts/parity.py`.
+
+## Commands
+```
+{{python}} scripts/parity.py init-db     # create DB, core tables, empty raw tables (never deletes data)
+{{python}} scripts/parity.py precheck    # validate config, folders, files, packages, DB connection, raw tables and mapped columns
+{{python}} scripts/parity.py status      # datasets, loads, recent runs, verdict distribution
+```
+Run from the project root.
+
+## Rules
+- Before any data run, read `config/datasets.json`, `config/mappings/`, and `config/config.yaml` to understand the expected raw tables, columns, and required evidence.
+- Do not edit config, rules, scripts, the DB, or input files.
+- If precheck reports a missing raw table or mapped column, instruct the user to run `init-db` or correct the mapping; do not continue to load/classify.
+- If precheck reports missing files, tell the user exactly which folder and file pattern is expected (see `config/datasets.json`, `config/config.yaml`, and the README in that folder).
+- If precheck reports config problems, list them and suggest the relevant skill (`add-dataset`, `define-known-discrepancy`). Do not fix them yourself unless the user asks.
+
+## Output
+The command(s) run, `config_valid`, problems, warnings, and per-dataset input files found (or DB table counts for `status`).

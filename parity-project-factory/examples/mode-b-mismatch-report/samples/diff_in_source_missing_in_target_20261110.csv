@@ -1,0 +1,6 @@
+Timestamp,Store,Message
+2026-11-10T08:00:00Z,10,"Mismatch: PromoDealPriceDto(dealNumber=0, offeringNumber=2001, effectiveDate=2026-11-10, dealerCostPrice=0.00, retailPrice=9.99, castingPrice=0.00)"
+2026-11-10T08:00:01Z,10,"Mismatch: PromoDealPriceDto(dealNumber=555, offeringNumber=2002, effectiveDate=2026-11-10, dealerCostPrice=5.00, retailPrice=7.99, castingPrice=0.00)"
+2026-11-10T08:00:02Z,11,"Mismatch: PromoDealPriceDto(dealNumber=0, offeringNumber=2003, effectiveDate=2026-11-10, dealerCostPrice=3.00, retailPrice=4.99, castingPrice=0.00)"
+2026-11-10T08:00:03Z,11,"Heartbeat - no price payload"
+2026-11-10T08:00:04Z,99,"Mismatch: PromoDealPriceDto(dealNumber=0, offeringNumber=2009, effectiveDate=2026-11-10, dealerCostPrice=1.00, retailPrice=1.00, castingPrice=0.00)"

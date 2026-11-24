@@ -1,0 +1,19 @@
+---
+name: tune-from-review
+description: Improve classification rules, rule priorities, evidence queries and the LLM analyst instructions using manual review feedback (output/feedback/<run>_review_feedback.json). Use after a reviewer corrected verdicts in the report workbook.
+---
+# Tune the pipeline from manual review
+
+This is the stabilisation loop: run -> review -> tune -> rerun on the same data until the verdicts match the reviewer, then try new data.
+
+1. Make sure the review was imported: `{{python}} scripts/parity.py review-import --file <workbook>`. Open `output/feedback/<run_id>_review_feedback.json`.
+2. For each disagreement group (same automated KD -> same reviewed KD):
+   - Read the record(s) (`investigate-result` skill) and the reviewer notes.
+   - Decide the fix:
+     - **Wrong rule matched** -> tighten its `when`/`sql_check`, or change `priority` so a more specific rule runs first.
+     - **No rule matched but the cause is provable from data** -> add a rule (`define-known-discrepancy` skill).
+     - **LLM was wrong** -> improve the KD `description`/`evidence_needed` text, add an `llm.evidence_queries` entry so the LLM sees the missing data, or tighten `.github/agents/*-llm-analyst.agent.md`.
+     - **Reviewer needed data not in the DB** -> propose a new reference dataset (`add-dataset` skill).
+3. Explain each proposed change to the user and get confirmation before editing.
+4. Rerun on the same data: `{{python}} scripts/parity.py run --from classify` (the LLM stage needs the analyst agent), then compare the new distribution with the reviewed verdicts.
+5. Record what changed and why in `docs/ANALYSIS_FLOW.md` ("Change log" section).

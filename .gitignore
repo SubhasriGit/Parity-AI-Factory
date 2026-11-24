@@ -4,12 +4,12 @@ __pycache__/
 venv/
 *.pyc
 state/
-logs/
-config/reports/
+.env
+.env.*
+!.env.example
 *.db.bak
 *.db-wal
 *.db-shm
 ~$*.xlsx
-config/*-run.json
-.env
-.env.*
+/config/reports/
+/reports/

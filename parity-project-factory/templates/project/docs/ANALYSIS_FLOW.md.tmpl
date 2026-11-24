@@ -1,0 +1,33 @@
+# {{project_name}} — Analysis Flow
+
+This document is the human-readable business logic of the project. It must stay consistent with `rules/known_discrepancies.json`, which is what the scripts and the LLM analyst actually use.
+
+## 1. Goal
+{{description}}
+
+## 2. Data
+{{datasets_table}}
+
+## 3. Parity definition
+{{parity_definition}}
+
+## 4. Stages
+{{stages_list}}
+
+## 5. Classifications
+{{classifications_table}}
+
+## 6. Known-discrepancy matrix
+Rules run in ascending priority; the first full match wins. Results no rule explains get the default verdict (`{{default_classification}}`) and are sent to the LLM analyst (classifications: {{llm_classifications}}).
+
+{{kd_details}}
+
+## 7. LLM analysis scope
+- Batch size: {{llm_batch_size}} records; max batches per run: {{llm_max_batches}}.
+- Evidence attached to each record: {{evidence_queries}}.
+- The LLM returns hypotheses with confidence; `INSUFFICIENT_EVIDENCE` keeps the deterministic verdict. Manual review overrides both.
+
+## 8. Change log
+| Date | Change | Reason |
+|---|---|---|
+| {{created_date}} | Project generated | Initial design |

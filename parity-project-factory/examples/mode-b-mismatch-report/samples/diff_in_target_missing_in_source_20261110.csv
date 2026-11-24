@@ -1,0 +1,4 @@
+Timestamp,Store,Message
+2026-11-10T08:00:00Z,10,"Mismatch: PromoDealPriceDto(dealNumber=0, offeringNumber=2001, effectiveDate=2026-11-10, dealerCostPrice=6.50, retailPrice=9.99, castingPrice=0.00)"
+2026-11-10T08:00:05Z,12,"Mismatch: PromoDealPriceDto(dealNumber=0, offeringNumber=2004, effectiveDate=2026-11-10, dealerCostPrice=2.00, retailPrice=3.49, castingPrice=0.00)"
+2026-11-10T08:00:06Z,12,"Mismatch: PromoDealPriceDto(dealNumber=777, offeringNumber=2005, effectiveDate=2026-11-10, dealerCostPrice=1.00, retailPrice=1.99, castingPrice=0.00)"

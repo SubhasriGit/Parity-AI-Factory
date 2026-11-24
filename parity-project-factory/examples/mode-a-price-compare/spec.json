@@ -1,0 +1,366 @@
+{
+  "spec_version": 1,
+  "project": {
+    "name": "Price Compare Demo",
+    "slug": "price-compare-demo",
+    "description": "Demo Mode A project: compare the legacy price extract (source) with the cloud price service extract (target) per store and SKU, then explain the differences.",
+    "owner": "Parity team",
+    "mode": "A",
+    "python": "python"
+  },
+  "database": {
+    "engine": "sqlite",
+    "path": "db/parity.db"
+  },
+  "processing": {
+    "batch_size": 50000
+  },
+  "datasets": [
+    {
+      "name": "legacy_prices",
+      "role": "source",
+      "description": "Daily legacy price extract. Export from the legacy system and save as legacy_prices_<yyyymmdd>.csv.",
+      "connector": {
+        "type": "local",
+        "folder": "input/source",
+        "file_pattern": "legacy_prices_*.csv",
+        "selection": "latest"
+      },
+      "format": {
+        "type": "csv",
+        "delimiter": ",",
+        "header": true,
+        "encoding": "utf-8-sig"
+      },
+      "load_policy": {
+        "mode": "replace"
+      },
+      "columns": [
+        {
+          "name": "store",
+          "source": "STORE",
+          "type": "string"
+        },
+        {
+          "name": "sku",
+          "source": "SKU",
+          "type": "string"
+        },
+        {
+          "name": "product_class",
+          "source": "PRODUCT_CLASS",
+          "type": "string"
+        },
+        {
+          "name": "retail_price",
+          "source": "RETAIL_PRICE",
+          "type": "decimal"
+        },
+        {
+          "name": "dealer_price",
+          "source": "DEALER_PRICE",
+          "type": "decimal"
+        },
+        {
+          "name": "effective_date",
+          "source": "EFFECTIVE_DATE",
+          "type": "date"
+        }
+      ]
+    },
+    {
+      "name": "cloud_prices",
+      "role": "target",
+      "description": "Daily cloud price service extract (pipe-delimited). Save as cloud_prices_<yyyymmdd>.txt.",
+      "connector": {
+        "type": "local",
+        "folder": "input/target",
+        "file_pattern": "cloud_prices_*.txt",
+        "selection": "latest"
+      },
+      "format": {
+        "type": "csv",
+        "delimiter": "|",
+        "header": true,
+        "encoding": "utf-8-sig"
+      },
+      "load_policy": {
+        "mode": "replace"
+      },
+      "columns": [
+        {
+          "name": "store_no",
+          "source": "store_no",
+          "type": "string"
+        },
+        {
+          "name": "item",
+          "source": "item",
+          "type": "string"
+        },
+        {
+          "name": "retail",
+          "source": "retail",
+          "type": "decimal"
+        },
+        {
+          "name": "dealer",
+          "source": "dealer",
+          "type": "decimal"
+        },
+        {
+          "name": "eff_date",
+          "source": "eff_date",
+          "type": "date"
+        }
+      ]
+    },
+    {
+      "name": "price_events",
+      "role": "reference",
+      "description": "Price events (ADD/CHANGE) used to explain timing differences. Keeps history across loads.",
+      "connector": {
+        "type": "local",
+        "folder": "reference/price_events",
+        "file_pattern": "price_events_*.csv",
+        "selection": "all"
+      },
+      "format": {
+        "type": "csv",
+        "delimiter": ",",
+        "header": true
+      },
+      "load_policy": {
+        "mode": "append",
+        "dedupe_on": [
+          "store",
+          "sku",
+          "event_type",
+          "event_date"
+        ]
+      },
+      "columns": [
+        {
+          "name": "store",
+          "source": "store",
+          "type": "string"
+        },
+        {
+          "name": "sku",
+          "source": "sku",
+          "type": "string"
+        },
+        {
+          "name": "event_type",
+          "source": "event_type",
+          "type": "string"
+        },
+        {
+          "name": "event_date",
+          "source": "event_date",
+          "type": "date"
+        }
+      ]
+    }
+  ],
+  "filters": {
+    "legacy_prices": {
+      "exclude": [
+        {
+          "name": "eco_fees",
+          "reason": "Eco fees are not migrated to the cloud service",
+          "condition": {
+            "column": "product_class",
+            "op": "in",
+            "value": [
+              "ECO_FEE"
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "analysis_snapshots": [
+    {
+      "name": "price_events_snapshot",
+      "dataset": "price_events",
+      "required_for_analysis": true,
+      "lookup_keys": [
+        "store",
+        "sku"
+      ],
+      "snapshot_date_column": "event_date",
+      "description": "Price event history required to explain ADD events and timing differences."
+    }
+  ],
+  "comparison": {
+    "source": "legacy_prices",
+    "target": "cloud_prices",
+    "keys": [
+      {
+        "name": "store",
+        "source": "store",
+        "target": "store_no",
+        "type": "string",
+        "zero_pad": 4
+      },
+      {
+        "name": "sku",
+        "source": "sku",
+        "target": "item",
+        "type": "string"
+      }
+    ],
+    "fields": [
+      {
+        "name": "retail_price",
+        "source": "retail_price",
+        "target": "retail",
+        "type": "decimal",
+        "tolerance": 0.001
+      },
+      {
+        "name": "dealer_price",
+        "source": "dealer_price",
+        "target": "dealer",
+        "type": "decimal",
+        "tolerance": 0.001
+      },
+      {
+        "name": "effective_date",
+        "source": "effective_date",
+        "target": "eff_date",
+        "type": "date",
+        "source_format": "%d/%m/%Y",
+        "target_format": "%Y-%m-%d"
+      }
+    ],
+    "options": {
+      "trim": true,
+      "case_sensitive": true
+    }
+  },
+  "known_discrepancies": {
+    "classifications": {
+      "EXPECTED": "Known, accepted difference",
+      "DATA_ISSUE": "Bad or late data in one system, not a logic defect",
+      "POTENTIAL_ISSUE": "Unexplained difference; needs investigation"
+    },
+    "default": {
+      "classification": "POTENTIAL_ISSUE",
+      "confidence": 0.0,
+      "hypothesis": "No known discrepancy matched for {result_type} {key.store}/{key.sku}",
+      "evidence_needed": "Compare both systems' history for this store/SKU"
+    },
+    "rules": [
+      {
+        "code": "KD-1",
+        "title": "One-sided dealer price in legacy",
+        "description": "Legacy sends only the retail side when the dealer price is unchanged, so its dealer price is 0 while the cloud keeps the real dealer price.",
+        "classification": "EXPECTED",
+        "priority": 10,
+        "confidence": 0.9,
+        "applies_to": [
+          "MISMATCH"
+        ],
+        "when": {
+          "all": [
+            {
+              "field": "mismatch_fields",
+              "op": "eq",
+              "value": [
+                "dealer_price"
+              ]
+            },
+            {
+              "field": "details.dealer_price.source",
+              "op": "eq",
+              "value": 0
+            }
+          ]
+        },
+        "hypothesis": "Legacy dealer price is 0 (one-sided update); cloud dealer price {details.dealer_price.target}",
+        "evidence_needed": "Previous legacy dealer price for the SKU equals the cloud value"
+      },
+      {
+        "code": "KD-2",
+        "title": "Price ADD event not yet applied in cloud",
+        "description": "A price ADD event on the comparison day is processed by the cloud service on the next cycle, so the record exists only in legacy.",
+        "classification": "EXPECTED",
+        "priority": 20,
+        "confidence": 0.85,
+        "applies_to": [
+          "MISSING_IN_TARGET"
+        ],
+        "sql_check": {
+          "query": "SELECT 1 FROM flt_price_events WHERE sku = :sku AND CAST(store AS INTEGER) = CAST(:store AS INTEGER) AND event_type = 'ADD'",
+          "params": {
+            "sku": "key.sku",
+            "store": "key.store"
+          },
+          "expect": "exists"
+        },
+        "hypothesis": "ADD event for SKU {key.sku} store {key.store} not yet applied in cloud",
+        "evidence_needed": "Record appears in the next day's cloud extract"
+      },
+      {
+        "code": "KD-3",
+        "title": "Effective date shifted by one day",
+        "description": "Cloud stores the effective date in UTC; for late-evening updates the date is one day later than legacy.",
+        "classification": "EXPECTED",
+        "priority": 30,
+        "confidence": 0.8,
+        "applies_to": [
+          "MISMATCH"
+        ],
+        "when": {
+          "all": [
+            {
+              "field": "mismatch_fields",
+              "op": "eq",
+              "value": [
+                "effective_date"
+              ]
+            },
+            {
+              "field": "details.effective_date.source",
+              "op": "days_diff",
+              "field2": "details.effective_date.target",
+              "value": 1
+            }
+          ]
+        },
+        "hypothesis": "Effective date differs by one day ({details.effective_date.source} vs {details.effective_date.target})",
+        "evidence_needed": "Update timestamp is after 20:00 local time"
+      }
+    ]
+  },
+  "llm": {
+    "enabled": true,
+    "classifications": [
+      "POTENTIAL_ISSUE"
+    ],
+    "max_rows_per_batch": 25,
+    "max_batches": 10,
+    "evidence_queries": [
+      {
+        "name": "price_events_for_sku",
+        "query": "SELECT store, sku, event_type, event_date FROM flt_price_events WHERE sku = :sku ORDER BY event_date",
+        "params": {
+          "sku": "key.sku"
+        }
+      }
+    ]
+  },
+  "reports": {
+    "formats": [
+      "xlsx",
+      "csv"
+    ]
+  },
+  "samples": {
+    "legacy_prices": "samples/legacy_prices_20261101.csv",
+    "cloud_prices": "samples/cloud_prices_20261101.txt",
+    "price_events": "samples/price_events_20261101.csv"
+  }
+}
