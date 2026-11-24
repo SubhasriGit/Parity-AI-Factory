@@ -1,0 +1,37 @@
+{
+  "run_type": "synthetic",
+  "period": {
+    "start": "2026-11-16",
+    "end": "2026-11-20",
+    "days": 5
+  },
+  "coverage": {
+    "stores": 5,
+    "source_log_rows": 50,
+    "parsed_rows": 250,
+    "verdict_rows": 250,
+    "logical_groups": 220,
+    "paired_mismatches": 30,
+    "cpp_packets": 100,
+    "cpp_exploded_rows": 200
+  },
+  "classifications": {
+    "EXPECTED": 200,
+    "POTENTIAL_ISSUE": 50
+  },
+  "kd": {
+    "-": 50,
+    "KD-1": 10,
+    "KD-10": 25,
+    "KD-2": 50,
+    "KD-6": 40,
+    "KD-8": 25,
+    "KD-9": 50
+  },
+  "quality": {
+    "malformed_rows": 0,
+    "reconciliation_percent": 100,
+    "llm_candidates": 50
+  },
+  "method": "All product, deal, store, message, and price values were generated and are unrelated to production data."
+}

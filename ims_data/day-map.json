@@ -1,0 +1,29 @@
+{
+  "mappings": [
+    {
+      "source_table": "ims_source_5101",
+      "store": "5101",
+      "snapshot_day": "2026-11-20"
+    },
+    {
+      "source_table": "ims_source_5202",
+      "store": "5202",
+      "snapshot_day": "2026-11-20"
+    },
+    {
+      "source_table": "ims_source_5303",
+      "store": "5303",
+      "snapshot_day": "2026-11-20"
+    },
+    {
+      "source_table": "ims_source_5404",
+      "store": "5404",
+      "snapshot_day": "2026-11-20"
+    },
+    {
+      "source_table": "ims_source_5505",
+      "store": "5505",
+      "snapshot_day": "2026-11-20"
+    }
+  ]
+}
