@@ -1,0 +1,184 @@
+name: Project1 Parity Operations
+
+on:
+  schedule:
+    - cron: "30 1 * * 1-5"
+  workflow_dispatch:
+    inputs:
+      execution_mode:
+        description: "validate-only is safe; full-run requires approved data paths on the self-hosted runner"
+        required: true
+        default: validate-only
+        type: choice
+        options:
+          - validate-only
+          - full-run
+      db_path:
+        description: "Writable database path on the self-hosted runner"
+        required: false
+        default: "pm000003_mismatch_analysis.db"
+      cpp_dir:
+        description: "Directory containing the five CPP CSV snapshots"
+        required: false
+        default: "cpp_data"
+      config_path:
+        description: "Mismatch parser configuration JSON"
+        required: false
+        default: "config/current-run.json"
+      output_workbook:
+        description: "Working review workbook path"
+        required: false
+        default: "reports/pm000003_scheduled_review.xlsx"
+      ims_source:
+        description: "Optional IMS SQLite source path; required with day_map"
+        required: false
+      day_map:
+        description: "Optional explicit IMS source-table/store/day mapping JSON"
+        required: false
+      analysis_date:
+        description: "Optional ISO analysis date"
+        required: false
+
+permissions:
+  contents: read
+
+jobs:
+  scheduled-validation:
+    if: ${{ github.event_name == 'schedule' || inputs.execution_mode == 'validate-only' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: python -m pip install -r requirements.txt
+
+      - name: Scheduled safety validation
+        run: |
+          python -m pytest -q --junitxml=output/scheduled-test-results.xml
+          python scripts/init_database.py --db output/scheduled-schema.db
+          python scripts/validate_database.py --db output/scheduled-schema.db
+          python -m compileall -q . -x '\.venv|__pycache__'
+
+      - name: Upload scheduled validation evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: project1-scheduled-validation-${{ github.run_id }}
+          path: |
+            output/scheduled-test-results.xml
+            output/scheduled-schema.db
+          retention-days: 14
+
+  full-parity-run:
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.execution_mode == 'full-run' }}
+    runs-on: self-hosted
+    environment: parity-production
+    timeout-minutes: 180
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: python -m pip install -r requirements.txt
+
+      - name: Validate required runtime paths
+        shell: bash
+        env:
+          DB_PATH: ${{ inputs.db_path }}
+          CPP_DIR: ${{ inputs.cpp_dir }}
+          CONFIG_PATH: ${{ inputs.config_path }}
+        run: |
+          test -f "$CONFIG_PATH" || { echo "Missing config: $CONFIG_PATH"; exit 1; }
+          test -d "$CPP_DIR" || { echo "Missing CPP directory: $CPP_DIR"; exit 1; }
+          for file in corpPricePackets.csv dealPriceMaster.csv regularPriceMaster.csv zoneStoreRelation.csv stagingProductPrice.csv; do
+            test -f "$CPP_DIR/$file" || { echo "Missing CPP snapshot: $CPP_DIR/$file"; exit 1; }
+          done
+          mkdir -p output/reports output/feedback output/backups
+
+      - name: Initialize and validate database
+        env:
+          DB_PATH: ${{ inputs.db_path }}
+        run: |
+          python scripts/init_database.py --db "$DB_PATH"
+          python scripts/validate_database.py --db "$DB_PATH"
+
+      - name: Load CPP snapshots
+        env:
+          DB_PATH: ${{ inputs.db_path }}
+          CPP_DIR: ${{ inputs.cpp_dir }}
+        run: python scripts/load_cpp_snapshot_to_db.py --db "$DB_PATH" --csv-dir "$CPP_DIR"
+
+      - name: Migrate IMS snapshots when explicitly supplied
+        if: ${{ inputs.ims_source != '' || inputs.day_map != '' }}
+        env:
+          DB_PATH: ${{ inputs.db_path }}
+          IMS_SOURCE: ${{ inputs.ims_source }}
+          DAY_MAP: ${{ inputs.day_map }}
+        shell: bash
+        run: |
+          test -n "$IMS_SOURCE" || { echo "ims_source is required with day_map"; exit 1; }
+          test -n "$DAY_MAP" || { echo "day_map is required with ims_source"; exit 1; }
+          test -f "$IMS_SOURCE" || { echo "Missing IMS source: $IMS_SOURCE"; exit 1; }
+          test -f "$DAY_MAP" || { echo "Missing day map: $DAY_MAP"; exit 1; }
+          python scripts/migrate_ims_snapshot_to_db.py --source "$IMS_SOURCE" --db "$DB_PATH" --day-map "$DAY_MAP"
+
+      - name: Parse mismatch report and persist normalized rows
+        env:
+          DB_PATH: ${{ inputs.db_path }}
+          CONFIG_PATH: ${{ inputs.config_path }}
+          ANALYSIS_DATE: ${{ inputs.analysis_date }}
+        shell: bash
+        run: |
+          args=(--config "$CONFIG_PATH" --persist-to-db "$DB_PATH")
+          if [ -n "$ANALYSIS_DATE" ]; then args+=(--analysis-date "$ANALYSIS_DATE"); fi
+          python pm000003_mismatch_report.py "${args[@]}"
+
+      - name: Classify and export review candidates
+        env:
+          DB_PATH: ${{ inputs.db_path }}
+          ANALYSIS_DATE: ${{ inputs.analysis_date }}
+        shell: bash
+        run: |
+          args=(run --db "$DB_PATH")
+          if [ -n "$ANALYSIS_DATE" ]; then args+=(--analysis-date "$ANALYSIS_DATE"); fi
+          python scripts/classify_kd.py "${args[@]}"
+          python scripts/llm_bridge.py export --db "$DB_PATH" --output output/llm_candidates.json
+
+      - name: Generate review workbook
+        env:
+          DB_PATH: ${{ inputs.db_path }}
+          OUTPUT_WORKBOOK: ${{ inputs.output_workbook }}
+        run: python scripts/review_and_report.py report --db "$DB_PATH" --output "$OUTPUT_WORKBOOK"
+
+      - name: Validate output reconciliation
+        env:
+          DB_PATH: ${{ inputs.db_path }}
+          OUTPUT_WORKBOOK: ${{ inputs.output_workbook }}
+        run: python scripts/validate_outputs.py --db "$DB_PATH" --workbook "$OUTPUT_WORKBOOK"
+
+      - name: Upload review and evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: project1-review-${{ github.run_id }}
+          path: |
+            reports/*.xlsx
+            reports/*.md
+            output/llm_candidates.json
+            state/task-state.json
+          if-no-files-found: warn
+          retention-days: 30

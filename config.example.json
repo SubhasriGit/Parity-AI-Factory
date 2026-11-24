@@ -1,0 +1,68 @@
+{
+    "csv_inputs": [
+        {
+            "comparisonDirection": "CDCS_missing_in_CPP",
+            "csvPath": "input/Diff-mismatch-(in-CDCS-but-missing-in-CPP)_YYYYMMDD.csv"
+        },
+        {
+            "comparisonDirection": "CPP_missing_in_CDCS",
+            "csvPath": "input/Diff-mismatch-(in-CPP-but-missing-in-CDCS)_YYYYMMDD.csv"
+        }
+    ],
+    "parserPatternRegex": "PromoDealPriceDto\\(dealNumber=(?P<dealNumber>[^,)]*), offeringNumber=(?P<offeringNumber>[^,)]*), effectiveDate=(?P<effectiveDate>[^,)]*), dealerCostPrice=(?P<dealerCostPrice>[^,)]*), retailPrice=(?P<retailPrice>[^,)]*), castingPrice=(?P<castingPrice>[^)]*)\\)",
+    "priceTypeRules": [
+        {
+            "rule": "dealNumber != 0",
+            "priceType": "PROMO"
+        },
+        {
+            "rule": "dealNumber = 0",
+            "priceType": "REGULAR"
+        }
+    ],
+    "detailColumns": [
+        "comparisonDirection",
+        "store",
+        "timestamp",
+        "messageId",
+        "priceType",
+        "dealNumber",
+        "offeringNumber",
+        "effectiveDate",
+        "dealerCostPrice",
+        "retailPrice",
+        "castingPrice",
+        "sourceSummary"
+    ],
+    "analysisColumns": [
+        "comparisonDirection",
+        "store",
+        "timestamp",
+        "priceType",
+        "dealNumber",
+        "offeringNumber",
+        "effectiveDate",
+        "dealerCostPrice",
+        "retailPrice",
+        "castingPrice",
+        "possibleCause",
+        "possibleCauseDetails",
+        "classification",
+        "kdCode"
+    ],
+    "analysisSheetSuffix": "_analysis",
+    "summaryMetrics": [
+        "totalParsedRows",
+        "uniqueRows",
+        "regCount",
+        "promoCount",
+        "castingCount",
+        "unknownCount",
+        "rowsWithNonZeroRetailPrice",
+        "minDealerCostPrice",
+        "maxDealerCostPrice",
+        "minRetailPrice",
+        "maxRetailPrice"
+    ],
+    "outputPath": "reports/pm000003_mismatch_analysis.xlsx"
+}

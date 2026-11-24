@@ -1,0 +1,52 @@
+name: Project1 CI
+
+on:
+  pull_request:
+  push:
+    branches: [main, master]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+
+      - name: Compile Python
+        run: python -m compileall -q . -x '\.venv|__pycache__'
+
+      - name: Run tests
+        run: |
+          mkdir -p output
+          python -m pytest -q --junitxml=output/test-results.xml
+
+      - name: Validate fresh canonical database
+        run: |
+          python scripts/init_database.py --db output/ci-validation.db
+          python scripts/validate_database.py --db output/ci-validation.db
+
+      - name: Upload validation evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: project1-validation-${{ github.run_id }}
+          path: |
+            output/test-results.xml
+            output/ci-validation.db
+          if-no-files-found: warn
+          retention-days: 14

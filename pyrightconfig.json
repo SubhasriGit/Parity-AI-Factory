@@ -1,0 +1,14 @@
+{
+    "include": [
+        "scripts",
+        "tests"
+    ],
+    "exclude": [
+        "scripts/generate_demo_deck.py"
+    ],
+    "extraPaths": [
+        ".",
+        "scripts"
+    ],
+    "pythonVersion": "3.9"
+}

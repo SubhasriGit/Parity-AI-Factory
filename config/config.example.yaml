@@ -1,0 +1,37 @@
+version: "1"
+
+# No values below may be treated as confirmed until copied from the user's answers.
+database:
+  path: null
+  schema_version: null
+
+inputs:
+  mismatch_reports:
+    source_only_pattern: null
+    target_only_pattern: null
+  cpp_snapshot_directory: null
+  ims_sources: []
+  ims_day_mappings: []
+
+analysis:
+  analysis_date_precedence: null
+  required_snapshots: []
+  snapshot_date_columns: {}
+  stores: []
+
+reports:
+  daily_output_directory: null
+  final_output_directory: null
+  final_summary_counting: null
+  include_both_directional_and_category_sheets: null
+  consolidated_reports: null
+
+llm:
+  enabled: null
+  approval_required: null
+  candidate_classifications: [POTENTIAL_ISSUE, IMS_DATA_ISSUE]
+
+approval:
+  implementation_phase_1: false
+  approved_by: null
+  approved_at: null
