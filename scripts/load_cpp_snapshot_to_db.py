@@ -126,7 +126,10 @@ def cpp_rows(csv_path: Path) -> Iterable[dict]:
     with csv_path.open("r", encoding="utf-8-sig", newline="") as handle:
         handle.readline()
         second = handle.readline()
-    if second and len(second.split(",", 2)) == 3 and second.split(",", 2)[2].lstrip().startswith("{"):
+    third_field = second.split(",", 2)[2] if second and len(
+        second.split(",", 2)) == 3 else ""
+    quoted_json_body = ',"[' in third_field
+    if third_field.lstrip().startswith("{") and not quoted_json_body:
         with csv_path.open("r", encoding="utf-8-sig") as handle:
             next(handle, None)
             for line in handle:

@@ -53,7 +53,10 @@ def load_day_map(path: Path) -> list:
 
 
 def backup_database(path: Path) -> Path:
-    backup = path.with_name(
+    project_root = Path(__file__).resolve().parent.parent
+    backup_dir = project_root.parent / "Project1-Private-Originals" / "runtime-backups"
+    backup_dir.mkdir(parents=True, exist_ok=True)
+    backup = backup_dir / (
         f"{path.stem}_{datetime.now(timezone.utc):%Y%m%dT%H%M%SZ}{path.suffix}.bak")
     shutil.copy2(path, backup)
     return backup

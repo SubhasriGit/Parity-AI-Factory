@@ -14,7 +14,7 @@ from pptx.enum.dml import MSO_THEME_COLOR
 from pptx.util import Inches, Pt
 
 ROOT = Path(__file__).resolve().parent.parent
-OUTPUT = ROOT / "reports" / "Project1_Parity_AI_Factory_Demo.pptx"
+OUTPUT = ROOT / "reports" / "Project1_Parity_AI_Factory_Demo_Synthetic.pptx"
 
 NAVY = RGBColor(20, 35, 52)
 INK = RGBColor(28, 39, 46)
@@ -156,7 +156,7 @@ rect(slide, 9.25, 1.12, 3.2, 4.75, RGBColor(
     27, 48, 65), RGBColor(62, 86, 103), True)
 add_text(slide, "DEMO RUN", 9.62, 1.55, 2.35, 0.3, 11,
          RGBColor(123, 229, 211), True, align=PP_ALIGN.CENTER)
-metric(slide, 9.55, 2.05, 2.6, "2,343", "mismatch rows", TEAL)
+metric(slide, 9.55, 2.05, 2.6, "250", "synthetic mismatch rows", TEAL)
 metric(slide, 9.55, 3.42, 2.6, "31", "automated tests", CORAL)
 metric(slide, 9.55, 4.79, 2.6, "100%", "DB / workbook reconciliation", GOLD)
 add_text(slide, "Demo deck • 24 Nov 2026", 0.84,
@@ -166,13 +166,13 @@ add_text(slide, "Demo deck • 24 Nov 2026", 0.84,
 slide = new_slide()
 title(slide, "01 • Why this exists", "Turn parity analysis into a repeatable evidence pipeline",
       "Factory-generated project structure + deterministic rules + controlled AI second pass.")
-metric(slide, 0.72, 2.02, 2.8, "87", "source log rows",
-       SKY, "two directional exports")
-metric(slide, 3.72, 2.02, 2.8, "2,343", "normalized records",
+metric(slide, 0.72, 2.02, 2.8, "50", "source log rows",
+       SKY, "two synthetic exports")
+metric(slide, 3.72, 2.02, 2.8, "250", "normalized records",
        TEAL, "multiple DTOs per message")
-metric(slide, 6.72, 2.02, 2.8, "2,088",
-       "logical groups", CORAL, "paired by business key")
-metric(slide, 9.72, 2.02, 2.8, "255", "paired mismatches",
+metric(slide, 6.72, 2.02, 2.8, "220",
+       "logical groups", CORAL, "paired by synthetic key")
+metric(slide, 9.72, 2.02, 2.8, "30", "paired mismatches",
        GOLD, "field-level differences")
 rect(slide, 0.72, 3.58, 11.80, 2.55, WHITE, LINE, True)
 add_text(slide, "The operating idea", 1.02, 3.88, 2.35, 0.34, 15, NAVY, True)
@@ -310,11 +310,11 @@ footer(slide, 7)
 # 8 Actual project
 slide = new_slide()
 title(slide, "07 • Project1 evidence", "PM000003 ran on uploaded inputs and the canonical evidence database",
-      "Observed results from the 26–30 Aug 2026 run.")
-metric(slide, 0.75, 2.02, 2.25, "2,343", "parsed rows", TEAL)
+      "Observed results from the 16–20 Nov 2026 synthetic run.")
+metric(slide, 0.75, 2.02, 2.25, "250", "parsed rows", TEAL)
 metric(slide, 3.2, 2.02, 2.25, "0", "malformed rows", GREEN)
-metric(slide, 5.65, 2.02, 2.25, "2,088", "logical groups", SKY)
-metric(slide, 8.1, 2.02, 2.25, "255", "paired mismatches", GOLD)
+metric(slide, 5.65, 2.02, 2.25, "220", "logical groups", SKY)
+metric(slide, 8.1, 2.02, 2.25, "30", "paired mismatches", GOLD)
 metric(slide, 10.55, 2.02, 2.0, "31", "tests passed", CORAL)
 rect(slide, 0.75, 3.58, 11.8, 2.45, WHITE, LINE, True)
 add_text(slide, "Data path", 1.05, 3.90, 1.2, 0.28, 14, NAVY, True)
@@ -333,10 +333,10 @@ footer(slide, 8)
 
 # 9 classification result chart-like
 slide = new_slide()
-title(slide, "08 • Classification", "90.91% expected; evidence gaps remain visibly actionable",
+title(slide, "08 • Classification", "80.00% expected; evidence gaps remain visibly actionable",
       "KD matches stay EXPECTED. Missing proof is shown as confirmation required, not a false potential issue.")
-items = [("EXPECTED • KD-1", 1656, 70.68, TEAL), ("EXPECTED • KD-8", 277, 11.82, RGBColor(50, 150, 125)), ("POTENTIAL • no KD", 197, 8.41,
-                                                                                                           CORAL), ("EXPECTED • KD-2", 189, 8.07, RGBColor(91, 168, 145)), ("IMS DATA • KD-7", 16, 0.68, GOLD), ("Other expected KDs", 8, 0.34, SKY)]
+items = [("EXPECTED • KD-2", 50, 20.0, RGBColor(91, 168, 145)), ("EXPECTED • KD-9", 50, 20.0, RGBColor(50, 150, 125)), ("POTENTIAL • no KD", 50, 20.0,
+                                                                                                                        CORAL), ("EXPECTED • KD-6", 40, 16.0, TEAL), ("EXPECTED • KD-8", 25, 10.0, SKY), ("EXPECTED • KD-10", 25, 10.0, GOLD)]
 add_text(slide, "Classification", 0.85, 1.86, 2.4, 0.28, 12, MID, True)
 add_text(slide, "Rows", 8.95, 1.86, 0.8, 0.28,
          12, MID, True, align=PP_ALIGN.RIGHT)
@@ -347,25 +347,25 @@ for i, (name, count, pct, color) in enumerate(items):
     add_text(slide, name, 0.85, y, 2.6, 0.25, 11, NAVY, True)
     rect(slide, 3.55, y+0.04, 5.15, 0.24,
          RGBColor(232, 238, 238), RGBColor(232, 238, 238), True)
-    width = max(0.08, 5.15 * pct / 70.68)
+    width = max(0.08, 5.15 * pct / 20.0)
     rect(slide, 3.55, y+0.04, width, 0.24, color, color, True)
     add_text(slide, f"{count:,}", 8.92, y, 0.82, 0.25,
              11, INK, True, align=PP_ALIGN.RIGHT)
     add_text(slide, f"{pct:.2f}%", 10.10, y, 1.02,
              0.25, 11, INK, True, align=PP_ALIGN.RIGHT)
 rect(slide, 0.85, 6.38, 11.0, 0.48, RGBColor(244, 247, 247), LINE, True)
-add_text(slide, "471 expected KD-2/KD-8/KD-9/KD-10 rows carry confirmation_status = CONFIRMATION_REQUIRED.",
+add_text(slide, "150 expected KD-2/KD-8/KD-9/KD-10 rows carry confirmation_status = CONFIRMATION_REQUIRED.",
          1.05, 6.51, 10.6, 0.22, 10, NAVY, True)
 footer(slide, 9)
 
 # 10 LLM measured result
 slide = new_slide()
 title(slide, "09 • LLM outcome", "The LLM did not fabricate classifications",
-      "Initial pass reviewed all 684 candidates; revised future policy reduces the queue to 213.")
-metric(slide, 0.85, 2.0, 2.55, "684",
-       "initial candidates", SKY, "historical initial run")
-metric(slide, 3.66, 2.0, 2.55, "213", "future queue",
-       TEAL, "only unresolved + IMS issues")
+      "Synthetic run sent only the 50 uncoded potential issues to LLM review.")
+metric(slide, 0.85, 2.0, 2.55, "50",
+       "candidate rows", SKY, "synthetic run")
+metric(slide, 3.66, 2.0, 2.55, "50", "insufficient evidence",
+       TEAL, "verdicts preserved")
 metric(slide, 6.47, 2.0, 2.55, "0", "ambiguous findings", GREEN)
 metric(slide, 9.28, 2.0, 2.55, "0", "reclassified rows", GOLD)
 rect(slide, 0.85, 3.64, 11.0, 2.18, WHITE, LINE, True)
@@ -383,8 +383,8 @@ title(slide, "10 • Productivity metrics", "Measured facts vs illustrative prod
       "Never present an assumed saving as observed performance.")
 rect(slide, 0.78, 1.85, 5.75, 4.8, WHITE, LINE, True)
 add_text(slide, "MEASURED IN THIS RUN", 1.12, 2.18, 4.8, 0.3, 15, TEAL, True)
-observed = ["2,343 rows reconciled end to end", "0 malformed source rows", "31 automated tests passed",
-            "100% mismatch / verdict / workbook count match", "684 LLM findings validated; 0 rejected", "13 independent project agents"]
+observed = ["250 synthetic rows reconciled end to end", "0 malformed source rows", "31 automated tests passed",
+            "100% mismatch / verdict / workbook count match", "50 LLM findings validated; 0 rejected", "13 independent project agents"]
 bullet_list(slide, observed, 1.12, 2.72, 4.75, 2.95, 12)
 pill(slide, "Observed", 1.12, 5.98, 1.1, fill=TEAL, color=WHITE)
 rect(slide, 6.82, 1.85, 5.72, 4.8, RGBColor(
@@ -392,13 +392,13 @@ rect(slide, 6.82, 1.85, 5.72, 4.8, RGBColor(
 add_text(slide, "ILLUSTRATIVE PLANNING MODEL",
          7.16, 2.18, 4.7, 0.3, 15, GOLD, True)
 add_text(slide, "Manual assumption", 7.16, 2.77, 2.0, 0.25, 11, NAVY, True)
-add_text(slide, "30 sec per row = 19.53 hours",
+add_text(slide, "30 sec per row = 2.08 hours",
          7.16, 3.09, 4.6, 0.35, 16, INK, True)
 add_text(slide, "AI-assisted assumption",
          7.16, 3.66, 2.5, 0.25, 11, NAVY, True)
-add_text(slide, "1 hour automated + 2.5 hours review = 3.5 hours",
+add_text(slide, "0.5 hour automated + 0.5 hour review = 1.0 hour",
          7.16, 3.98, 4.75, 0.58, 16, INK, True)
-add_text(slide, "Illustrative saving: 16 hours • 82% • 5.6× throughput",
+add_text(slide, "Illustrative saving: 1.08 hours • 52% • 2.1× throughput",
          7.16, 4.87, 4.65, 0.58, 16, CORAL, True)
 pill(slide, "Validate with telemetry", 7.16, 5.98, 2.1, fill=GOLD, color=WHITE)
 footer(slide, 11)
@@ -411,9 +411,9 @@ metrics = [
     ("Reconciliation", "100%", "DB, verdict and workbook row counts"),
     ("Parse integrity", "0", "malformed CSV rows"),
     ("Rule auditability", "8 groups", "classified by visible KD or no-match"),
-    ("LLM validation", "100%", "684/684 accepted or insufficient; none rejected"),
-    ("Known outcomes", "2,130", "expected rows with review gates retained"),
-    ("Review queue", "197", "true uncoded potential issues"),
+    ("LLM validation", "100%", "50/50 insufficient-evidence; none rejected"),
+    ("Known outcomes", "200", "expected rows with review gates retained"),
+    ("Review queue", "50", "true uncoded potential issues"),
 ]
 for i, (name, val, note) in enumerate(metrics):
     row, col = divmod(i, 3)
@@ -430,15 +430,15 @@ footer(slide, 12)
 slide = new_slide()
 title(slide, "12 • Confirmation queue", "Missing evidence is a recommendation column, not a hidden classification",
       "Expected KD rows remain expected, with explicit user confirmation required.")
-gaps = [("product_deal_store_rel", 463, "deal/store participation"), ("priceChangeEvent", 380, "manual IMS change evidence"), ("IMS update history",
-                                                                                                                               3, "application lineage"), ("deletion history", 2, "zone/override removal"), ("packet lineage", 2, "CPP origin and propagation")]
+gaps = [("product_deal_store_rel", 25, "deal/store participation"), ("priceChangeEvent", 125, "manual IMS change evidence"), ("IMS update history",
+                                                                                                                              25, "application lineage"), ("deletion history", 50, "zone/override removal"), ("packet lineage", 50, "CPP origin and propagation")]
 for i, (name, count, detail) in enumerate(gaps):
     y = 1.95 + i*0.87
     add_text(slide, f"{i+1:02d}", 0.85, y, 0.48, 0.28, 11, TEAL, True)
     add_text(slide, name, 1.45, y, 2.55, 0.28, 12, NAVY, True)
     rect(slide, 4.25, y+0.04, 4.65, 0.22,
          RGBColor(231, 237, 237), RGBColor(231, 237, 237), True)
-    rect(slide, 4.25, y+0.04, max(0.08, 4.65*count/463), 0.22,
+    rect(slide, 4.25, y+0.04, max(0.08, 4.65*count/125), 0.22,
          CORAL if count > 20 else GOLD, CORAL if count > 20 else GOLD, True)
     add_text(slide, f"{count:,}", 9.13, y, 0.8, 0.28,
              12, INK, True, align=PP_ALIGN.RIGHT)

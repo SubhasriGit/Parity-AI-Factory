@@ -11,11 +11,12 @@ reports/
 output/
 logs/
 *.db
+*.db.bak
 *.db-wal
 *.db-shm
 *.xlsx
 *.csv
 !tests/fixtures/**
-config/current-run.json
+config/*-run.json
 .env
 .env.*

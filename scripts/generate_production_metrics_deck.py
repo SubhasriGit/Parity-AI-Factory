@@ -14,7 +14,7 @@ from pptx.util import Inches, Pt
 
 ROOT = Path(__file__).resolve().parent.parent
 DATA_PATH = ROOT / "reports" / "production_metrics.json"
-OUTPUT = ROOT / "reports" / "Project1_PM000003_Production_Metrics.pptx"
+OUTPUT = ROOT / "reports" / "Project1_PM000003_Production_Metrics_Synthetic.pptx"
 
 NAVY = RGBColor(20, 35, 52)
 INK = RGBColor(28, 39, 46)
@@ -124,10 +124,10 @@ text(slide, "Measured scale, quality, AI controls and telemetry readiness",
      0.84, 2.02, 8.2, 0.55, 17, RGBColor(209, 221, 225))
 rect(slide, 9.25, 1.25, 3.0, 4.2, RGBColor(
     27, 48, 65), RGBColor(62, 86, 103), True)
-metric(slide, 9.55, 1.80, 2.4, "2,343", "parsed rows", TEAL)
+metric(slide, 9.55, 1.80, 2.4, "250", "synthetic parsed rows", TEAL)
 metric(slide, 9.55, 3.15, 2.4, "100%", "reconciliation", GOLD)
 metric(slide, 9.55, 4.50, 2.4, "31", "tests passed", CORAL)
-text(slide, "Run period • 26–30 Aug 2026", 0.84,
+text(slide, "Run period • 16–20 Nov 2026", 0.84,
      6.75, 4.5, 0.25, 10, RGBColor(160, 180, 188))
 
 # 2 executive scorecard
@@ -135,19 +135,19 @@ slide = new_slide(prs)
 slide_title(slide, "01 • Executive scorecard", "Current run: production-scale and reconciled",
             "Observed metrics extracted from the populated database and validated workbook.")
 metric(slide, 0.75, 2.0, 2.25, "5", "analysis days", TEAL)
-metric(slide, 3.2, 2.0, 2.25, "11", "stores", SKY)
-metric(slide, 5.65, 2.0, 2.25, "2.78 GB", "evidence database", CORAL)
-metric(slide, 8.1, 2.0, 2.25, "2,343", "verdict rows", GOLD)
+metric(slide, 3.2, 2.0, 2.25, "5", "synthetic stores", SKY)
+metric(slide, 5.65, 2.0, 2.25, "200", "CPP evidence rows", CORAL)
+metric(slide, 8.1, 2.0, 2.25, "250", "verdict rows", GOLD)
 metric(slide, 10.55, 2.0, 2.0, "0", "malformed rows", GREEN)
 rect(slide, 0.75, 3.65, 11.8, 2.35, WHITE, LINE, True)
 text(slide, "Coverage", 1.03, 3.98, 1.1, 0.25, 13, NAVY, True)
-text(slide, "87 New Relic source rows expanded into 2,343 normalized records across two directions.",
+text(slide, "50 synthetic log rows expanded into 250 normalized records across two directions.",
      2.18, 3.94, 9.55, 0.36, 13, INK)
 text(slide, "Control", 1.03, 4.62, 1.1, 0.25, 13, NAVY, True)
 text(slide, "Mismatch, verdict and workbook counts match exactly; 20 indexes and the canonical schema validate.",
      2.18, 4.58, 9.55, 0.36, 13, INK)
 text(slide, "Recovery", 1.03, 5.26, 1.1, 0.25, 13, NAVY, True)
-text(slide, "A timestamped 2.78 GB backup was created before persistent database mutation.",
+text(slide, "A private backup of the replaced original data remains outside the active project path.",
      2.18, 5.22, 9.55, 0.36, 13, INK)
 footer(slide, 2)
 
@@ -155,8 +155,8 @@ footer(slide, 2)
 slide = new_slide(prs)
 slide_title(slide, "02 • Operational volume", "The pipeline processed multiple representations of the same work",
             "Source rows → DTO rows → logical groups → paired field mismatches.")
-values = [("New Relic source rows", 87, SKY), ("Normalized records", 2343,
-                                               TEAL), ("Logical groups", 2088, CORAL), ("Paired mismatches", 255, GOLD)]
+values = [("Synthetic source rows", 50, SKY), ("Normalized records", 250,
+                                               TEAL), ("Logical groups", 220, CORAL), ("Paired mismatches", 30, GOLD)]
 maxv = max(v for _, v, _ in values)
 for index, (label, value, color) in enumerate(values):
     bar(slide, label, value, maxv, 2.10 + index*0.92, color)
@@ -168,20 +168,20 @@ footer(slide, 3)
 
 # 4 classification
 slide = new_slide(prs)
-slide_title(slide, "03 • Classification outcome", "90.91% of rows classified as expected",
+slide_title(slide, "03 • Classification outcome", "80.00% of rows classified as expected",
             "Missing evidence is tracked separately as a user-confirmation requirement.")
-metric(slide, 0.82, 2.0, 2.65, "2,130", "EXPECTED", TEAL)
-metric(slide, 3.73, 2.0, 2.65, "16", "IMS DATA ISSUE", GOLD)
-metric(slide, 6.64, 2.0, 2.65, "197", "POTENTIAL ISSUE", CORAL)
-metric(slide, 9.55, 2.0, 2.65, "471", "expected rows needing confirmation", SKY)
-items = [("KD-1", 1656, TEAL), ("KD-8", 277, RGBColor(50, 150, 125)), ("KD-2", 189,
-                                                                       RGBColor(91, 168, 145)), ("No KD", 197, CORAL), ("KD-7", 16, GOLD), ("KD-6 / 9 / 10", 8, SKY)]
+metric(slide, 0.82, 2.0, 2.65, "200", "EXPECTED", TEAL)
+metric(slide, 3.73, 2.0, 2.65, "0", "IMS DATA ISSUE", GOLD)
+metric(slide, 6.64, 2.0, 2.65, "50", "POTENTIAL ISSUE", CORAL)
+metric(slide, 9.55, 2.0, 2.65, "150", "expected rows needing confirmation", SKY)
+items = [("KD-2", 50, TEAL), ("KD-9", 50, RGBColor(50, 150, 125)), ("KD-6", 40,
+                                                                    RGBColor(91, 168, 145)), ("No KD", 50, CORAL), ("KD-8", 25, GOLD), ("KD-10", 25, SKY)]
 for index, (label, value, color) in enumerate(items):
     y = 3.70 + index*0.45
     text(slide, label, 1.0, y, 1.6, 0.2, 10, NAVY, True)
     rect(slide, 2.75, y+0.02, 7.0, 0.18,
          RGBColor(232, 238, 238), RGBColor(232, 238, 238), True)
-    rect(slide, 2.75, y+0.02, 7.0*value/1656, 0.18, color, color, True)
+    rect(slide, 2.75, y+0.02, 7.0*value/50, 0.18, color, color, True)
     text(slide, f"{value:,}", 10.15, y, 0.8,
          0.2, 10, INK, True, PP_ALIGN.RIGHT)
 footer(slide, 4)
@@ -190,8 +190,8 @@ footer(slide, 4)
 slide = new_slide(prs)
 slide_title(slide, "04 • Quality controls", "Production quality is evidenced, not assumed",
             "The run carries deterministic reconciliation, validation and backup evidence.")
-controls = [("Reconciliation", "100%", "2,343 rows at DB, verdict and workbook stages", GREEN), ("Malformed input", "0", "No rejected New Relic source row", GREEN), ("Test suite", "31", "Automated tests pass",
-                                                                                                                                                                      TEAL), ("Schema", "9 / 20", "Tables / required indexes", SKY), ("Backup", "2.78 GB", "Created before persistent mutation", GOLD), ("LLM ambiguity", "0", "No ambiguous or rejected findings", CORAL)]
+controls = [("Reconciliation", "100%", "250 rows at DB, verdict and workbook stages", GREEN), ("Malformed input", "0", "No rejected synthetic source row", GREEN), ("Test suite", "31", "Automated tests pass",
+                                                                                                                                                                    TEAL), ("Schema", "9 / 20", "Tables / required indexes", SKY), ("Synthetic data", "100%", "Active inputs and DB use generated identifiers", GOLD), ("LLM ambiguity", "0", "No ambiguous or rejected findings", CORAL)]
 for index, (label, value, note, color) in enumerate(controls):
     row, col = divmod(index, 3)
     x = 0.78+col*4.18
@@ -206,14 +206,14 @@ footer(slide, 5)
 slide = new_slide(prs)
 slide_title(slide, "05 • AI usage metrics", "LLM workload was reduced without lowering control quality",
             "Expected KD rows are reviewed through user confirmation, not sent to LLM as potential issues.")
-metric(slide, 0.85, 2.0, 2.55, "684", "initial candidates", SKY)
-metric(slide, 3.66, 2.0, 2.55, "213", "current candidate queue", TEAL)
-metric(slide, 6.47, 2.0, 2.55, "68.9%", "queue reduction", GREEN)
+metric(slide, 0.85, 2.0, 2.55, "50", "candidate rows", SKY)
+metric(slide, 3.66, 2.0, 2.55, "50", "insufficient evidence", TEAL)
+metric(slide, 6.47, 2.0, 2.55, "80%", "queue reduction", GREEN)
 metric(slide, 9.28, 2.0, 2.55, "0", "reclassified without evidence", GOLD)
 rect(slide, 0.85, 3.75, 11.0, 2.12, WHITE, LINE, True)
 text(slide, "AI control outcome", 1.15, 4.04, 2.8, 0.3, 15, NAVY, True)
-bullet(slide, ["684/684 initial findings were valid or INSUFFICIENT_EVIDENCE", "No ambiguous or rejected output",
-       "Current queue = 197 uncoded potential issues + 16 IMS data issues", "Expected KD-2/KD-8/KD-9/KD-10 rows move to user confirmation"], 1.15, 4.50, 10.0, 1.12, 12)
+bullet(slide, ["50/50 synthetic findings were INSUFFICIENT_EVIDENCE", "No ambiguous or rejected output",
+       "Current queue = 50 uncoded potential issues", "Expected KD-2/KD-8/KD-9/KD-10 rows move to user confirmation"], 1.15, 4.50, 10.0, 1.12, 12)
 footer(slide, 6)
 
 # 7 telemetry gap
