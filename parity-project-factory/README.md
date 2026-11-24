@@ -10,21 +10,20 @@ Detailed overview: [docs/PROJECT_GUIDE.md](docs/PROJECT_GUIDE.md). Design ration
 
 ## Factory versus runnable projects
 
-Keep generated projects outside this factory. The sibling layout used for the runnable examples is:
+The checked-in standalone implementation is organized beneath the factory:
 
 ```text
-Parity Pipeline\
-  parity-project-factory\      Build and maintain the generator here
-  parity-projects\
-    price-compare-demo\        Standalone Mode A example with sample data
-    mismatch-report-demo\      Standalone Mode B example with sample data
+parity-project-factory\
+  Standalone project\
+    CPP-PM000003-Parity-Analysis\  Runnable PM000003 implementation and reports
 ```
+
+Generated demo projects can still be created in other destinations when desired.
 
 | What you want to do | Folder to open in VS Code | Agent to select |
 |---|---|---|
 | Design a new project or maintain the factory | `parity-project-factory` | Parity Project Designer |
-| Compare the sample source and target prices | `parity-projects\price-compare-demo` | Price Compare Demo Orchestrator |
-| Analyse the sample mismatch reports | `parity-projects\mismatch-report-demo` | Mismatch Report Demo Orchestrator |
+| Run the PM000003 implementation | `parity-project-factory\Standalone project\CPP-PM000003-Parity-Analysis` | CPP PM000003 Orchestrator |
 
 The two demo folders are separate examples of supported starting workflows. A real project that needs both starting points should be generated once with mode `AB`, not as two project folders.
 
@@ -33,7 +32,7 @@ Each generated project owns its `.github/`, `config/`, `rules/`, data and report
 The factory's `.github/` contains only factory customizations; `templates/project/`
 contains reusable blueprints, not an active project's agents or configuration.
 Keep those templates and the example specs/sample fixtures in the factory.
-The sibling projects are generated separately; they are not included in the factory.
+The factory keeps reusable assets at its root and checked-in standalone implementations under `Standalone project/`.
 
 ## How to create a project
 

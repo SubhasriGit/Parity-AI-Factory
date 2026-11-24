@@ -1,0 +1,83 @@
+version: "1"
+project:
+  name: CPP-PM000003-Parity-Analysis
+  owner: TO_BE_CONFIRMED
+  implementation_status: requirements_confirmed_implementation_ready
+
+requirements:
+  source_document: docs/CONFIRMED_REQUIREMENTS.md
+  confirmation_required_before_code: false
+
+runtime:
+  python_command: python
+  minimum_python_version: "3.9"
+  database_path: project-local with configurable path overrides
+  database_engine: sqlite
+  storage_layout: project-local input/, cpp_data/, ims_data/, reports/, and output/ folders
+
+inputs:
+  mismatch_reports: TO_BE_CONFIRMED
+  cpp_snapshots: TO_BE_CONFIRMED
+  ims_snapshots: TO_BE_CONFIRMED
+  day_mapping: user-provided explicit table-suffix-to-ISO-date mapping for every IMS run
+
+analysis:
+  analysis_date_precedence: TO_BE_CONFIRMED
+  snapshot_contract: user-provided IMS day map plus locally available CPP/IMS snapshots
+  required_reference_datasets: five CPP snapshots and explicitly mapped IMS snapshots
+  kd_matrix_source: uploaded_project_recreation_brief
+  kd_matrix_approved: true
+  missing_evidence_policy: classify matched KD-2/KD-8/KD-9/KD-10 as EXPECTED and populate confirmation_status, confirmation_reason, and missing_evidence for user review
+
+llm:
+  enabled: true
+  candidate_classifications: [POTENTIAL_ISSUE, IMS_DATA_ISSUE]
+  require_human_approval: false
+  insufficient_evidence_writeback: false
+
+reports:
+  daily_workbook: TO_BE_CONFIRMED
+  final_workbook: TO_BE_CONFIRMED
+  summary_counts: raw rows and paired logical groups
+  distribution_approval_required: false
+  distribution_path: configurable
+  consolidated_workbook: optional and on demand
+
+confirmed_values:
+  P0-01:
+    answer: python, minimum Python 3.9
+    confirmed_by: User
+    confirmed_at: "2026-11-23"
+  P0-02:
+    answer: project-local runtime folders with configurable path overrides
+    confirmed_by: User
+    confirmed_at: "2026-11-23"
+  P1-02:
+    answer: show raw rows and paired logical groups
+    confirmed_by: User
+    confirmed_at: "2026-11-23"
+  P1-04:
+    answer: consolidated reporting is optional and on demand
+    confirmed_by: User
+    confirmed_at: "2026-11-23"
+  P0-05:
+    answer: user supplies explicit IMS table-suffix-to-ISO-day mapping; mapping is never inferred
+    confirmed_by: User
+    confirmed_at: "2026-11-23"
+  P0-07:
+    answer: KD-1 through KD-11 matrix and precedence approved as final
+    confirmed_by: User
+    confirmed_at: "2026-11-23"
+  P0-08:
+    answer: LLM analysis and supported write-back do not require human approval
+    confirmed_by: User
+    confirmed_at: "2026-11-23"
+  P0-09:
+    answer: report distribution does not require approval; destination remains configurable
+    confirmed_by: User
+    confirmed_at: "2026-11-23"
+  P0-10:
+    answer: missing priceChangeEvent, deal-store, deletion/packet-lineage, and IMS-lineage evidence keeps matched KD-2, KD-8, KD-9, and KD-10 as EXPECTED with confirmation_status CONFIRMATION_REQUIRED and explicit missing_evidence
+    confirmed_by: User
+    confirmed_at: "2026-11-23"
+open_clarifications: none

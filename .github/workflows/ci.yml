@@ -1,4 +1,4 @@
-name: Project1 CI
+name: CPP CI
 
 on:
   pull_request:
@@ -37,7 +37,7 @@ jobs:
     timeout-minutes: 15
     defaults:
       run:
-        working-directory: Project1-PM000003-Parity-Analysis
+        working-directory: "parity-project-factory/Standalone project/CPP-PM000003-Parity-Analysis"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -47,7 +47,7 @@ jobs:
         with:
           python-version: "3.11"
           cache: pip
-          cache-dependency-path: Project1-PM000003-Parity-Analysis/requirements.txt
+          cache-dependency-path: "parity-project-factory/Standalone project/CPP-PM000003-Parity-Analysis/requirements.txt"
 
       - name: Install dependencies
         run: |
@@ -71,9 +71,9 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: project1-validation-${{ github.run_id }}
+          name: cpp-validation-${{ github.run_id }}
           path: |
-            Project1-PM000003-Parity-Analysis/output/test-results.xml
-            Project1-PM000003-Parity-Analysis/output/ci-validation.db
+            "parity-project-factory/Standalone project/CPP-PM000003-Parity-Analysis/output/test-results.xml"
+            "parity-project-factory/Standalone project/CPP-PM000003-Parity-Analysis/output/ci-validation.db"
           if-no-files-found: warn
           retention-days: 14
