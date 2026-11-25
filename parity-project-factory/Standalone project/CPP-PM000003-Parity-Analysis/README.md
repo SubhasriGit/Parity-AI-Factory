@@ -107,7 +107,7 @@ The exact order in `config/pipeline.yaml` is:
 11. `validate`
 12. `consolidate`
 
-The task driver supports full, resume, status, and independent task execution. For example:
+The task driver supports full, resume, status, and independent task execution. A failed task is retried at most twice by default (`execution_policy.max_retries`). After retry exhaustion, the task and overall state become `HUMAN_INSPECTION_REQUIRED`; automatic resume stops until a human reviews the recorded attempts and explicitly reruns the task. Use `--max-retries` only as an explicit run override.
 
 ```powershell
 python scripts/run_pipeline.py --mode status
@@ -120,7 +120,9 @@ python scripts/run_pipeline.py --mode resume `
   --config config/generated-run.json
 ```
 
-A task starts only when its declared prerequisite evidence is present. The driver stores local execution evidence in ignored `state/task-state.json`.
+A task starts only when its declared prerequisite evidence is present. The driver stores each attempt and its output in ignored `state/task-state.json`.
+
+When the LLM returns `INSUFFICIENT_EVIDENCE`, the deterministic verdict is unchanged, but the row receives `HUMAN_APPROVAL_REQUIRED`. The working workbook exposes the row for review. Final workbook generation is blocked until a reviewed classification, review notes, reviewer identity, and review timestamp are imported for that row.
 
 ## Recreate The Synthetic Run
 

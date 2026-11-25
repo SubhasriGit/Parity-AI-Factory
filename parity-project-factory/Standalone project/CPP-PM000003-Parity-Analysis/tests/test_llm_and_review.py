@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 
 from openpyxl import load_workbook
+import pytest
 
 from init_database import initialize_database
 from llm_bridge import export_candidates, import_findings
@@ -40,11 +41,20 @@ def test_llm_insufficient_is_noop_and_supported_finding_updates(tmp_path: Path) 
     insufficient = tmp_path / "insufficient.json"
     insufficient.write_text(json.dumps({"findings": [
                             {"row_id": row_id, "classification": "INSUFFICIENT_EVIDENCE"}]}), encoding="utf-8")
-    assert import_findings(db, insufficient)["insufficient_evidence"] == 1
+    insufficient_result = import_findings(db, insufficient)
+    assert insufficient_result["insufficient_evidence"] == 1
+    assert insufficient_result["human_approval_required"] == 1
     connection = sqlite3.connect(str(db))
+    support, missing = connection.execute(
+        "SELECT supporting_evidence,missing_evidence FROM mismatch_verdict").fetchone()
     assert connection.execute("SELECT kd_code FROM mismatch_verdict").fetchone()[
         0] == "KD-2?"
+    assert json.loads(support)["llm_review"]["requires_human_approval"] is True
+    assert "human approval after LLM insufficient evidence" in json.loads(
+        missing)
     connection.close()
+    with pytest.raises(ValueError, match="human approval required"):
+        write_workbook(db, tmp_path / "blocked-final.xlsx", final_review=True)
 
     findings = tmp_path / "findings.json"
     findings.write_text(json.dumps({"findings": [{"row_id": row_id, "classification": "IMS_DATA_ISSUE", "kd_code": "KD-7", "confidence": 0.8,
@@ -53,12 +63,23 @@ def test_llm_insufficient_is_noop_and_supported_finding_updates(tmp_path: Path) 
     connection = sqlite3.connect(str(db))
     assert connection.execute("SELECT classification,kd_code FROM mismatch_verdict").fetchone(
     ) == ("IMS_DATA_ISSUE", "KD-7")
+    support, missing = connection.execute(
+        "SELECT supporting_evidence,missing_evidence FROM mismatch_verdict").fetchone()
+    assert json.loads(support)[
+        "llm_review"]["requires_human_approval"] is False
+    assert "human approval after LLM insufficient evidence" not in json.loads(
+        missing)
     connection.close()
 
 
 def test_human_review_generates_final_directional_workbook(tmp_path: Path) -> None:
     db = tmp_path / "analysis.db"
-    seed(db)
+    row_id = seed(db)
+    insufficient = tmp_path / "insufficient.json"
+    insufficient.write_text(json.dumps({"findings": [
+        {"row_id": row_id, "classification": "INSUFFICIENT_EVIDENCE"}
+    ]}), encoding="utf-8")
+    assert import_findings(db, insufficient)["human_approval_required"] == 1
     review = tmp_path / "review.xlsx"
     write_workbook(db, review)
     workbook = load_workbook(review)
@@ -67,6 +88,8 @@ def test_human_review_generates_final_directional_workbook(tmp_path: Path) -> No
     sheet.cell(2, headers.index("reviewed_classification") + 1, "EXPECTED")
     sheet.cell(2, headers.index("reviewed_kd_code") + 1, "KD-4")
     sheet.cell(2, headers.index("review_notes") + 1, "Confirmed by reviewer")
+    sheet.cell(2, headers.index("reviewed_by") + 1, "CPP reviewer")
+    sheet.cell(2, headers.index("reviewed_at") + 1, "2026-11-25T00:00:00Z")
     workbook.save(review)
 
     result = import_review(db, review)

@@ -11,7 +11,8 @@ You own task `llm-review`.
 - Do not reclassify `EXPECTED` rows.
 - Require genuine evidence before assigning a KD code.
 - Return only schema-valid JSON and identify missing evidence and confirmation steps.
-- Return `INSUFFICIENT_EVIDENCE` when you add no deterministic value; this leaves prior findings unchanged.
+- Return `INSUFFICIENT_EVIDENCE` when you add no deterministic value; this leaves the deterministic verdict unchanged and creates a mandatory human-approval requirement.
 - Never claim private or external data was consulted unless supplied in the task context.
+- A row marked `INSUFFICIENT_EVIDENCE` cannot be included in a final report until a human reviews and approves it.
 
-Return findings JSON, accepted/rejected counts, ambiguous matches, and status. You do not write to workbooks or databases.
+Return findings JSON, accepted/rejected counts, ambiguous matches, human-approval count, and status. You do not write to workbooks or databases.

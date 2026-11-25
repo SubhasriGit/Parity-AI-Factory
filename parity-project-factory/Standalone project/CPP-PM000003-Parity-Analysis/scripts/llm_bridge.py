@@ -60,6 +60,21 @@ def import_findings(db_path: Path, findings_path: Path) -> dict:
                 rejected += 1
                 continue
             if classification == "INSUFFICIENT_EVIDENCE":
+                support = json.loads(current[4])
+                missing = list(json.loads(current[5]))
+                missing_item = "human approval after LLM insufficient evidence"
+                if missing_item not in missing:
+                    missing.append(missing_item)
+                support["llm_review"] = {
+                    "status": "INSUFFICIENT_EVIDENCE",
+                    "requires_human_approval": True,
+                    "reason": str(finding.get("hypothesis", "LLM could not obtain sufficient evidence")),
+                }
+                connection.execute(
+                    "UPDATE mismatch_verdict SET supporting_evidence=?,missing_evidence=? WHERE row_id=?",
+                    [json.dumps(support, sort_keys=True),
+                     json.dumps(missing), row_id],
+                )
                 insufficient += 1
                 continue
             support = finding.get("supporting_evidence")
@@ -73,7 +88,14 @@ def import_findings(db_path: Path, findings_path: Path) -> dict:
             if confidence < 0 or confidence > 1:
                 rejected += 1
                 continue
-            missing = finding.get("missing_evidence", json.loads(current[5]))
+            missing = list(finding.get(
+                "missing_evidence", json.loads(current[5])))
+            approval_item = "human approval after LLM insufficient evidence"
+            missing = [item for item in missing if item != approval_item]
+            support["llm_review"] = {
+                "status": "EVIDENCE_REVIEWED",
+                "requires_human_approval": False,
+            }
             connection.execute(
                 "UPDATE mismatch_verdict SET classification=?,kd_code=?,confidence=?,hypothesis=?,supporting_evidence=?,missing_evidence=? WHERE row_id=?",
                 [classification, finding.get("kd_code"), confidence, str(finding.get(
@@ -81,7 +103,13 @@ def import_findings(db_path: Path, findings_path: Path) -> dict:
             )
             updated += 1
         connection.commit()
-        return {"updated": updated, "insufficient_evidence": insufficient, "ambiguous": ambiguous, "rejected": rejected}
+        return {
+            "updated": updated,
+            "insufficient_evidence": insufficient,
+            "human_approval_required": insufficient,
+            "ambiguous": ambiguous,
+            "rejected": rejected,
+        }
     except Exception:
         connection.rollback()
         raise

@@ -126,7 +126,7 @@ rect(slide, 9.25, 1.25, 3.0, 4.2, RGBColor(
     27, 48, 65), RGBColor(62, 86, 103), True)
 metric(slide, 9.55, 1.80, 2.4, "250", "synthetic parsed rows", TEAL)
 metric(slide, 9.55, 3.15, 2.4, "100%", "reconciliation", GOLD)
-metric(slide, 9.55, 4.50, 2.4, "31", "tests passed", CORAL)
+metric(slide, 9.55, 4.50, 2.4, "34", "tests passed", CORAL)
 text(slide, "Run period • 16–20 Nov 2026", 0.84,
      6.75, 4.5, 0.25, 10, RGBColor(160, 180, 188))
 
@@ -190,8 +190,8 @@ footer(slide, 4)
 slide = new_slide(prs)
 slide_title(slide, "04 • Quality controls", "Production quality is evidenced, not assumed",
             "The run carries deterministic reconciliation, validation and backup evidence.")
-controls = [("Reconciliation", "100%", "250 rows at DB, verdict and workbook stages", GREEN), ("Malformed input", "0", "No rejected synthetic source row", GREEN), ("Test suite", "31", "Automated tests pass",
-                                                                                                                                                                    TEAL), ("Schema", "9 / 20", "Tables / required indexes", SKY), ("Synthetic data", "100%", "Active inputs and DB use generated identifiers", GOLD), ("LLM ambiguity", "0", "No ambiguous or rejected findings", CORAL)]
+controls = [("Reconciliation", "100%", "250 rows at DB, verdict and workbook stages", GREEN), ("Malformed input", "0", "No rejected synthetic source row", GREEN), ("Test suite", "34", "Automated tests pass",
+                                                                                                                                                                    TEAL), ("Schema", "9 / 20", "Tables / required indexes", SKY), ("Human approval", "50", "LLM-insufficient rows block final reporting", GOLD), ("Task retries", "2", "Maximum retries before human inspection", CORAL)]
 for index, (label, value, note, color) in enumerate(controls):
     row, col = divmod(index, 3)
     x = 0.78+col*4.18
@@ -212,8 +212,8 @@ metric(slide, 6.47, 2.0, 2.55, "80%", "queue reduction", GREEN)
 metric(slide, 9.28, 2.0, 2.55, "0", "reclassified without evidence", GOLD)
 rect(slide, 0.85, 3.75, 11.0, 2.12, WHITE, LINE, True)
 text(slide, "AI control outcome", 1.15, 4.04, 2.8, 0.3, 15, NAVY, True)
-bullet(slide, ["50/50 synthetic findings were INSUFFICIENT_EVIDENCE", "No ambiguous or rejected output",
-       "Current queue = 50 uncoded potential issues", "Expected KD-2/KD-8/KD-9/KD-10 rows move to user confirmation"], 1.15, 4.50, 10.0, 1.12, 12)
+bullet(slide, ["50/50 synthetic findings were INSUFFICIENT_EVIDENCE", "All 50 rows require explicit human approval",
+       "Final reports are blocked until approval is imported", "Failed tasks retry at most twice, then require human inspection"], 1.15, 4.50, 10.0, 1.12, 12)
 footer(slide, 6)
 
 # 7 telemetry gap

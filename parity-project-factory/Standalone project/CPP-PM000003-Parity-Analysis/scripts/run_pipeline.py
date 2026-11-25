@@ -10,8 +10,12 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
 
+import yaml
+
 ROOT = Path(__file__).resolve().parent.parent
 STATE_PATH = ROOT / "state" / "task-state.json"
+POLICY_PATH = ROOT / "config" / "pipeline.yaml"
+DEFAULT_MAX_RETRIES = 2
 ORDER = ["requirements-confirm", "db-init", "cpp-load", "ims-migrate", "report-parse", "cpp-explode",
          "classify", "llm-review", "human-review-import", "final-report", "validate", "consolidate"]
 
@@ -25,6 +29,18 @@ def save_state(state: dict) -> None:
         timezone.utc).isoformat(timespec="seconds")
     STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
     STATE_PATH.write_text(json.dumps(state, indent=2), encoding="utf-8")
+
+
+def configured_max_retries() -> int:
+    if not POLICY_PATH.exists():
+        return DEFAULT_MAX_RETRIES
+    policy = yaml.safe_load(POLICY_PATH.read_text(encoding="utf-8")) or {}
+    value = policy.get("execution_policy", {}).get(
+        "max_retries", DEFAULT_MAX_RETRIES)
+    if not isinstance(value, int) or value < 0:
+        raise ValueError(
+            "execution_policy.max_retries must be a non-negative integer")
+    return value
 
 
 def command_for(task: str, args: argparse.Namespace) -> list[str]:
@@ -107,21 +123,57 @@ def run_task(task: str, args: argparse.Namespace) -> dict:
     state["tasks"][task]["status"] = "RUNNING"
     save_state(state)
     command = command_for(task, args)
-    completed = subprocess.run(command, cwd=str(
-        ROOT), text=True, capture_output=True, check=False)
+    max_retries = args.max_retries if args.max_retries is not None else configured_max_retries()
+    if max_retries < 0:
+        raise ValueError("--max-retries must be zero or greater")
+    completed = None
+    attempts = []
+    for attempt in range(1, max_retries + 2):
+        try:
+            completed = subprocess.run(command, cwd=str(
+                ROOT), text=True, capture_output=True, check=False)
+            attempts.append({
+                "attempt": attempt,
+                "returncode": completed.returncode,
+                "stdout": completed.stdout.strip()[-2000:],
+                "stderr": completed.stderr.strip()[-2000:],
+            })
+            if completed.returncode == 0:
+                break
+        except OSError as exc:
+            attempts.append({
+                "attempt": attempt,
+                "returncode": 1,
+                "stdout": "",
+                "stderr": str(exc),
+            })
     state = load_state()
-    state["tasks"][task]["status"] = "SUCCESS" if completed.returncode == 0 else "FAILED"
-    state["tasks"][task]["evidence"] = ["command: " +
-                                        " ".join(command), completed.stdout.strip()[-2000:], completed.stderr.strip()[-2000:]]
-    if completed.returncode == 0:
+    state_task = state["tasks"][task]
+    state_task["attempts"] = len(attempts)
+    state_task["max_retries"] = max_retries
+    state_task["evidence"] = [{"command": command}, *attempts]
+    state_task["human_inspection_required"] = completed is None or completed.returncode != 0
+    if completed is not None and completed.returncode == 0:
+        state_task["status"] = "SUCCESS"
         state["overall_status"] = "READY"
     else:
-        state["overall_status"] = "FAILED"
+        state_task["status"] = "HUMAN_INSPECTION_REQUIRED"
+        state["overall_status"] = "HUMAN_INSPECTION_REQUIRED"
     save_state(state)
-    print(completed.stdout, end="")
-    if completed.stderr:
-        print(completed.stderr, file=sys.stderr, end="")
-    return {"task": task, "status": state["tasks"][task]["status"], "returncode": completed.returncode, "command": command}
+    if attempts:
+        final_attempt = attempts[-1]
+        print(final_attempt["stdout"], end="")
+        if final_attempt["stderr"]:
+            print(final_attempt["stderr"], file=sys.stderr, end="")
+    return {
+        "task": task,
+        "status": state_task["status"],
+        "attempts": len(attempts),
+        "max_retries": max_retries,
+        "human_inspection_required": state_task["human_inspection_required"],
+        "returncode": 0 if state_task["status"] == "SUCCESS" else 1,
+        "command": command,
+    }
 
 
 def parse_args(argv: Optional[list] = None) -> argparse.Namespace:
@@ -137,6 +189,8 @@ def parse_args(argv: Optional[list] = None) -> argparse.Namespace:
     parser.add_argument("--ims-source", type=Path)
     parser.add_argument("--day-map", type=Path)
     parser.add_argument("--refresh", action="store_true")
+    parser.add_argument("--max-retries", type=int, default=None,
+                        help="Override the configured retry limit; each retry is an additional attempt")
     parser.add_argument("--config", type=Path,
                         default=ROOT / "config.example.json")
     parser.add_argument("--analysis-date")
@@ -165,6 +219,18 @@ def main(argv: Optional[list] = None) -> int:
             print(json.dumps(result, indent=2))
             return 0 if result["status"] == "SUCCESS" else 1
         if args.mode == "resume":
+            inspection_required = [
+                task for task in ORDER[1:]
+                if state["tasks"][task]["status"] == "HUMAN_INSPECTION_REQUIRED"
+            ]
+            if inspection_required:
+                print(json.dumps({
+                    "mode": args.mode,
+                    "status": "HUMAN_INSPECTION_REQUIRED",
+                    "tasks": inspection_required,
+                    "reason": "A human must inspect the recorded attempts before explicitly rerunning the task.",
+                }, indent=2))
+                return 1
             pending = [task for task in ORDER[1:] if state["tasks"]
                        [task]["status"] != "SUCCESS" and task != "consolidate"]
             selected = pending[:1]

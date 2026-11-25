@@ -39,6 +39,14 @@ Aggregate:
 - Workbook rows: 250
 - Reconciliation: 100%
 - LLM candidates: 50
+- LLM rows requiring human approval: 50
+- Maximum task retries: 2
+- Retry-exhaustion state: `HUMAN_INSPECTION_REQUIRED`
+- Final report policy: blocked until all LLM-insufficient rows receive manual approval
+
+## Control Evidence
+
+Every `INSUFFICIENT_EVIDENCE` result preserves the deterministic verdict and records a durable human-approval requirement. The working workbook marks these rows `HUMAN_APPROVAL_REQUIRED`; final workbook generation rejects unresolved rows. Failed pipeline tasks retry no more than twice and automatic resume stops after retry exhaustion until a human explicitly inspects and reruns the task.
 
 ## Data Replacement Statement
 

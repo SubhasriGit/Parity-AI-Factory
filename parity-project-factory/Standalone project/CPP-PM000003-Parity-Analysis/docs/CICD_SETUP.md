@@ -54,9 +54,11 @@ The five CPP files must be present in the CPP directory. IMS source and day map 
 
 The current workflow requires local/mounted files and no production credential. When SQL, FTP/SFTP, blob, or cloud connectors are added, store credentials in GitHub Environment secrets or an approved secret manager. Never store them in workflow YAML, config JSON, logs, or artifacts.
 
-## Human Review Boundary
+## Retry And Human Review Boundary
 
-Automation stops after producing the review workbook and validation evidence. A user reviews the workbook, then runs or triggers a separate reviewed-final publication step. This prevents an automated job from silently publishing unsupported verdicts.
+Each failed task receives at most the configured `execution_policy.max_retries` retries (default: two). Exhaustion is recorded with `HUMAN_INSPECTION_REQUIRED`; scheduled resume must stop until a human inspects the attempts and explicitly reruns the task.
+
+Automation stops after producing the review workbook and validation evidence. A user reviews the workbook, then runs or triggers a separate reviewed-final publication step. Rows where the LLM returns `INSUFFICIENT_EVIDENCE` are marked `HUMAN_APPROVAL_REQUIRED`; approval requires a classification, notes, reviewer identity, and timestamp. Final report generation rejects unresolved rows. This prevents an automated job from silently publishing unsupported verdicts.
 
 ## Recommended Branch Rules
 

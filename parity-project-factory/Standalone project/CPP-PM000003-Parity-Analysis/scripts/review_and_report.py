@@ -13,7 +13,25 @@ from openpyxl.styles import PatternFill
 
 VALID = {"EXPECTED", "IMS_DATA_ISSUE", "POTENTIAL_ISSUE"}
 REVIEW_COLUMNS = ("reviewed_classification",
-                  "reviewed_kd_code", "review_notes")
+                  "reviewed_kd_code", "review_notes", "reviewed_by", "reviewed_at")
+
+
+def parse_json_object(value: str | None) -> dict:
+    try:
+        parsed = json.loads(value or "{}")
+        return parsed if isinstance(parsed, dict) else {}
+    except json.JSONDecodeError:
+        return {}
+
+
+def requires_human_approval(row: dict) -> bool:
+    evidence = parse_json_object(row.get("supporting_evidence"))
+    llm_review = evidence.get("llm_review", {})
+    return bool(
+        isinstance(llm_review, dict)
+        and llm_review.get("requires_human_approval")
+        and not evidence.get("manual_review")
+    )
 
 
 def load_rows(connection: sqlite3.Connection) -> list[dict]:
@@ -60,10 +78,28 @@ def import_review(db_path: Path, workbook_path: Path) -> dict:
             kd = row[indexes["reviewed_kd_code"]]
             kd = str(kd).strip() if kd not in (None, "") else None
             notes = str(row[indexes["review_notes"]] or "")
+            reviewed_by = str(row[indexes["reviewed_by"]] or "").strip()
+            reviewed_at = str(row[indexes["reviewed_at"]] or "").strip()
+            current_evidence = connection.execute(
+                "SELECT supporting_evidence FROM mismatch_verdict WHERE row_id=?", [row_id]).fetchone()[0]
+            approval_required = requires_human_approval({
+                "supporting_evidence": current_evidence,
+            })
+            if approval_required and (not reviewed_by or not reviewed_at or not notes):
+                rejected += 1
+                feedback.append({
+                    "row_id": row_id,
+                    "problem": "human approval requires reviewer identity, timestamp, and review notes",
+                })
+                continue
             connection.execute(
                 "UPDATE mismatch_verdict SET classification=?,kd_code=?,confidence=1.0,hypothesis=?,supporting_evidence=?,missing_evidence='[]' WHERE row_id=?",
-                [classification, kd, notes or current[2], json.dumps(
-                    {"manual_review": True, "source_workbook": workbook_path.name}), row_id],
+                [classification, kd, notes or current[2], json.dumps({
+                    "manual_review": True,
+                    "source_workbook": workbook_path.name,
+                    "reviewed_by": reviewed_by or None,
+                    "reviewed_at": reviewed_at or None,
+                }, sort_keys=True), row_id],
             )
             reviewed += 1
             if (current[0], current[1]) != (classification, kd):
@@ -89,6 +125,13 @@ def write_workbook(db_path: Path, output: Path, final_review: bool = False) -> d
         rows = load_rows(connection)
     finally:
         connection.close()
+    pending_approval = [row["row_id"]
+                        for row in rows if requires_human_approval(row)]
+    if final_review and pending_approval:
+        raise ValueError(
+            "Final report blocked: human approval required for row IDs "
+            + ", ".join(map(str, pending_approval))
+        )
     workbook = Workbook()
     summary = workbook.active
     summary.title = "Summary"
@@ -144,7 +187,7 @@ def write_workbook(db_path: Path, output: Path, final_review: bool = False) -> d
         sheet.append(headers)
         category_sheets[direction] = sheet
     for row in rows:
-        reviewed_classification = reviewed_kd = review_notes = ""
+        reviewed_classification = reviewed_kd = review_notes = reviewed_by = reviewed_at = ""
         try:
             evidence = json.loads(row["supporting_evidence"] or "{}")
         except json.JSONDecodeError:
@@ -153,17 +196,23 @@ def write_workbook(db_path: Path, output: Path, final_review: bool = False) -> d
             missing_items = json.loads(row["missing_evidence"] or "[]")
         except json.JSONDecodeError:
             missing_items = []
-        confirmation_status = "CONFIRMATION_REQUIRED" if missing_items else "CONFIRMED"
-        confirmation_reason = "User review required. Confirm: " + \
-            ", ".join(map(str, missing_items)
-                      ) if missing_items else "Required rule evidence available in current analysis snapshot."
+        if requires_human_approval(row):
+            confirmation_status = "HUMAN_APPROVAL_REQUIRED"
+            confirmation_reason = "LLM could not obtain sufficient evidence. A human must review and approve the row before final reporting."
+        else:
+            confirmation_status = "CONFIRMATION_REQUIRED" if missing_items else "CONFIRMED"
+            confirmation_reason = "User review required. Confirm: " + \
+                ", ".join(map(str, missing_items)
+                          ) if missing_items else "Required rule evidence available in current analysis snapshot."
         if evidence.get("manual_review"):
             reviewed_classification = row["classification"]
             reviewed_kd = row["kd_code"] or ""
             review_notes = row["hypothesis"] or ""
+            reviewed_by = evidence.get("reviewed_by") or ""
+            reviewed_at = evidence.get("reviewed_at") or ""
         values = [row["row_id"], row["day"], row["direction"], row["store"], row["offering_number"], row["deal_number"], row["price_type"],
                   row["effective_date"], row["dealer_cost_price"], row["retail_price"], row["casting_price"], row["classification"], row["kd_code"],
-                  row["confidence"], row["hypothesis"], row["supporting_evidence"], row["missing_evidence"], confirmation_status, confirmation_reason, reviewed_classification, reviewed_kd, review_notes]
+                  row["confidence"], row["hypothesis"], row["supporting_evidence"], row["missing_evidence"], confirmation_status, confirmation_reason, reviewed_classification, reviewed_kd, review_notes, reviewed_by, reviewed_at]
         all_sheet.append(values)
         category_sheets.setdefault(row["direction"], all_sheet).append(values)
     for sheet in workbook.worksheets:

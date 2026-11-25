@@ -8,8 +8,22 @@ execution_policy:
   stop_on_failed_dependency: true
   stop_on_blocked_requirement: true
   never_assume: true
+  max_retries: 2
+  retry_scope: task_failures
+  on_retry_exhaustion: human_inspection_required
+  llm_insufficient_evidence: human_approval_required
 
-statuses: [NOT_STARTED, READY, RUNNING, SUCCESS, PARTIAL, FAILED, BLOCKED]
+statuses:
+  [
+    NOT_STARTED,
+    READY,
+    RUNNING,
+    SUCCESS,
+    PARTIAL,
+    FAILED,
+    BLOCKED,
+    HUMAN_INSPECTION_REQUIRED,
+  ]
 
 tasks:
   - id: requirements-confirm
