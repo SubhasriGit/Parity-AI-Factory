@@ -66,18 +66,20 @@ def test_retry_exhaustion_requires_human_inspection(monkeypatch, tmp_path: Path)
     assert state["overall_status"] == "HUMAN_INSPECTION_REQUIRED"
 
 
-def test_resume_stops_for_human_inspection(monkeypatch, tmp_path: Path) -> None:
+def test_resume_continues_after_human_inspection_marker(monkeypatch, tmp_path: Path) -> None:
     state = initial_state()
     state["overall_status"] = "HUMAN_INSPECTION_REQUIRED"
     state["tasks"]["db-init"]["status"] = "HUMAN_INSPECTION_REQUIRED"
     state_path = tmp_path / "task-state.json"
     state_path.write_text(json.dumps(state), encoding="utf-8")
     monkeypatch.setattr(run_pipeline, "STATE_PATH", state_path)
+    calls = []
     monkeypatch.setattr(
         run_pipeline,
         "run_task",
-        lambda *args, **kwargs: (_ for _ in ()).throw(
-            AssertionError("resume bypassed human inspection")),
+        lambda task, args: calls.append(
+            task) or {"task": task, "status": "SUCCESS"},
     )
 
-    assert run_pipeline.main(["--mode", "resume"]) == 1
+    assert run_pipeline.main(["--mode", "resume"]) == 0
+    assert calls == ["db-init"]

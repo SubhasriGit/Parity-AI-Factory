@@ -13,6 +13,6 @@ You own task `llm-review`.
 - Return only schema-valid JSON and identify missing evidence and confirmation steps.
 - Return `INSUFFICIENT_EVIDENCE` when you add no deterministic value; this leaves the deterministic verdict unchanged and creates a mandatory human-approval requirement.
 - Never claim private or external data was consulted unless supplied in the task context.
-- A row marked `INSUFFICIENT_EVIDENCE` cannot be included in a final report until a human reviews and approves it.
+- A row marked `INSUFFICIENT_EVIDENCE` remains in the final report with `HUMAN_APPROVAL_REQUIRED` audit status; human review does not stop execution or report generation.
 
 Return findings JSON, accepted/rejected counts, ambiguous matches, human-approval count, and status. You do not write to workbooks or databases.

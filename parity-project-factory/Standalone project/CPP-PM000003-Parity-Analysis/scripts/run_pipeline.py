@@ -219,18 +219,6 @@ def main(argv: Optional[list] = None) -> int:
             print(json.dumps(result, indent=2))
             return 0 if result["status"] == "SUCCESS" else 1
         if args.mode == "resume":
-            inspection_required = [
-                task for task in ORDER[1:]
-                if state["tasks"][task]["status"] == "HUMAN_INSPECTION_REQUIRED"
-            ]
-            if inspection_required:
-                print(json.dumps({
-                    "mode": args.mode,
-                    "status": "HUMAN_INSPECTION_REQUIRED",
-                    "tasks": inspection_required,
-                    "reason": "A human must inspect the recorded attempts before explicitly rerunning the task.",
-                }, indent=2))
-                return 1
             pending = [task for task in ORDER[1:] if state["tasks"]
                        [task]["status"] != "SUCCESS" and task != "consolidate"]
             selected = pending[:1]

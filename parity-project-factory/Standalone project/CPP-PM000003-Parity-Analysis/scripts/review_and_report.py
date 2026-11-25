@@ -80,18 +80,6 @@ def import_review(db_path: Path, workbook_path: Path) -> dict:
             notes = str(row[indexes["review_notes"]] or "")
             reviewed_by = str(row[indexes["reviewed_by"]] or "").strip()
             reviewed_at = str(row[indexes["reviewed_at"]] or "").strip()
-            current_evidence = connection.execute(
-                "SELECT supporting_evidence FROM mismatch_verdict WHERE row_id=?", [row_id]).fetchone()[0]
-            approval_required = requires_human_approval({
-                "supporting_evidence": current_evidence,
-            })
-            if approval_required and (not reviewed_by or not reviewed_at or not notes):
-                rejected += 1
-                feedback.append({
-                    "row_id": row_id,
-                    "problem": "human approval requires reviewer identity, timestamp, and review notes",
-                })
-                continue
             connection.execute(
                 "UPDATE mismatch_verdict SET classification=?,kd_code=?,confidence=1.0,hypothesis=?,supporting_evidence=?,missing_evidence='[]' WHERE row_id=?",
                 [classification, kd, notes or current[2], json.dumps({
@@ -125,13 +113,6 @@ def write_workbook(db_path: Path, output: Path, final_review: bool = False) -> d
         rows = load_rows(connection)
     finally:
         connection.close()
-    pending_approval = [row["row_id"]
-                        for row in rows if requires_human_approval(row)]
-    if final_review and pending_approval:
-        raise ValueError(
-            "Final report blocked: human approval required for row IDs "
-            + ", ".join(map(str, pending_approval))
-        )
     workbook = Workbook()
     summary = workbook.active
     summary.title = "Summary"
@@ -198,7 +179,7 @@ def write_workbook(db_path: Path, output: Path, final_review: bool = False) -> d
             missing_items = []
         if requires_human_approval(row):
             confirmation_status = "HUMAN_APPROVAL_REQUIRED"
-            confirmation_reason = "LLM could not obtain sufficient evidence. A human must review and approve the row before final reporting."
+            confirmation_reason = "LLM could not obtain sufficient evidence. Human review is recommended and tracked, but does not block execution or final reporting."
         else:
             confirmation_status = "CONFIRMATION_REQUIRED" if missing_items else "CONFIRMED"
             confirmation_reason = "User review required. Confirm: " + \

@@ -49,6 +49,6 @@ Consolidation accepts only explicitly named reports.
 - Missing source/day mapping: provide `--day-map`; ambiguous dates are never inferred.
 - CSV column error: re-export all columns declared in `scripts/cpp_datasets.py`.
 - Missing snapshot: load the required CPP/IMS evidence before classification.
-- LLM insufficient evidence: deterministic verdict remains unchanged, the row is marked `HUMAN_APPROVAL_REQUIRED`, and final reporting is blocked until manual review is imported.
-- Task failures: the pipeline retries each failed task at most twice by default. Retry exhaustion changes the state to `HUMAN_INSPECTION_REQUIRED`; automatic resume stops until a human inspects the evidence and explicitly reruns the task.
+- LLM insufficient evidence: deterministic verdict remains unchanged and the row is marked `HUMAN_APPROVAL_REQUIRED` for audit. Final reporting and execution continue.
+- Task failures: the pipeline retries each failed task at most twice by default. Retry exhaustion records `HUMAN_INSPECTION_REQUIRED`; automatic resume continues and reruns the task. The marker is for later inspection, not an approval gate.
 - Workbook validation mismatch: reconcile DB `mismatch_input`/`mismatch_verdict` with `All_Results`.

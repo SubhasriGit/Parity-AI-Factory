@@ -191,7 +191,7 @@ slide = new_slide(prs)
 slide_title(slide, "04 • Quality controls", "Production quality is evidenced, not assumed",
             "The run carries deterministic reconciliation, validation and backup evidence.")
 controls = [("Reconciliation", "100%", "250 rows at DB, verdict and workbook stages", GREEN), ("Malformed input", "0", "No rejected synthetic source row", GREEN), ("Test suite", "34", "Automated tests pass",
-                                                                                                                                                                    TEAL), ("Schema", "9 / 20", "Tables / required indexes", SKY), ("Human approval", "50", "LLM-insufficient rows block final reporting", GOLD), ("Task retries", "2", "Maximum retries before human inspection", CORAL)]
+                                                                                                                                                                    TEAL), ("Schema", "9 / 20", "Tables / required indexes", SKY), ("Human approval", "50", "Audit rows; final reporting continues", GOLD), ("Task retries", "2", "Auto resume continues after exhaustion", CORAL)]
 for index, (label, value, note, color) in enumerate(controls):
     row, col = divmod(index, 3)
     x = 0.78+col*4.18
@@ -212,8 +212,8 @@ metric(slide, 6.47, 2.0, 2.55, "80%", "queue reduction", GREEN)
 metric(slide, 9.28, 2.0, 2.55, "0", "reclassified without evidence", GOLD)
 rect(slide, 0.85, 3.75, 11.0, 2.12, WHITE, LINE, True)
 text(slide, "AI control outcome", 1.15, 4.04, 2.8, 0.3, 15, NAVY, True)
-bullet(slide, ["50/50 synthetic findings were INSUFFICIENT_EVIDENCE", "All 50 rows require explicit human approval",
-       "Final reports are blocked until approval is imported", "Failed tasks retry at most twice, then require human inspection"], 1.15, 4.50, 10.0, 1.12, 12)
+bullet(slide, ["50/50 synthetic findings were INSUFFICIENT_EVIDENCE", "All 50 rows retain HUMAN_APPROVAL_REQUIRED audit status",
+       "Final reports continue without waiting for approval", "Failed tasks retry twice; auto resume continues with inspection recorded"], 1.15, 4.50, 10.0, 1.12, 12)
 footer(slide, 6)
 
 # 7 telemetry gap

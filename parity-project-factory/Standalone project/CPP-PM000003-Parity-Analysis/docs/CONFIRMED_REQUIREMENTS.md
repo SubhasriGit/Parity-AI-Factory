@@ -17,7 +17,7 @@ The blocking P0 requirement gate is **OPEN**. Executable implementation may begi
 - **P1-04:** consolidated reporting is optional and on demand, not part of the normal daily run.
 - **P0-05:** the user supplies an explicit IMS source-table suffix to ISO snapshot-day mapping for each import. The implementation must never infer an ambiguous mapping.
 - **P0-07:** the documented KD-1 through KD-11 matrix and first-match precedence are approved as final.
-- **P0-08:** Supported LLM write-back does not require separate approval. `INSUFFICIENT_EVIDENCE` is non-writing but creates a mandatory human-approval requirement; final reporting is blocked until a reviewer resolves and approves the row.
+- **P0-08:** Supported LLM write-back does not require separate approval. `INSUFFICIENT_EVIDENCE` is non-writing and records `HUMAN_APPROVAL_REQUIRED` in report audit columns. It does not block execution, automatic resume, or final reporting.
 - **P0-09:** report distribution does not require prior approval; the destination is configurable for each environment or run.
 - **P0-10:** only locally available evidence may confirm a rule. Missing `priceChangeEvent`, deal-store participation, deletion history, packet/IMS lineage, or IMS application history keeps KD-2, KD-8, KD-9, KD-10, and KD-11 unresolved with explicit `missing_evidence`.
 

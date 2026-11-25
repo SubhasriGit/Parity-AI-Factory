@@ -32,8 +32,8 @@ For a manual run, users place input files directly into the configured project f
 3. IMS source table, store, and snapshot day are explicit.
 4. CPP malformed/truncated packets cannot create confirmed evidence.
 5. Classification is first-match-wins and stores one verdict per mismatch row. A matched KD retains its business classification; incomplete proof is recorded separately as `CONFIRMATION_REQUIRED` with `confirmation_reason` and `missing_evidence`.
-6. LLM review is limited to configured unresolved/issue classes. `INSUFFICIENT_EVIDENCE` does not overwrite deterministic values; it records a durable `HUMAN_APPROVAL_REQUIRED` state and blocks final reporting until manual approval.
-7. Task failures are retried no more than `execution_policy.max_retries` times. Exhaustion becomes `HUMAN_INSPECTION_REQUIRED` and automatic resume stops for explicit human intervention.
+6. LLM review is limited to configured unresolved/issue classes. `INSUFFICIENT_EVIDENCE` does not overwrite deterministic values; it records `HUMAN_APPROVAL_REQUIRED` in report audit columns without blocking execution or final reporting.
+7. Task failures are retried no more than `execution_policy.max_retries` times. Exhaustion is recorded as `HUMAN_INSPECTION_REQUIRED` for later investigation, but automatic resume continues and retries the failed task.
 7. Manual review has highest precedence and final reports preserve review evidence.
 8. Workbook totals reconcile to `mismatch_input` and `mismatch_verdict`.
 

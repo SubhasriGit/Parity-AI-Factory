@@ -34,8 +34,8 @@
     "llm_candidates": 50,
     "human_approval_required": 50,
     "max_task_retries": 2,
-    "retry_exhaustion_action": "HUMAN_INSPECTION_REQUIRED",
-    "final_report_blocked_until_approval": true
+    "retry_exhaustion_action": "HUMAN_INSPECTION_REQUIRED_AUDIT_AND_AUTO_RESUME",
+    "final_report_blocked_until_approval": false
   },
   "method": "All product, deal, store, message, and price values were generated and are unrelated to production data."
 }

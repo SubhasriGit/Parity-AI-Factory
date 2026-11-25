@@ -5,7 +5,6 @@ import json
 from pathlib import Path
 
 from openpyxl import load_workbook
-import pytest
 
 from init_database import initialize_database
 from llm_bridge import export_candidates, import_findings
@@ -53,8 +52,15 @@ def test_llm_insufficient_is_noop_and_supported_finding_updates(tmp_path: Path) 
     assert "human approval after LLM insufficient evidence" in json.loads(
         missing)
     connection.close()
-    with pytest.raises(ValueError, match="human approval required"):
-        write_workbook(db, tmp_path / "blocked-final.xlsx", final_review=True)
+    final_path = tmp_path / "non-blocked-final.xlsx"
+    assert write_workbook(db, final_path, final_review=True)[
+        "final_review"] is True
+    final_workbook = load_workbook(final_path, read_only=True, data_only=True)
+    final_headers = [cell.value for cell in final_workbook["All_Results"][1]]
+    final_row = list(final_workbook["All_Results"].iter_rows(
+        min_row=2, max_row=2, values_only=True))[0]
+    assert final_row[final_headers.index(
+        "confirmation_status")] == "HUMAN_APPROVAL_REQUIRED"
 
     findings = tmp_path / "findings.json"
     findings.write_text(json.dumps({"findings": [{"row_id": row_id, "classification": "IMS_DATA_ISSUE", "kd_code": "KD-7", "confidence": 0.8,

@@ -10,8 +10,8 @@ execution_policy:
   never_assume: true
   max_retries: 2
   retry_scope: task_failures
-  on_retry_exhaustion: human_inspection_required
-  llm_insufficient_evidence: human_approval_required
+  on_retry_exhaustion: record_human_inspection_required_and_continue_resume
+  llm_insufficient_evidence: report_human_approval_required_without_blocking
 
 statuses:
   [

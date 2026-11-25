@@ -56,9 +56,9 @@ The current workflow requires local/mounted files and no production credential. 
 
 ## Retry And Human Review Boundary
 
-Each failed task receives at most the configured `execution_policy.max_retries` retries (default: two). Exhaustion is recorded with `HUMAN_INSPECTION_REQUIRED`; scheduled resume must stop until a human inspects the attempts and explicitly reruns the task.
+Each failed task receives at most the configured `execution_policy.max_retries` retries (default: two). Exhaustion is recorded as `HUMAN_INSPECTION_REQUIRED` for audit and later investigation. Automatic resume continues and reruns the failed task; this status is not an approval gate.
 
-Automation stops after producing the review workbook and validation evidence. A user reviews the workbook, then runs or triggers a separate reviewed-final publication step. Rows where the LLM returns `INSUFFICIENT_EVIDENCE` are marked `HUMAN_APPROVAL_REQUIRED`; approval requires a classification, notes, reviewer identity, and timestamp. Final report generation rejects unresolved rows. This prevents an automated job from silently publishing unsupported verdicts.
+Automation produces the working and final reports with the current evidence. Rows where the LLM returns `INSUFFICIENT_EVIDENCE` remain visible as `HUMAN_APPROVAL_REQUIRED`; optional review fields can record classification, notes, reviewer identity, and timestamp. Human review does not block execution or final report generation.
 
 ## Recommended Branch Rules
 
