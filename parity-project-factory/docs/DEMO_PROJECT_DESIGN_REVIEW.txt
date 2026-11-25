@@ -382,32 +382,8 @@ Other controls
 13. Reusable README template standard supports new standalone projects.
 
 
-9. NEGATIVE / LIMITATION REVIEW
---------------------------------
-1. Factory v1 supports local/manual connectors only. SQL, FTP/SFTP, cloud, and
-   remote publishers remain extension designs, not implemented connectors.
-2. CPP is bespoke and does not reuse the generic parity_core CLI end to end;
-   it has separate scripts and requires separate maintenance.
-3. Some CPP configuration fields are still TO_BE_CONFIRMED for owner and run-
-   specific files; per-run confirmation is required.
-4. Checked-in CPP data is synthetic, so it proves mechanics and controls but is
-   not evidence of measured production ROI by itself.
-5. Runtime, reviewer time, token cost, latency, agreement rate, rework, and hours
-   saved are identified as telemetry needs but are not yet collected as evidence.
-6. Human review fields are optional; the system records need-for-review but does
-   not stop report generation by design.
-7. State/task-state.json and transient outputs are local evidence and may need a
-   production retention/observability system for enterprise operations.
-8. LLM execution itself is outside the repository at the file-bridge boundary;
-   model/version, token usage, and cost therefore need external capture.
-9. Production data cannot be committed or demonstrated openly; winning-criteria
-   proof must use sanitized execution evidence and stakeholder confirmations.
-10. A future project should not copy CPP stores, products, dates, KD codes, or
-    metrics; those values are implementation-specific.
-
-
-10. DEMO TALK TRACK
--------------------
+9. DEMO TALK TRACK
+------------------
 1. Start with the real business problem and why a repeatable factory is needed.
 2. Show the Designer asking for confirmed identity, mode, datasets, keys, rules,
    LLM scope, reports, and telemetry.
