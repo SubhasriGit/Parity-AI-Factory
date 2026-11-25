@@ -126,7 +126,7 @@ rect(slide, 9.25, 1.25, 3.0, 4.2, RGBColor(
     27, 48, 65), RGBColor(62, 86, 103), True)
 metric(slide, 9.55, 1.80, 2.4, "250", "synthetic parsed rows", TEAL)
 metric(slide, 9.55, 3.15, 2.4, "100%", "reconciliation", GOLD)
-metric(slide, 9.55, 4.50, 2.4, "34", "tests passed", CORAL)
+metric(slide, 9.55, 4.50, 2.4, "36", "tests passed", CORAL)
 text(slide, "Run period • 16–20 Nov 2026", 0.84,
      6.75, 4.5, 0.25, 10, RGBColor(160, 180, 188))
 
@@ -190,7 +190,7 @@ footer(slide, 4)
 slide = new_slide(prs)
 slide_title(slide, "04 • Quality controls", "Production quality is evidenced, not assumed",
             "The run carries deterministic reconciliation, validation and backup evidence.")
-controls = [("Reconciliation", "100%", "250 rows at DB, verdict and workbook stages", GREEN), ("Malformed input", "0", "No rejected synthetic source row", GREEN), ("Test suite", "34", "Automated tests pass",
+controls = [("Reconciliation", "100%", "250 rows at DB, verdict and workbook stages", GREEN), ("Malformed input", "0", "No rejected synthetic source row", GREEN), ("Test suite", "36", "Automated tests pass",
                                                                                                                                                                     TEAL), ("Schema", "9 / 20", "Tables / required indexes", SKY), ("Human approval", "50", "Audit rows; final reporting continues", GOLD), ("Task retries", "2", "Auto resume continues after exhaustion", CORAL)]
 for index, (label, value, note, color) in enumerate(controls):
     row, col = divmod(index, 3)
@@ -207,23 +207,26 @@ slide = new_slide(prs)
 slide_title(slide, "05 • AI usage metrics", "LLM workload was reduced without lowering control quality",
             "Expected KD rows are reviewed through user confirmation, not sent to LLM as potential issues.")
 metric(slide, 0.85, 2.0, 2.55, "50", "candidate rows", SKY)
-metric(slide, 3.66, 2.0, 2.55, "50", "insufficient evidence", TEAL)
-metric(slide, 6.47, 2.0, 2.55, "80%", "queue reduction", GREEN)
-metric(slide, 9.28, 2.0, 2.55, "0", "reclassified without evidence", GOLD)
+metric(slide, 3.66, 2.0, 2.55, str(
+    data["ai_cost"]["in_pipeline_model_requests"]), "in-pipeline model requests", TEAL)
+metric(slide, 6.47, 2.0, 2.55,
+       f"${data['ai_cost']['in_pipeline_cost']:.4f}", "pipeline model cost", GREEN)
+metric(slide, 9.28, 2.0, 2.55, data["ai_cost"]["copilot_capture_status"].upper(
+), "Copilot cost capture", GOLD)
 rect(slide, 0.85, 3.75, 11.0, 2.12, WHITE, LINE, True)
 text(slide, "AI control outcome", 1.15, 4.04, 2.8, 0.3, 15, NAVY, True)
-bullet(slide, ["50/50 synthetic findings were INSUFFICIENT_EVIDENCE", "All 50 rows retain HUMAN_APPROVAL_REQUIRED audit status",
-       "Final reports continue without waiting for approval", "Failed tasks retry twice; auto resume continues with inspection recorded"], 1.15, 4.50, 10.0, 1.12, 12)
+bullet(slide, ["50/50 synthetic findings were INSUFFICIENT_EVIDENCE", "The deterministic pipeline made no model API request",
+       f"Copilot cost capture status: {data['ai_cost']['copilot_capture_status']}", "Cost is separated into pipeline model cost and external agent-development cost"], 1.15, 4.50, 10.0, 1.12, 12)
 footer(slide, 6)
 
-# 7 telemetry gap
+# 7 telemetry status
 slide = new_slide(prs)
-slide_title(slide, "06 • Telemetry gap", "Production ROI is not yet measured",
-            "Volume and quality are observed. Runtime, cost and reviewer productivity still require telemetry.")
-measured = ["Row and result counts", "Classification distribution", "Database and workbook reconciliation",
-            "LLM candidate and no-writeback counts", "Missing-evidence workload"]
-pending = ["Automation runtime and rows/second", "LLM tokens, cost and latency",
-           "Reviewer hours and agreement rate", "Overturn/rework rate", "Hours saved and report SLA"]
+slide_title(slide, "06 • Telemetry status", "Runtime and pipeline AI cost are now measured",
+            "Copilot development cost requires OTEL; reviewer productivity remains a separate operational measurement.")
+measured = [f"Analysis pipeline runtime: {data['telemetry']['analysis_pipeline_duration_seconds']:.3f} seconds", "In-pipeline model requests and model cost",
+            "Copilot cost capture status and token totals", "Database and workbook reconciliation", "Human-approval audit workload"]
+pending = ["Enable Copilot llm_request OTEL in the operating environment", "Reviewer hours and agreement rate",
+           "Automation baseline and hours saved", "Overturn/rework rate", "Report SLA and production throughput"]
 rect(slide, 0.78, 1.95, 5.75, 4.55, RGBColor(
     239, 247, 245), RGBColor(203, 227, 218), True)
 text(slide, "MEASURED NOW", 1.12, 2.28, 4.8, 0.3, 15, TEAL, True)

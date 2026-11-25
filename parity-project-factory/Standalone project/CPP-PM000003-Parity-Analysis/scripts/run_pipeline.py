@@ -6,6 +6,7 @@ import argparse
 import json
 import subprocess
 import sys
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
@@ -129,11 +130,16 @@ def run_task(task: str, args: argparse.Namespace) -> dict:
     completed = None
     attempts = []
     for attempt in range(1, max_retries + 2):
+        attempt_started_at = datetime.now(
+            timezone.utc).isoformat(timespec="seconds")
+        attempt_started = time.perf_counter()
         try:
             completed = subprocess.run(command, cwd=str(
                 ROOT), text=True, capture_output=True, check=False)
             attempts.append({
                 "attempt": attempt,
+                "started_at": attempt_started_at,
+                "duration_ms": round((time.perf_counter() - attempt_started) * 1000, 3),
                 "returncode": completed.returncode,
                 "stdout": completed.stdout.strip()[-2000:],
                 "stderr": completed.stderr.strip()[-2000:],
@@ -143,6 +149,8 @@ def run_task(task: str, args: argparse.Namespace) -> dict:
         except OSError as exc:
             attempts.append({
                 "attempt": attempt,
+                "started_at": attempt_started_at,
+                "duration_ms": round((time.perf_counter() - attempt_started) * 1000, 3),
                 "returncode": 1,
                 "stdout": "",
                 "stderr": str(exc),

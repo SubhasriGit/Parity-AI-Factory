@@ -51,4 +51,6 @@ Consolidation accepts only explicitly named reports.
 - Missing snapshot: load the required CPP/IMS evidence before classification.
 - LLM insufficient evidence: deterministic verdict remains unchanged and the row is marked `HUMAN_APPROVAL_REQUIRED` for audit. Final reporting and execution continue.
 - Task failures: the pipeline retries each failed task at most twice by default. Retry exhaustion records `HUMAN_INSPECTION_REQUIRED`; automatic resume continues and reruns the task. The marker is for later inspection, not an approval gate.
+- Runtime telemetry: `scripts/generate_run.py` records full-run and per-command duration in `reports/telemetry.json`.
+- AI cost telemetry: `cost_usage.py` reads local Copilot OTEL logs into `output/cost/`. The deterministic pipeline reports zero in-process model requests/cost; unavailable Copilot OTEL is recorded explicitly instead of being treated as free usage.
 - Workbook validation mismatch: reconcile DB `mismatch_input`/`mismatch_verdict` with `All_Results`.

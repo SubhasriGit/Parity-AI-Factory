@@ -1,0 +1,183 @@
+{
+  "run_type": "synthetic",
+  "started_at": "2026-11-25T08:53:23+00:00",
+  "finished_at": "2026-11-25T08:53:30+00:00",
+  "duration_seconds": 6.329,
+  "steps": [
+    {
+      "command": [
+        "scripts/init_database.py",
+        "--db",
+        "pm000003_mf_packets_multi_store.db"
+      ],
+      "duration_seconds": 0.377,
+      "returncode": 0,
+      "status": "SUCCESS"
+    },
+    {
+      "command": [
+        "scripts/load_cpp_snapshot_to_db.py",
+        "--db",
+        "pm000003_mf_packets_multi_store.db",
+        "--csv-dir",
+        "cpp_data",
+        "--keep-empty-bodies"
+      ],
+      "duration_seconds": 0.266,
+      "returncode": 0,
+      "status": "SUCCESS"
+    },
+    {
+      "command": [
+        "scripts/migrate_ims_snapshot_to_db.py",
+        "--source",
+        "ims_data/ims_source.db",
+        "--db",
+        "pm000003_mf_packets_multi_store.db",
+        "--day-map",
+        "ims_data/day-map.json"
+      ],
+      "duration_seconds": 0.258,
+      "returncode": 0,
+      "status": "SUCCESS"
+    },
+    {
+      "command": [
+        "pm000003_mismatch_report.py",
+        "--config",
+        "config/generated-run.json",
+        "--persist-to-db",
+        "pm000003_mf_packets_multi_store.db"
+      ],
+      "duration_seconds": 1.0,
+      "returncode": 0,
+      "status": "SUCCESS"
+    },
+    {
+      "command": [
+        "scripts/classify_kd.py",
+        "run",
+        "--db",
+        "pm000003_mf_packets_multi_store.db",
+        "--analysis-date",
+        "2026-11-20"
+      ],
+      "duration_seconds": 0.267,
+      "returncode": 0,
+      "status": "SUCCESS"
+    },
+    {
+      "command": [
+        "scripts/llm_bridge.py",
+        "export",
+        "--db",
+        "pm000003_mf_packets_multi_store.db",
+        "--output",
+        "output/llm_candidates.json"
+      ],
+      "duration_seconds": 0.238,
+      "returncode": 0,
+      "status": "SUCCESS"
+    },
+    {
+      "command": [
+        "scripts/llm_bridge.py",
+        "import",
+        "--db",
+        "pm000003_mf_packets_multi_store.db",
+        "--file",
+        "output/llm_findings.json"
+      ],
+      "duration_seconds": 0.21,
+      "returncode": 0,
+      "status": "SUCCESS"
+    },
+    {
+      "command": [
+        "scripts/review_and_report.py",
+        "report",
+        "--db",
+        "pm000003_mf_packets_multi_store.db",
+        "--output",
+        "reports/pm000003_analysis.xlsx"
+      ],
+      "duration_seconds": 0.905,
+      "returncode": 0,
+      "status": "SUCCESS"
+    },
+    {
+      "command": [
+        "scripts/validate_outputs.py",
+        "--db",
+        "pm000003_mf_packets_multi_store.db",
+        "--workbook",
+        "reports/pm000003_analysis.xlsx"
+      ],
+      "duration_seconds": 0.761,
+      "returncode": 0,
+      "status": "SUCCESS"
+    },
+    {
+      "command": [
+        "cost_usage.py",
+        "--out-dir",
+        "output/cost",
+        "--latest"
+      ],
+      "duration_seconds": 0.22,
+      "returncode": 0,
+      "status": "SUCCESS"
+    },
+    {
+      "command": [
+        "scripts/generate_demo_deck.py"
+      ],
+      "duration_seconds": 1.054,
+      "returncode": 0,
+      "status": "SUCCESS"
+    },
+    {
+      "command": [
+        "scripts/generate_production_metrics_deck.py"
+      ],
+      "duration_seconds": 0.677,
+      "returncode": 0,
+      "status": "SUCCESS"
+    }
+  ],
+  "ai_cost": {
+    "in_pipeline_model_requests": 0,
+    "in_pipeline_cost": 0.0,
+    "copilot_capture_status": "unavailable",
+    "copilot_requests": 0,
+    "copilot_input_tokens": 0,
+    "copilot_output_tokens": 0,
+    "copilot_computed_cost": null,
+    "copilot_logged_cost": null,
+    "currency": "as reported by Copilot models.json; verify units before external reporting"
+  },
+  "copilot_usage_summary": {
+    "capture_status": "unavailable",
+    "capture_source": "copilot_chat_otel",
+    "log_dir": "${USER_WORKSPACE_STORAGE}/GitHub.copilot-chat/debug-logs",
+    "requests": 0,
+    "agent_calls": 0,
+    "input_tokens": 0,
+    "cached_tokens": 0,
+    "output_tokens": 0,
+    "duration_ms": 0,
+    "priced_requests": 0,
+    "unpriced_requests": 0,
+    "computed_cost": null,
+    "logged_cost": null,
+    "in_pipeline_model_requests": 0,
+    "in_pipeline_ai_cost": 0.0,
+    "note": "The deterministic CPP synthetic pipeline uses validated JSON for the LLM hand-off and makes no in-process model request. Copilot Chat cost requires llm_request OTEL events."
+  },
+  "rows": {
+    "source_log_rows": 50,
+    "parsed_rows": 250,
+    "verdict_rows": 250,
+    "workbook_rows": 250
+  }
+}

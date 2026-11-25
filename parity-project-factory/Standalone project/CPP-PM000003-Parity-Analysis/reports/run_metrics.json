@@ -37,5 +37,20 @@
     "retry_exhaustion_action": "HUMAN_INSPECTION_REQUIRED_AUDIT_AND_AUTO_RESUME",
     "final_report_blocked_until_approval": false
   },
+  "telemetry": {
+    "analysis_pipeline_duration_seconds": 4.592,
+    "step_count": 10
+  },
+  "ai_cost": {
+    "in_pipeline_model_requests": 0,
+    "in_pipeline_cost": 0.0,
+    "copilot_capture_status": "unavailable",
+    "copilot_requests": 0,
+    "copilot_input_tokens": 0,
+    "copilot_output_tokens": 0,
+    "copilot_computed_cost": null,
+    "copilot_logged_cost": null,
+    "currency": "as reported by Copilot models.json; verify units before external reporting"
+  },
   "method": "All product, deal, store, message, and price values were generated and are unrelated to production data."
 }

@@ -135,7 +135,7 @@ python -m pip install -r requirements.txt
 python scripts/generate_run.py
 ```
 
-The generator replaces the active synthetic inputs, canonical database, and non-presentation reports. Backups are written outside the repository.
+The generator replaces the active synthetic inputs, canonical database, and generated reports. Backups are written outside the repository. It also measures every command's runtime, writes `reports/telemetry.json`, and runs `cost_usage.py` for Copilot Chat cost telemetry.
 
 ## Validation
 
@@ -149,7 +149,7 @@ python scripts/validate_outputs.py `
   --workbook reports/pm000003_analysis.xlsx
 ```
 
-Expected demonstration reconciliation is `250` mismatch rows, `250` verdict rows, `250` workbook result rows, and no malformed parsed rows.
+Expected demonstration reconciliation is `250` mismatch rows, `250` verdict rows, `250` workbook result rows, and no malformed parsed rows. The telemetry record separately reports full-run and per-step duration, in-pipeline model requests/cost, Copilot request/token totals, and Copilot cost-capture status.
 
 ## Outputs
 
@@ -162,7 +162,9 @@ Expected demonstration reconciliation is `250` mismatch rows, `250` verdict rows
 | `output/llm_findings.json` | Validated LLM findings |
 | `reports/RUN_SUMMARY.md` | Run-level metrics and method summary |
 | `reports/production_metrics.json` | Metrics consumed by the production deck |
-| `reports/run_metrics.json` | Generated run metrics |
+| `reports/run_metrics.json` | Generated quality, runtime, and AI-cost metrics |
+| `reports/telemetry.json` | Per-step runtime and AI usage/cost telemetry |
+| `output/cost/usage_summary.json` | Local Copilot usage/cost summary; ignored by Git |
 | `reports/CPP_Parity_AI_Factory_Demo.pptx` | 21-slide business and AI-factory demonstration |
 | `reports/CPP_PM000003_Production_Metrics.pptx` | 8-slide production-metrics presentation |
 
@@ -172,6 +174,14 @@ Regenerate presentations independently:
 python scripts/generate_demo_deck.py
 python scripts/generate_production_metrics_deck.py
 ```
+
+Run Copilot cost collection independently after the required OpenTelemetry events exist:
+
+```powershell
+python cost_usage.py --out-dir output/cost --latest
+```
+
+The deterministic synthetic pipeline makes zero in-process model requests, so its in-pipeline AI cost is `$0.00`. Copilot agent-development cost is reported only when VS Code has `github.copilot.chat.otel.enabled` enabled (or `COPILOT_OTEL_ENABLED=true`) and the session logs contain `llm_request` events.
 
 ## CI/CD
 

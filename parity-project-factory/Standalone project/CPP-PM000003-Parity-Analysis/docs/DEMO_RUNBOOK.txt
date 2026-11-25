@@ -27,8 +27,9 @@ PRE-DEMO CHECKLIST
    python -m pytest -q
    python scripts/validate_database.py --db pm000003_mf_packets_multi_store.db
    python scripts/validate_outputs.py --db pm000003_mf_packets_multi_store.db --workbook reports/pm000003_analysis.xlsx
+   python cost_usage.py --out-dir output/cost --latest
 
-Expected: 34 CPP tests pass; database valid; 250 mismatch, 250 verdict, and 250
+Expected: 36 CPP tests pass; database valid; 250 mismatch, 250 verdict, and 250
 workbook rows reconcile.
 
 OPENING SCRIPT
@@ -229,6 +230,8 @@ DEMO SECTION 9 - REPORTS AND PRESENTATIONS
 Open:
 - reports/RUN_SUMMARY.md
 - reports/production_metrics.json
+- reports/telemetry.json
+- output/cost/usage_summary.json
 - reports/CPP_PM000003_Production_Metrics.pptx
 - reports/CPP_Parity_AI_Factory_Demo.pptx
 
@@ -238,7 +241,7 @@ Evidence shown:
 - 50 human-approval audit rows;
 - max 2 retries;
 - automatic resume continues;
-- 34 automated CPP tests;
+- 36 automated CPP tests;
 - 11 factory tests.
 
 DEMO CLOSE
@@ -253,8 +256,9 @@ Close with these messages:
 4. Human review and retry-inspection markers are visible without stopping valid
    execution or final reports.
 5. The repository is reproducible, testable, and Git/CI controlled.
-6. Production connectors, measured AI cost, reviewer time, hours saved, and
-   cross-team adoption remain the next evidence items.
+6. Runtime and in-pipeline AI cost are measured in the run. Copilot OTEL cost,
+   reviewer time, hours saved, and cross-team adoption remain separately
+   measurable evidence items.
 
 SAFE DEMO BOUNDARY
 ------------------

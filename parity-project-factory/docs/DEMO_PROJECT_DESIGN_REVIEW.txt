@@ -401,5 +401,6 @@ Other controls
     appears as HUMAN_APPROVAL_REQUIRED without blocking the report.
 11. Show retry control: three total attempts by default, recorded evidence, and
     a non-blocking HUMAN_INSPECTION_REQUIRED audit marker.
-12. Close with reusable output: DB, XLSX, PPTX, tests, CI, README, and synthetic
-    evidence, with production telemetry and external integrations as next steps.
+12. Close with reusable output: DB, XLSX, PPTX, tests, CI, README, measured
+    runtime, and explicit AI-cost telemetry. Copilot OTEL, reviewer productivity,
+    and external integrations can be added as environment evidence.

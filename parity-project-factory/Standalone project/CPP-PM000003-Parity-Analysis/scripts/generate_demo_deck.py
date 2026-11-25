@@ -157,7 +157,7 @@ rect(slide, 9.25, 1.12, 3.2, 4.75, RGBColor(
 add_text(slide, "DEMO RUN", 9.62, 1.55, 2.35, 0.3, 11,
          RGBColor(123, 229, 211), True, align=PP_ALIGN.CENTER)
 metric(slide, 9.55, 2.05, 2.6, "250", "synthetic mismatch rows", TEAL)
-metric(slide, 9.55, 3.42, 2.6, "34", "automated tests", CORAL)
+metric(slide, 9.55, 3.42, 2.6, "36", "automated tests", CORAL)
 metric(slide, 9.55, 4.79, 2.6, "100%", "DB / workbook reconciliation", GOLD)
 add_text(slide, "Demo deck • 24 Nov 2026", 0.84,
          6.72, 4.2, 0.28, 10, RGBColor(160, 180, 188))
@@ -303,7 +303,7 @@ add_text(slide, "LLM SECOND PASS", 7.28, 2.38, 4.7, 0.3, 16, SKY, True)
 bullet_list(slide, ["Only POTENTIAL_ISSUE and IMS_DATA_ISSUE", "Receives record, KD catalogue and evidence gaps",
             "Returns schema-validated JSON", "INSUFFICIENT_EVIDENCE preserves prior verdict"], 7.28, 2.96, 4.55, 1.75, 13)
 pill(slide, "Review, do not guess", 7.28, 5.23, 2.00, fill=SKY, color=WHITE)
-add_text(slide, "Future telemetry: capture candidate count, token/cost, latency, model, accepted vs rejected findings.",
+add_text(slide, "Measured telemetry: candidate count, in-pipeline model requests, pipeline AI cost, and Copilot cost-capture status.",
          1.82, 6.34, 9.75, 0.31, 11, MID, True, align=PP_ALIGN.CENTER)
 footer(slide, 7)
 
@@ -315,7 +315,7 @@ metric(slide, 0.75, 2.02, 2.25, "250", "parsed rows", TEAL)
 metric(slide, 3.2, 2.02, 2.25, "0", "malformed rows", GREEN)
 metric(slide, 5.65, 2.02, 2.25, "220", "logical groups", SKY)
 metric(slide, 8.1, 2.02, 2.25, "30", "paired mismatches", GOLD)
-metric(slide, 10.55, 2.02, 2.0, "34", "tests passed", CORAL)
+metric(slide, 10.55, 2.02, 2.0, "36", "tests passed", CORAL)
 rect(slide, 0.75, 3.58, 11.8, 2.45, WHITE, LINE, True)
 add_text(slide, "Data path", 1.05, 3.90, 1.2, 0.28, 14, NAVY, True)
 labels = ["2 New Relic exports", "5 CPP snapshots",
@@ -383,7 +383,7 @@ title(slide, "10 • Productivity metrics", "Measured facts vs illustrative prod
       "Never present an assumed saving as observed performance.")
 rect(slide, 0.78, 1.85, 5.75, 4.8, WHITE, LINE, True)
 add_text(slide, "MEASURED IN THIS RUN", 1.12, 2.18, 4.8, 0.3, 15, TEAL, True)
-observed = ["250 synthetic rows reconciled end to end", "0 malformed source rows", "34 automated tests passed",
+observed = ["250 synthetic rows reconciled end to end", "0 malformed source rows", "36 automated tests passed",
             "100% mismatch / verdict / workbook count match", "50 LLM findings validated; 0 rejected", "13 independent project agents"]
 bullet_list(slide, observed, 1.12, 2.72, 4.75, 2.95, 12)
 pill(slide, "Observed", 1.12, 5.98, 1.1, fill=TEAL, color=WHITE)
@@ -461,17 +461,17 @@ for i, (time, label, detail) in enumerate(agenda):
          fill=TEAL if i < 3 else CORAL, color=WHITE)
     add_text(slide, label, 2.05, y+0.16, 1.65, 0.24, 11, NAVY, True)
     add_text(slide, detail, 3.85, y+0.16, 7.9, 0.24, 11, MID)
-add_text(slide, "Demo close: the factory is repeatable; the project is operational; telemetry is the next maturity layer.",
+add_text(slide, "Demo close: the factory is repeatable; the project is operational; runtime and pipeline AI cost are captured.",
          1.20, 6.73, 10.6, 0.28, 11, TEAL, True, align=PP_ALIGN.CENTER)
 footer(slide, 14)
 
 # 15 telemetry roadmap
 slide = new_slide()
-title(slide, "14 • Telemetry roadmap", "Make speed, cost and accuracy measurable in production",
-      "Telemetry is not required to run the pipeline, but it is required to publish verified productivity claims.")
+title(slide, "14 • Telemetry status", "Runtime and pipeline AI cost are captured per run",
+      "Copilot agent-development cost requires OTEL; reviewer productivity remains a separate operational measurement.")
 phases = [
-    ("Capture", "stage, input volume, duration, rows/sec, error, retry", TEAL),
-    ("AI usage", "candidate count, model, token/cost, latency, accepted findings", SKY),
+    ("Capture", "stage status, duration, retries, row counts, reconciliation", TEAL),
+    ("AI usage", "pipeline requests/cost plus Copilot tokens/cost when available", SKY),
     ("Quality", "manual agreement, overturn rate, missing-evidence closure", CORAL),
     ("Business", "hours saved, review cycle, defects caught, report SLA", GOLD),
 ]
@@ -513,9 +513,9 @@ add_text(slide, "Run with production or larger synthetic data", 10.00,
          3.10, 2.08, 0.78, 12, WHITE, True, align=PP_ALIGN.CENTER)
 add_text(slide, "2", 10.65, 4.00, 0.65, 0.52,
          28, WHITE, True, align=PP_ALIGN.CENTER)
-add_text(slide, "Enable telemetry and publish measured ROI", 10.00,
+add_text(slide, "Enable Copilot OTEL and publish reviewer productivity", 10.00,
          4.62, 2.08, 0.75, 12, WHITE, True, align=PP_ALIGN.CENTER)
-add_text(slide, "34 tests • 0 editor errors • reconciliation passed",
+add_text(slide, "36 tests • 0 editor errors • reconciliation passed",
          0.84, 6.73, 7.4, 0.28, 10, RGBColor(160, 180, 188))
 
 # 17 High-level architecture

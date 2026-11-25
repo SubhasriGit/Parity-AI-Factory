@@ -60,6 +60,12 @@ Each failed task receives at most the configured `execution_policy.max_retries` 
 
 Automation produces the working and final reports with the current evidence. Rows where the LLM returns `INSUFFICIENT_EVIDENCE` remain visible as `HUMAN_APPROVAL_REQUIRED`; optional review fields can record classification, notes, reviewer identity, and timestamp. Human review does not block execution or final report generation.
 
+## Runtime And Cost Telemetry
+
+`generate_run.py` records per-command duration and overall runtime in `reports/telemetry.json`. It also invokes `cost_usage.py`, which records model-request counts, tokens, Copilot usage cost, and capture status. The deterministic pipeline uses validated JSON for its LLM hand-off and records zero in-process model requests/cost. Copilot agent-development cost requires local `llm_request` OpenTelemetry events; absence is recorded as `capture_status: unavailable`, not as a fabricated numeric cost.
+
+Upload `reports/telemetry.json`, `reports/production_metrics.json`, and the validation artifacts with run evidence. Keep detailed `output/cost/` CSV files local because they may contain session identifiers and workstation-specific log metadata.
+
 ## Recommended Branch Rules
 
 Require successful `CPP CI / validate` before merge. Require at least one reviewer. Restrict changes to `.github/workflows/`, schema, config, and rule logic to the project maintainers.

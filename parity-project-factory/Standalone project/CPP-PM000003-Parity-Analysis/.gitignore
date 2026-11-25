@@ -5,6 +5,7 @@ venv/
 *.pyc
 state/
 logs/
+output/cost/
 config/reports/
 *.db.bak
 *.db-wal

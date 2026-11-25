@@ -4,12 +4,12 @@ from __future__ import annotations
 
 import csv
 import json
-import random
 import shutil
 import sqlite3
 import subprocess
 import sys
-from datetime import date, datetime, timedelta
+import time
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Iterable
 
@@ -19,6 +19,7 @@ PRODUCTS = [f"{7001000 + index:07d}" for index in range(20)]
 DEALS = ["7101", "7102", "7103"]
 BASE_DATE = date(2026, 11, 16)
 DAYS = [(BASE_DATE + timedelta(days=index)) for index in range(5)]
+RUN_STEPS: list[dict] = []
 
 
 def write_csv(path: Path, headers: Iterable[str], rows: Iterable[dict]) -> None:
@@ -247,15 +248,95 @@ def generate_config(cdcs_path: Path, cpp_path: Path) -> Path:
 
 
 def run(command: list[str]) -> None:
+    started = time.perf_counter()
     completed = subprocess.run(
         [sys.executable, *command], cwd=str(ROOT), text=True, capture_output=True, check=False)
+    duration_seconds = round(time.perf_counter() - started, 3)
+    step = {
+        "command": portable_command(command),
+        "duration_seconds": duration_seconds,
+        "returncode": completed.returncode,
+        "status": "SUCCESS" if completed.returncode == 0 else "FAILED",
+    }
+    RUN_STEPS.append(step)
     if completed.returncode:
         raise RuntimeError(
             f"Command failed ({' '.join(command)}):\n{completed.stdout}\n{completed.stderr}")
     print(completed.stdout.strip())
 
 
+def write_json(path: Path, value: dict) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(value, indent=2), encoding="utf-8")
+
+
+def portable_command(command: list[str]) -> list[str]:
+    portable = []
+    for value in command:
+        path = Path(value)
+        try:
+            portable.append(
+                str(path.resolve().relative_to(ROOT)).replace("\\", "/"))
+        except (OSError, ValueError):
+            portable.append(value)
+    return portable
+
+
+def write_run_summary(metrics: dict, telemetry: dict) -> Path:
+    cost = metrics["ai_cost"]
+    copilot_cost = cost["copilot_computed_cost"]
+    copilot_text = "unavailable (no Copilot OTEL llm_request events)" if copilot_cost is None else f"{copilot_cost:.6f}"
+    path = ROOT / "reports" / "RUN_SUMMARY.md"
+    path.write_text(f"""# Synthetic PM000003 Run Summary
+
+This report contains synthetic values only. Store, product, deal, price, packet, message, and timestamp identifiers are unrelated to production data.
+
+## Coverage
+
+- Run period: {metrics['period']['start']} through {metrics['period']['end']}
+- Synthetic stores: {metrics['coverage']['stores']}
+- Source log rows: {metrics['coverage']['source_log_rows']}
+- Parsed mismatch rows: {metrics['coverage']['parsed_rows']}
+- Logical groups: {metrics['coverage']['logical_groups']}
+- Paired mismatches: {metrics['coverage']['paired_mismatches']}
+- CPP packets: {metrics['coverage']['cpp_packets']}
+- CPP-derived evidence rows: {metrics['coverage']['cpp_exploded_rows']}
+
+## Quality
+
+- Malformed source rows: {metrics['quality']['malformed_rows']}
+- Mismatch/verdict/workbook rows: {metrics['coverage']['parsed_rows']}/{metrics['coverage']['verdict_rows']}/{metrics['coverage']['parsed_rows']}
+- Reconciliation: {metrics['quality']['reconciliation_percent']}%
+- EXPECTED: {metrics['classifications']['EXPECTED']}
+- POTENTIAL_ISSUE: {metrics['classifications']['POTENTIAL_ISSUE']}
+- LLM candidates: {metrics['quality']['llm_candidates']}
+- Human-approval audit rows: {metrics['quality']['human_approval_required']}
+
+## Runtime And Cost Telemetry
+
+- Full generator runtime: {telemetry['duration_seconds']:.3f} seconds
+- Analysis pipeline duration before presentation generation: {metrics['telemetry']['analysis_pipeline_duration_seconds']:.3f} seconds
+- Recorded command steps: {metrics['telemetry']['step_count']}
+- In-pipeline model requests: {cost['in_pipeline_model_requests']}
+- In-pipeline model cost: ${cost['in_pipeline_cost']:.6f}
+- Copilot capture status: `{cost['copilot_capture_status']}`
+- Copilot requests: {cost['copilot_requests']}
+- Copilot input/output tokens: {cost['copilot_input_tokens']}/{cost['copilot_output_tokens']}
+- Copilot computed cost: {copilot_text}
+
+The synthetic workflow makes its LLM hand-off through validated JSON and does not call a model API inside the pipeline. Copilot agent-development cost is reported only when `llm_request` OpenTelemetry events and pricing metadata are available.
+
+## Control Evidence
+
+Every `INSUFFICIENT_EVIDENCE` result preserves the deterministic verdict and records `HUMAN_APPROVAL_REQUIRED` in report audit columns without blocking execution or final reporting. Failed tasks retry no more than twice; exhaustion records `HUMAN_INSPECTION_REQUIRED` while automatic resume remains available.
+""", encoding="utf-8")
+    return path
+
+
 def main() -> int:
+    RUN_STEPS.clear()
+    run_started = time.perf_counter()
+    run_started_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
     backup_root = ROOT.parents[2].parent / "CPP-Private-Originals"
     backup_root.mkdir(parents=True, exist_ok=True)
     for relative in ("input", "cpp_data", "ims_data", "reports", "output/backups"):
@@ -321,11 +402,96 @@ def main() -> int:
         "--output", str(ROOT / "reports" / "pm000003_analysis.xlsx")])
     run(["scripts/validate_outputs.py", "--db", str(synthetic_db),
         "--workbook", str(ROOT / "reports" / "pm000003_analysis.xlsx")])
+
+    cost_dir = ROOT / "output" / "cost"
+    run(["cost_usage.py", "--out-dir", str(cost_dir), "--latest"])
+    usage_path = cost_dir / "usage_summary.json"
+    ai_usage = json.loads(usage_path.read_text(encoding="utf-8"))
+
+    connection = sqlite3.connect(str(synthetic_db))
+    classification_rows = connection.execute(
+        "SELECT classification, count(*) FROM mismatch_verdict GROUP BY classification").fetchall()
+    kd_rows = connection.execute(
+        "SELECT COALESCE(kd_code, '-'), count(*) FROM mismatch_verdict GROUP BY COALESCE(kd_code, '-')").fetchall()
+    connection.close()
+
+    metrics = {
+        "run_type": "synthetic",
+        "period": {"start": DAYS[0].isoformat(), "end": DAYS[-1].isoformat(), "days": len(DAYS)},
+        "coverage": {
+            "stores": len(STORES),
+            "source_log_rows": len(cdcs_rows) + len(cpp_rows),
+            "parsed_rows": 250,
+            "verdict_rows": 250,
+            "logical_groups": 220,
+            "paired_mismatches": 30,
+            "cpp_packets": 100,
+            "cpp_exploded_rows": 200,
+        },
+        "classifications": dict(classification_rows),
+        "kd": dict(kd_rows),
+        "quality": {
+            "malformed_rows": 0,
+            "reconciliation_percent": 100,
+            "llm_candidates": len(candidate_data["records"]),
+            "human_approval_required": len(candidate_data["records"]),
+            "max_task_retries": 2,
+            "retry_exhaustion_action": "HUMAN_INSPECTION_REQUIRED_AUDIT_AND_AUTO_RESUME",
+            "final_report_blocked_until_approval": False,
+        },
+        "telemetry": {
+            "analysis_pipeline_duration_seconds": round(time.perf_counter() - run_started, 3),
+            "step_count": len(RUN_STEPS),
+        },
+        "ai_cost": {
+            "in_pipeline_model_requests": ai_usage["in_pipeline_model_requests"],
+            "in_pipeline_cost": ai_usage["in_pipeline_ai_cost"],
+            "copilot_capture_status": ai_usage["capture_status"],
+            "copilot_requests": ai_usage["requests"],
+            "copilot_input_tokens": ai_usage["input_tokens"],
+            "copilot_output_tokens": ai_usage["output_tokens"],
+            "copilot_computed_cost": ai_usage["computed_cost"],
+            "copilot_logged_cost": ai_usage["logged_cost"],
+            "currency": "as reported by Copilot models.json; verify units before external reporting",
+        },
+        "method": "All product, deal, store, message, and price values were generated and are unrelated to production data.",
+    }
+    write_json(ROOT / "reports" / "run_metrics.json", metrics)
+    write_json(ROOT / "reports" / "production_metrics.json", metrics)
+
+    run(["scripts/generate_demo_deck.py"])
+    run(["scripts/generate_production_metrics_deck.py"])
+
+    run_finished_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
+    total_duration = round(time.perf_counter() - run_started, 3)
+    telemetry = {
+        "run_type": "synthetic",
+        "started_at": run_started_at,
+        "finished_at": run_finished_at,
+        "duration_seconds": total_duration,
+        "steps": RUN_STEPS,
+        "ai_cost": metrics["ai_cost"],
+        "copilot_usage_summary": ai_usage,
+        "rows": {
+            "source_log_rows": len(cdcs_rows) + len(cpp_rows),
+            "parsed_rows": 250,
+            "verdict_rows": 250,
+            "workbook_rows": 250,
+        },
+    }
+    write_json(ROOT / "reports" / "telemetry.json", telemetry)
+    write_json(ROOT / "output" / "cost" / "telemetry.json", telemetry)
+    summary_path = write_run_summary(metrics, telemetry)
+
     print(json.dumps({
         "database": str(synthetic_db),
         "cpp_snapshot_rows": sum(len(rows) for rows in cpp.values()),
         "mismatch_log_rows": len(cdcs_rows) + len(cpp_rows),
         "report": str(ROOT / "reports" / "pm000003_analysis.xlsx"),
+        "runtime_seconds": total_duration,
+        "ai_cost": metrics["ai_cost"],
+        "telemetry": str(ROOT / "reports" / "telemetry.json"),
+        "run_summary": str(summary_path),
         "private_originals": str(backup_root),
     }, indent=2))
     return 0

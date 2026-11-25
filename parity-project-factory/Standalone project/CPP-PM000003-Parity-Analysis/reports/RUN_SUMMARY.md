@@ -13,41 +13,30 @@ This report contains synthetic values only. Store, product, deal, price, packet,
 - CPP packets: 100
 - CPP-derived evidence rows: 200
 
-## Classification
-
-| Classification / KD | Rows |
-|---|---:|
-| EXPECTED / KD-1 | 10 |
-| EXPECTED / KD-2 | 50 |
-| EXPECTED / KD-6 | 40 |
-| EXPECTED / KD-8 | 25 |
-| EXPECTED / KD-9 | 50 |
-| EXPECTED / KD-10 | 25 |
-| POTENTIAL_ISSUE / no KD | 50 |
-
-Aggregate:
-
-- EXPECTED: 200 (80%)
-- POTENTIAL_ISSUE: 50 (20%)
-- IMS_DATA_ISSUE: 0 in this synthetic scenario
-
 ## Quality
 
 - Malformed source rows: 0
-- Mismatch rows: 250
-- Verdict rows: 250
-- Workbook rows: 250
+- Mismatch/verdict/workbook rows: 250/250/250
 - Reconciliation: 100%
+- EXPECTED: 200
+- POTENTIAL_ISSUE: 50
 - LLM candidates: 50
-- LLM rows requiring human approval: 50
-- Maximum task retries: 2
-- Retry-exhaustion state: `HUMAN_INSPECTION_REQUIRED`
-- Final report policy: generated normally; unresolved rows retain the audit status `HUMAN_APPROVAL_REQUIRED`
+- Human-approval audit rows: 50
+
+## Runtime And Cost Telemetry
+
+- Full generator runtime: 6.329 seconds
+- Analysis pipeline duration before presentation generation: 4.592 seconds
+- Recorded command steps: 10
+- In-pipeline model requests: 0
+- In-pipeline model cost: $0.000000
+- Copilot capture status: `unavailable`
+- Copilot requests: 0
+- Copilot input/output tokens: 0/0
+- Copilot computed cost: unavailable (no Copilot OTEL llm_request events)
+
+The synthetic workflow makes its LLM hand-off through validated JSON and does not call a model API inside the pipeline. Copilot agent-development cost is reported only when `llm_request` OpenTelemetry events and pricing metadata are available.
 
 ## Control Evidence
 
-Every `INSUFFICIENT_EVIDENCE` result preserves the deterministic verdict and records a durable human-approval audit status. The workbook marks these rows `HUMAN_APPROVAL_REQUIRED` without blocking execution or final reports. Failed pipeline tasks retry no more than twice; retry exhaustion records `HUMAN_INSPECTION_REQUIRED` for later investigation, while automatic resume continues and reruns the failed task.
-
-## Data Replacement Statement
-
-The prior project-local CPP CSVs, mismatch CSVs, populated analysis database, generated data-bearing workbooks, and analysis JSON have been replaced. Original files were copied to the external folder `CPP-Private-Originals` outside the project directory for recovery. The active project database and inputs use only synthetic stores in the 5101-5505 range and synthetic products in the 7001000 series.
+Every `INSUFFICIENT_EVIDENCE` result preserves the deterministic verdict and records `HUMAN_APPROVAL_REQUIRED` in report audit columns without blocking execution or final reporting. Failed tasks retry no more than twice; exhaustion records `HUMAN_INSPECTION_REQUIRED` while automatic resume remains available.
