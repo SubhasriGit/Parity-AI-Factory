@@ -1,0 +1,288 @@
+PARITY FACTORY AND CPP STANDALONE PROJECT
+SIMPLE HIGH-LEVEL ARCHITECTURE
+============================================================
+
+A. CREATE A STANDALONE PROJECT
+-----------------------------
+
++-------------------------+
+| User / business owner   |
+| Describes parity need   |
++------------+------------+
+             |
+             v
++-------------------------+
+| Parity Project Designer |
+| Interview + confirm      |
++------------+------------+
+             |
+             | asks for identity, mode, samples, datasets, keys,
+             | mappings, filters, KDs, LLM scope, reports, telemetry
+             v
++-------------------------+
+| Confirmed project spec  |
+| specs/<slug>.spec.json  |
++------------+------------+
+             |
+             v
++-------------------------+
+| factory/new_project.py  |
+| Validate + render        |
++------------+------------+
+             |
+             +----------------------+
+             |                      |
+             v                      v
++-------------------------+  +-------------------------+
+| templates/project/      |  | core/parity_core/       |
+| Agents, docs, config,   |  | Reusable deterministic  |
+| rules, scripts          |  | Python engine           |
++------------+------------+  +------------+------------+
+             |                            |
+             +-------------+--------------+
+                           |
+                           v
+             +-------------------------+
+             | Generated standalone    |
+             | project                 |
+             |                         |
+             | config / rules          |
+             | agents / scripts        |
+             | vendored parity_core    |
+             | input / reference       |
+             | database / output       |
+             | tests / docs            |
+             +-------------------------+
+
+
+B. GENERATED GENERIC EXECUTION FLOW
+----------------------------------
+
+Inputs
+  source + target                 supplied mismatch report
+        |                                      |
+        v                                      v
+  Mode A compare                         Mode B ingest
+        \                                      /
+         \                                    /
+          +----------------------------------+
+                           |
+                           v
+                 parity_result database
+                           |
+                           v
+              base mismatch CSV export
+                           |
+                           v
+             deterministic known-discrepancy rules
+                           |
+          +----------------+----------------+
+          |                                 |
+          v                                 v
+ Deterministic verdict             configured unresolved classes
+          |                                 |
+          |                                 v
+          |                         LLM candidate JSON
+          |                                 |
+          |                                 v
+          |                       external LLM / analyst
+          |                                 |
+          |                                 v
+          |                     validated findings JSON
+          |                                 |
+          +----------------+----------------+
+                           |
+                           v
+              enriched CSV and review workbook
+                           |
+                           v
+                 optional human review/import
+                           |
+                           v
+                 final report and validation
+
+Rule precedence:
+  Manual review > validated LLM finding > deterministic rule
+
+
+C. CPP PM000003 STANDALONE FLOW
+-------------------------------
+
++--------------------------------------------------------------+
+| Confirmed requirements                                      |
+| docs/CONFIRMED_REQUIREMENTS.md + config/cpp.yaml             |
++-------------------------------+------------------------------+
+                                |
+                                v
+                 +-----------------------------+
+                 | CPP PM000003 Orchestrator   |
+                 | 13 coordinated agents       |
+                 +-----------------------------+
+                                |
+      +-------------------------+-------------------------+
+      |                         |                         |
+      v                         v                         v
++-------------+        +----------------+        +----------------+
+| 5 CPP CSVs  |        | IMS SQLite +   |        | 2 mismatch     |
+| snapshots   |        | explicit day   |        | direction CSVs |
+|             |        | map            |        |                |
++------+------+        +--------+-------+        +-------+--------+
+       |                        |                        |
+       v                        v                        v
++-------------+        +----------------+        +----------------+
+| CPP Loader  |        | IMS Migrator   |        | Report Runner  |
+| cpp tables  |        | mf_data_store  |        | mismatch_input |
++------+------+        +--------+-------+        +-------+--------+
+       |                        |                        |
+       v                        |                        |
++-------------+                 |                        |
+| CPP Analyst |                 |                        |
+| packet JSON |                 |                        |
+| cpp_data    |                 |                        |
++------+------+                 |                        |
+       +------------------------+------------------------+
+                                |
+                                v
+                 +-----------------------------+
+                 | Canonical SQLite database   |
+                 | evidence + rows + verdicts  |
+                 +--------------+--------------+
+                                |
+                                v
+                 +-----------------------------+
+                 | Deterministic KD classifier |
+                 | first-match ordered rules   |
+                 +--------------+--------------+
+                                |
+              +-----------------+-----------------+
+              |                                   |
+              v                                   v
+    +---------------------+             +----------------------+
+    | EXPECTED with       |             | POTENTIAL_ISSUE /    |
+    | evidence + missing  |             | IMS_DATA_ISSUE       |
+    | evidence audit      |             | candidate queue      |
+    +----------+----------+             +----------+-----------+
+               |                                   |
+               |                                   v
+               |                       +----------------------+
+               |                       | llm_bridge export    |
+               |                       | llm_candidates.json  |
+               |                       +----------+-----------+
+               |                                  |
+               |                                  v
+               |                       +----------------------+
+               |                       | External LLM/analyst |
+               |                       +----------+-----------+
+               |                                  |
+               |                                  v
+               |                       +----------------------+
+               |                       | Validated findings   |
+               |                       | llm_findings.json    |
+               |                       +----------+-----------+
+               |                                  |
+               +------------------+---------------+
+                                  |
+                                  v
+                       +----------------------+
+                       | Reports              |
+                       | working + final XLSX |
+                       | audit and KPI data   |
+                       | PPTX demo/metrics    |
+                       +----------+-----------+
+                                  |
+                                  v
+                      +----------------------+
+                      | Optional human review|
+                      | and audit columns    |
+                      | non-blocking         |
+                      +----------+-----------+
+                                 |
+                                 v
+                      +----------------------+
+                      | Validation           |
+                      | DB = verdict = XLSX  |
+                      +----------------------+
+
+
+D. RETRY AND HUMAN-STATUS BOUNDARY
+---------------------------------
+
+Task starts
+   |
+   v
+Attempt 1 --fails--> retry 1 --fails--> retry 2 --fails
+                                                  |
+                                                  v
+                                      record all three attempts
+                                      status = HUMAN_INSPECTION_REQUIRED
+                                                  |
+                                                  v
+                                      automatic resume may rerun task
+                                      no approval gate
+
+LLM returns INSUFFICIENT_EVIDENCE
+   |
+   v
+Keep deterministic verdict
+   |
+   v
+Report row gets HUMAN_APPROVAL_REQUIRED audit column
+   |
+   v
+Final report still generates
+
+Human approval is visible, but it does not stop the execution or report flow.
+
+
+E. RESPONSIBILITY SPLIT
+----------------------
+
+AGENTS
+- coordinate;
+- clarify;
+- select tasks;
+- enforce prerequisites;
+- interpret structured evidence;
+- prepare reviews and summaries.
+
+PYTHON SCRIPTS
+- parse and validate data;
+- load databases;
+- migrate snapshots;
+- apply deterministic rules;
+- validate LLM JSON;
+- create final reports;
+- reconcile counts and schema.
+
+RULES / CONFIG
+- define keys, fields, mappings, filters, KD priority, LLM scope, and report
+  requirements without embedding secrets or production assumptions.
+
+LLM
+- second-pass analysis only for selected unresolved rows;
+- no direct database mutation;
+- no source-system access outside the supplied evidence package.
+
+HUMAN REVIEW
+- records review decisions and audit identity when supplied;
+- has highest business-decision precedence;
+- does not block the automated pipeline or final report in this project.
+
+
+F. SYSTEM OF RECORD
+-------------------
+
++------------------+----------------------------------------------+
+| Item             | Owner/source of truth                         |
++------------------+----------------------------------------------+
+| Business scope   | confirmed spec / requirements documents      |
+| Task order       | config/pipeline.yaml                         |
+| Dataset contracts| config and immutable dataset definitions      |
+| KD logic         | docs/KD_RULES.md + classifier implementation |
+| Run state        | state/task-state.json                        |
+| Data evidence    | canonical SQLite database                    |
+| LLM exchange     | validated JSON files                         |
+| Review/report    | Excel workbook                               |
+| Demo evidence    | PPTX, JSON metrics, markdown summary         |
+| Code truth       | Git repository and CI results                |
++------------------+----------------------------------------------+

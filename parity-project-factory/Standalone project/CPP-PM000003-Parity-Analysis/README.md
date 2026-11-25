@@ -4,6 +4,8 @@ Standalone PM000003 implementation for analysing directional CPP/CDCS pricing mi
 
 This is a completed reference implementation inside `parity-project-factory/Standalone project/`. Its checked-in inputs, databases, reports, and presentations are synthetic demonstration artifacts. Production values and credentials are not included.
 
+For a prepared presentation sequence, use [docs/DEMO_RUNBOOK.txt](docs/DEMO_RUNBOOK.txt). The cross-project design story and architecture are in [the factory demo review](../../docs/DEMO_PROJECT_DESIGN_REVIEW.txt) and [the architecture diagram](../../docs/HIGH_LEVEL_ARCHITECTURE.txt).
+
 ## Project Identity
 
 - Project name: `CPP-PM000003-Parity-Analysis`

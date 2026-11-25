@@ -1,0 +1,263 @@
+CPP PM000003 STANDALONE PROJECT - DEMO RUNBOOK
+============================================================
+
+DEMO GOAL
+---------
+Show one complete, evidence-driven parity run from confirmed inputs to a final
+report, while making the separation between agents, deterministic scripts, LLM
+analysis, and human review obvious.
+
+Recommended demo duration: 20-30 minutes.
+
+PRE-DEMO CHECKLIST
+------------------
+1. Open this folder in VS Code.
+2. Select CPP PM000003 Orchestrator.
+3. Confirm current synthetic run files exist:
+   - pm000003_mf_packets_multi_store.db
+   - cpp_data/ five CSV snapshots
+   - ims_data/ims_source.db
+   - ims_data/day-map.json
+   - input/ two directional mismatch CSVs
+   - output/llm_candidates.json
+   - output/llm_findings.json
+   - reports/pm000003_analysis.xlsx
+4. Run quick validation:
+
+   python -m pytest -q
+   python scripts/validate_database.py --db pm000003_mf_packets_multi_store.db
+   python scripts/validate_outputs.py --db pm000003_mf_packets_multi_store.db --workbook reports/pm000003_analysis.xlsx
+
+Expected: 34 CPP tests pass; database valid; 250 mismatch, 250 verdict, and 250
+workbook rows reconcile.
+
+OPENING SCRIPT
+-------------
+"This demo is not a generic prompt. It is a controlled standalone parity project.
+Agents coordinate work, Python scripts perform deterministic data operations, and
+the LLM is restricted to selected unresolved records. The outputs are traceable
+through the SQLite database and Excel workbook."
+
+DEMO SECTION 1 - PROJECT CONTRACT
+--------------------------------
+Show:
+- README.md
+- docs/CONFIRMED_REQUIREMENTS.md
+- config/cpp.yaml
+- config/pipeline.yaml
+
+Explain:
+- no-assumption gate;
+- exact input and mapping requirements;
+- explicit IMS source-table/store/day map;
+- 12 ordered tasks;
+- precedence: manual > validated LLM > deterministic verdict;
+- LLM and human approval do not block execution or final reporting.
+
+KEY QUESTION TO SAY ALOUD
+"What is confirmed, and what would be blocked if missing?"
+Answer: run-specific files, mappings, database path, and confirmed prerequisites
+can block a task. Human approval status does not block execution.
+
+DEMO SECTION 2 - AGENTS
+-----------------------
+Show .github/agents/ and explain the orchestrator plus 12 specialists:
+
+1. CPP PM000003 Orchestrator - full, resume, status, independent task coordination
+2. CPP Requirements Analyst - confirmed scope and clarifications
+3. CPP Database Migrator - schema and validation
+4. CPP CPP Loader - five CPP datasets
+5. CPP IMS Migrator - explicit IMS map and migration
+6. CPP Report Runner - mismatch CSV parsing and normalization
+7. CPP CPP Analyst - packet JSON explosion and evidence
+8. CPP Classifier - deterministic KD priority
+9. CPP LLM Analyst - unresolved candidate review
+10. CPP Review Coordinator - optional manual review import
+11. CPP Reporter - working/final workbook creation
+12. CPP Validator - independent database/report validation
+13. CPP Consolidated Reporter - optional named-report consolidation
+
+Important boundary:
+Agents select tasks, validate prerequisites, and call scripts. They should not
+replace the deterministic parsers or direct-mutate data outside the approved
+workflow.
+
+DEMO SECTION 3 - INPUTS
+-----------------------
+Show:
+
+cpp_data/
+- corpPricePackets.csv
+- dealPriceMaster.csv
+- regularPriceMaster.csv
+- zoneStoreRelation.csv
+- stagingProductPrice.csv
+
+ims_data/
+- ims_source.db
+- day-map.json
+
+input/
+- Diff-mismatch-CDCS-missing-in-CPP.csv
+- Diff-mismatch-CPP-missing-in-CDCS.csv
+
+Synthetic run facts:
+- 5 stores;
+- 20 products;
+- 5 snapshot days;
+- 50 source mismatch log rows;
+- 250 parsed rows;
+- 220 logical groups;
+- 30 paired mismatches;
+- 100 CPP packets;
+- 200 packet-derived evidence rows.
+
+DEMO SECTION 4 - DATABASE INITIALIZATION AND LOADING
+----------------------------------------------------
+Optional live command sequence:
+
+  python scripts/init_database.py --db pm000003_mf_packets_multi_store.db
+  python scripts/load_cpp_snapshot_to_db.py --db pm000003_mf_packets_multi_store.db --csv-dir cpp_data
+  python scripts/migrate_ims_snapshot_to_db.py \
+    --source ims_data/ims_source.db \
+    --db pm000003_mf_packets_multi_store.db \
+    --day-map ims_data/day-map.json
+
+Explain the resulting canonical database tables:
+- _metadata
+- cpp_price_packets
+- deal_price_master
+- regular_price_master
+- zone_store_relation
+- staging_product_price
+- mismatch_input
+- mismatch_verdict
+- cpp_data
+- mf_data_<four-digit-store>
+
+Use scripts/inspect_db.py to demonstrate read-only observability.
+
+DEMO SECTION 5 - DETERMINISTIC ANALYSIS
+---------------------------------------
+Show docs/KD_RULES.md and scripts/classify_kd.py.
+
+Explain the ordered rule engine:
+- KD-7, KD-4, KD-3, KD-1, KD-5, KD-9, KD-6, KD-10, RAW_PARITY,
+  RAW_MISMATCH_SAME_DAY, KD-2, KD-8, fallback.
+- First match wins.
+- Missing evidence is recorded separately; it does not silently downgrade a
+  matched expected pattern.
+- KD-2, KD-8, KD-9, and KD-10 remain EXPECTED when their pattern matches.
+- A row with no matching KD remains POTENTIAL_ISSUE.
+
+Expected synthetic classification distribution:
+- EXPECTED: 200 (80%)
+- POTENTIAL_ISSUE: 50 (20%)
+- IMS_DATA_ISSUE: 0
+
+DEMO SECTION 6 - LLM BOUNDARY
+-----------------------------
+Show output/llm_candidates.json and output/llm_findings.json.
+
+LLM entry condition:
+- candidate classification is POTENTIAL_ISSUE or IMS_DATA_ISSUE;
+- this run sends 50 unresolved candidates.
+
+LLM responsibilities:
+- review the controlled evidence package;
+- return structured JSON;
+- propose supported classification, KD, confidence, hypothesis, evidence,
+  missing evidence, and confirmation steps.
+
+LLM exclusions:
+- no schema creation;
+- no direct database update;
+- no CSV parsing;
+- no IMS day-map inference;
+- no hidden external source access;
+- no override of EXPECTED rows;
+- no final report decision by itself.
+
+The bridge
+  scripts/llm_bridge.py export
+  scripts/llm_bridge.py import
+validates the exchange.
+
+INSUFFICIENT_EVIDENCE
+- preserve deterministic classification;
+- mark HUMAN_APPROVAL_REQUIRED in report audit columns;
+- do not stop execution, resume, or final report generation;
+- allow optional human review fields later.
+
+DEMO SECTION 7 - HUMAN REVIEW AND FINAL REPORT
+----------------------------------------------
+Show reports/pm000003_analysis.xlsx.
+
+Important All_Results columns include:
+- deterministic classification and KD;
+- confidence and hypothesis;
+- supporting evidence;
+- missing evidence;
+- confirmation_status and confirmation_reason;
+- reviewed_classification;
+- reviewed_kd_code;
+- review_notes;
+- reviewed_by;
+- reviewed_at.
+
+Demonstrate that final generation succeeds with 50 HUMAN_APPROVAL_REQUIRED rows.
+The status is an audit/review recommendation, not an execution gate.
+
+DEMO SECTION 8 - RETRY AND AUTOMATIC RESUME
+-------------------------------------------
+Show scripts/run_pipeline.py and config/pipeline.yaml.
+
+Default behavior:
+- initial attempt;
+- retry 1;
+- retry 2;
+- maximum three total attempts.
+
+After all attempts fail:
+- status/evidence includes HUMAN_INSPECTION_REQUIRED;
+- attempt count, command, exit code, stdout, and stderr are retained;
+- automatic resume continues and reruns the failed task;
+- the marker is an inspection recommendation, not an approval requirement.
+
+DEMO SECTION 9 - REPORTS AND PRESENTATIONS
+------------------------------------------
+Open:
+- reports/RUN_SUMMARY.md
+- reports/production_metrics.json
+- reports/CPP_PM000003_Production_Metrics.pptx
+- reports/CPP_Parity_AI_Factory_Demo.pptx
+
+Evidence shown:
+- 250/250 reconciliation;
+- 0 malformed source rows;
+- 50 human-approval audit rows;
+- max 2 retries;
+- automatic resume continues;
+- 34 automated CPP tests;
+- 11 factory tests.
+
+DEMO CLOSE
+----------
+Close with these messages:
+
+1. The factory turns a confirmed spec into a reusable standalone project.
+2. The standalone project owns its context, agents, rules, scripts, database,
+   tests, and reports.
+3. Deterministic scripts own parsing and evidence; agents coordinate; the LLM is
+   a bounded second-pass reviewer.
+4. Human review and retry-inspection markers are visible without stopping valid
+   execution or final reports.
+5. The repository is reproducible, testable, and Git/CI controlled.
+6. Production connectors, measured AI cost, reviewer time, hours saved, and
+   cross-team adoption remain the next evidence items.
+
+SAFE DEMO BOUNDARY
+------------------
+All checked-in CPP data is synthetic. Do not show production identifiers,
+credentials, source names, or sensitive reports. For real delivery evidence, use
+sanitized counts, workflow screenshots, approvals, and stakeholder references.

@@ -36,6 +36,8 @@ The factory keeps reusable assets at its root and checked-in standalone implemen
 
 For standalone-project documentation, use [the standalone project index](Standalone%20project/README.md) and [the reusable README template](Standalone%20project/README_TEMPLATE.md). Each implementation must also maintain its own completed README, such as [the CPP project README](Standalone%20project/CPP-PM000003-Parity-Analysis/README.md).
 
+For demonstrations and design walkthroughs, use [the demo project design review](docs/DEMO_PROJECT_DESIGN_REVIEW.txt) and [the high-level architecture](docs/HIGH_LEVEL_ARCHITECTURE.txt). The CPP-specific live presentation sequence is in [the CPP demo runbook](Standalone%20project/CPP-PM000003-Parity-Analysis/docs/DEMO_RUNBOOK.txt).
+
 ## How to create a project
 
 ### With Copilot (recommended)

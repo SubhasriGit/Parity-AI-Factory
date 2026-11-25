@@ -1,0 +1,429 @@
+PARITY PROJECT FACTORY AND STANDALONE CPP PROJECT
+DEMO DESIGN REVIEW
+============================================================
+
+PURPOSE
+-------
+This report explains the complete story from a user request to a reusable
+standalone parity project, and then explains how the CPP PM000003 project runs.
+It is intended for a technical demo, design review, or AI/Run evidence discussion.
+
+EXECUTIVE SUMMARY
+-----------------
+The repository has two related but different products:
+
+1. parity-project-factory/
+   - The reusable design and generation system.
+   - A Parity Project Designer agent interviews the user.
+   - A confirmed JSON specification becomes the design contract.
+   - Python generator scripts render a complete standalone project.
+
+2. parity-project-factory/Standalone project/CPP-PM000003-Parity-Analysis/
+   - A concrete PM000003 parity implementation using confirmed requirements.
+   - It processes CPP snapshots, IMS snapshots, and directional mismatch CSVs.
+   - It produces evidence, deterministic verdicts, optional LLM findings, a human
+     review workbook, final reports, metrics, and presentations.
+
+Important distinction for the demo:
+- The factory is generic and uses the vendored parity_core pipeline engine.
+- CPP is a bespoke standalone PM000003 implementation with specialized schema,
+  scripts, rule priority, reports, and 13 agents. It is maintained beside the
+  factory examples but is not required to execute through the generic scripts/parity.py.
+
+
+1. HOW A NEW STANDALONE PROJECT IS CREATED
+-----------------------------------------
+
+START
+  User describes a parity need.
+
+STEP 1 - SELECT THE DESIGNER AGENT
+  Open parity-project-factory in VS Code and select "Parity Project Designer".
+  The Designer coordinates requirements; it does not parse production data or
+  invent mappings.
+
+STEP 2 - COLLECT AND CONFIRM DETAILS
+  The Designer asks the user for:
+
+  Project identity
+  - project display name;
+  - lowercase-hyphen slug;
+  - purpose and owner;
+  - destination folder;
+  - Python command;
+  - whether the project should be initialized as a Git repository.
+
+  Workflow mode
+  - Mode A: compare source and target extracts.
+  - Mode B: analyse a mismatch report produced by another tool.
+  - Mode AB: support both workflows in one project and one database.
+
+  Datasets
+  - role: source, target, diff, or reference;
+  - actual sample file;
+  - file name or pattern;
+  - connector and acquisition method;
+  - selection: latest, all, or single;
+  - format: CSV, fixed-width, JSONL, or embedded messages;
+  - columns, source field/header/index, type, and required/default behavior;
+  - load policy: replace, or append with deduplication keys;
+  - whether a reference dataset is a required analysis snapshot.
+
+  Parity definition
+  - composite or primary key columns;
+  - compared fields;
+  - decimal tolerance and scale;
+  - date formats;
+  - trim, case, zero-padding, null and normalization behavior;
+  - for supplied reports: direction mapping, logical key, and pairing policy.
+
+  Filters and scope
+  - out-of-scope records;
+  - include/exclude conditions;
+  - business reason for each rule.
+
+  Analysis and known discrepancies
+  - classification vocabulary;
+  - KD code, title, description, priority, and confidence;
+  - result types where each KD applies;
+  - deterministic condition, evidence query, or custom Python check;
+  - confirmation steps and missing evidence;
+  - default classification when no KD matches.
+
+  LLM scope
+  - whether LLM review is enabled;
+  - classifications eligible for review;
+  - maximum rows per batch and batches per run;
+  - evidence data/query that may be sent per row;
+  - cost and autonomy limits.
+
+  Reports and delivery
+  - CSV and/or XLSX;
+  - summary and detail views;
+  - human-review fields;
+  - final workbook location;
+  - manual collection or a separately designed output publisher;
+  - retention and telemetry needs.
+
+STEP 3 - INSPECT SAMPLES
+  The Designer uses factory/inspect_sample.py to inspect real sample files when
+  available. It drafts mappings from observed headers or layout. It does not
+  invent production column names.
+
+STEP 4 - CONFIRM THE DESIGN
+  The Designer presents the identity, datasets, filters, keys, rules, LLM scope,
+  reports, and telemetry plan in plain language. Each section is confirmed with
+  the user. Credentials must never be placed in the specification.
+
+STEP 5 - SAVE AND VALIDATE THE SPEC
+  The contract is saved as specs/<slug>.spec.json and validated:
+
+    python factory/new_project.py --spec specs/<slug>.spec.json --validate-only
+
+  Validation checks required sections, mode-specific config, datasets, columns,
+  slug format, and credential-like fields.
+
+STEP 6 - GENERATE THE STANDALONE PROJECT
+
+    python factory/new_project.py \
+      --spec specs/<slug>.spec.json \
+      --dest "Standalone project/<slug>" \
+      [--with-samples] [--git-init]
+
+  new_project.py:
+  - builds generated config files;
+  - renders agents, prompts, skills, instructions, docs, and README;
+  - copies parity_core into the standalone project;
+  - creates input/reference/database/output folders;
+  - writes known-discrepancy rules;
+  - optionally copies sample files;
+  - writes .parity-factory.json version metadata;
+  - validates the generated project;
+  - optionally initializes Git.
+
+STEP 7 - SMOKE TEST
+  From the generated project:
+
+    python scripts/parity.py init-db
+    python scripts/parity.py precheck
+    python scripts/parity.py run
+
+  For Mode AB, the user explicitly chooses --workflow compare or
+  --workflow ingest-diff.
+
+STEP 8 - USE AND TUNE
+  The team runs the workflow, reviews report evidence, tunes declarative rules,
+  updates mappings/configuration when confirmed, reruns, and records feedback.
+  Existing generated projects can receive deliberate engine upgrades through
+  --upgrade-core; changes in the factory do not silently alter them.
+
+
+2. AGENTS USED TO CREATE A PROJECT
+----------------------------------
+At factory level there is one primary creation agent:
+
+Parity Project Designer
+- Interviews the user.
+- Confirms decisions section by section.
+- Uses the create-parity-project skill and specification reference.
+- Asks the generator to validate and create the project.
+- Runs the smoke test.
+
+Generated project agents normally include:
+- Project Orchestrator
+- Setup
+- Loader
+- Filter
+- Comparator for Mode A
+- Diff Ingestor for Mode B
+- Classifier
+- LLM Analyst
+- Reporter
+
+The Designer and agents control workflow and clarification. Python scripts
+perform deterministic parsing, loading, filtering, comparison, classification,
+database work, and report generation.
+
+
+3. GENERIC FACTORY PIPELINE
+---------------------------
+A generated project follows this pattern:
+
+  init-db -> precheck -> load -> filter
+          -> compare OR ingest-diff
+          -> parity_result
+          -> base mismatch export
+          -> deterministic known-discrepancy classification
+          -> optional LLM export/review/import
+          -> enriched report
+          -> human review and review import
+          -> final report
+
+Rules are stored in rules/known_discrepancies.json, custom logic in
+rules/custom_rules.py, and the LLM is used only for configured unresolved classes.
+
+
+4. CPP STANDALONE PROJECT: ACTUAL EXECUTION
+------------------------------------------
+CPP is Workflow B in substance: a supplied mismatch report is analysed against
+CPP and IMS evidence.
+
+Exact 12-task flow
+
+1. requirements-confirm
+   Agent: CPP Requirements Analyst
+   Reads the confirmed requirements, resolves contradictions, and enforces the
+   no-assumption gate.
+
+2. db-init
+   Agent: CPP Database Migrator
+   Script: scripts/init_database.py
+   Creates/checks the canonical SQLite schema and indexes.
+
+3. cpp-load
+   Agent: CPP CPP Loader
+   Script: scripts/load_cpp_snapshot_to_db.py
+   Loads five CPP snapshots with validation and idempotent metadata:
+   corpPricePackets, dealPriceMaster, regularPriceMaster, zoneStoreRelation,
+   stagingProductPrice.
+
+4. ims-migrate
+   Agent: CPP IMS Migrator
+   Script: scripts/migrate_ims_snapshot_to_db.py
+   Uses the explicit day map; imports per-store source tables; deduplicates;
+   validates source/target parity; creates external backups.
+
+5. report-parse
+   Agent: CPP Report Runner
+   Script: pm000003_mismatch_report.py
+   Parses DTOs embedded in the two directional CSV exports, normalizes records,
+   pairs logical directions, and persists mismatch_input rows.
+
+6. cpp-explode
+   Agent: CPP CPP Analyst
+   Script: scripts/cpp_analyst.py
+   Explodes CPP packet JSON and prepares canonical cpp_data evidence. Malformed
+   and truncated packet data do not create false confirmed evidence.
+
+7. classify
+   Agent: CPP Classifier
+   Script: scripts/classify_kd.py
+   Applies the first-match deterministic KD order. Stores classification,
+   KD code, confidence, hypothesis, supporting evidence, and missing evidence.
+
+8. llm-review
+   Agent: CPP LLM Analyst
+   Script: scripts/llm_bridge.py
+   Exports only POTENTIAL_ISSUE and IMS_DATA_ISSUE candidates as JSON. A model or
+   analyst returns schema-valid findings. Import accepts supported evidence and
+   leaves deterministic verdicts unchanged when evidence is insufficient.
+
+9. human-review-import
+   Agent: CPP Review Coordinator
+   Script: scripts/review_and_report.py review-import
+   Imports supplied reviewed classifications, KD codes, notes, reviewer identity,
+   and timestamp. Human review is tracked but does not block execution.
+
+10. final-report
+    Agent: CPP Reporter
+    Script: scripts/review_and_report.py report
+    Generates summary, classification, detail, All_Results, and directional sheets.
+
+11. validate
+    Agent: CPP Validator
+    Scripts: scripts/validate_database.py and scripts/validate_outputs.py
+    Reconciles schema, counts, indexes, mismatch rows, verdict rows, and workbook rows.
+
+12. consolidate
+    Agent: CPP Consolidated Reporter
+    Script: scripts/consolidated_report.py
+    Optional, explicitly selected, and combines named approved report files.
+
+The orchestrator may run the full pipeline, resume, inspect status, or begin from
+an independent task when that task's declared prerequisites are satisfied.
+
+
+5. WHERE THE LLM IS USED AND WHERE IT IS NOT USED
+-----------------------------------------------
+LLM IS USED
+- After deterministic classification, for unresolved POTENTIAL_ISSUE and
+  IMS_DATA_ISSUE rows.
+- To inspect the controlled evidence package exported by llm_bridge.py.
+- To produce structured findings containing classification, KD, confidence,
+  hypothesis, supporting evidence, missing evidence, and confirmation steps.
+
+LLM IS NOT USED
+- To create or modify the database schema.
+- To parse CSV or packet JSON into canonical tables.
+- To decide IMS store/day mapping.
+- To replace deterministic first-match KD logic.
+- To validate row reconciliation or workbook structure.
+- To silently approve or overwrite EXPECTED known discrepancies.
+- To replace human review precedence.
+
+LLM file boundary
+- Candidate export: output/llm_candidates.json
+- Findings import: output/llm_findings.json
+- The bridge validates row IDs, classifications, confidence, supporting evidence,
+  and schema. It does not contain a model SDK call; model execution is external
+  to the deterministic Python pipeline and exchanged by validated JSON files.
+
+INSUFFICIENT_EVIDENCE behavior
+- The deterministic verdict is unchanged.
+- The row is marked HUMAN_APPROVAL_REQUIRED in final-report audit columns.
+- This marker does not block execution, automatic resume, or final report output.
+- Optional human review can later supply an explicit decision and audit identity.
+
+
+6. CPP SCRIPT SUMMARY
+---------------------
+- pm000003_mismatch_report.py: parse, normalize, pair, and persist mismatch rows.
+- init_database.py: create/check schema and canonical tables.
+- cpp_datasets.py: immutable contracts for the five CPP datasets.
+- inspect_cpp_csv.py: read-only sample/header/row-count inspection.
+- load_cpp_snapshot_to_db.py: validated streaming CPP load.
+- migrate_ims_snapshot_to_db.py: explicit IMS migration and backup.
+- cpp_analyst.py: packet JSON explosion and evidence reconstruction.
+- classify_kd.py: first-match KD verdicts and evidence gates.
+- llm_bridge.py: controlled candidate/finding JSON exchange.
+- review_and_report.py: human review import and workbook generation.
+- validate_database.py: schema/table/index validation.
+- validate_outputs.py: DB-versus-workbook reconciliation.
+- run_pipeline.py: full, task, resume, and status execution with retries.
+- consolidated_report.py: explicit multi-report consolidation.
+- inspect_db.py: read-only SQLite inspection.
+- generate_run.py: deterministic synthetic end-to-end run.
+- generate_demo_deck.py: business/AI factory demo presentation.
+- generate_production_metrics_deck.py: operational metrics presentation.
+
+
+7. CPP RULES AND CONTROLS
+-------------------------
+Deterministic KD order is documented in docs/KD_RULES.md. KD-2, KD-8, KD-9,
+and KD-10 remain EXPECTED when their known pattern matches. Missing evidence is
+recorded separately in confirmation status/reason and missing_evidence.
+
+Precedence
+  Human/manual verdict
+       > validated LLM finding
+       > deterministic rule
+
+Retry control
+- Default maximum: two retries after the first attempt.
+- Every attempt command and output is recorded.
+- Retry exhaustion creates HUMAN_INSPECTION_REQUIRED as an audit recommendation.
+- Resume is not stopped by this marker and can rerun the task.
+
+Other controls
+- Explicit IMS store/table/day map; never infer.
+- Read-only validators.
+- Reconciliation gates.
+- Human approval does not stop the final report.
+- No production credentials in config or Git.
+- Backups are written outside the repository.
+
+
+8. POSITIVE DESIGN REVIEW
+-------------------------
+1. Clear separation between orchestration and deterministic data processing.
+2. Factory creates reproducible standalone projects from a confirmed spec.
+3. Generated projects own their agents, rules, configs, scripts, engine, DB,
+   inputs, outputs, and documentation.
+4. CPP workflow covers the complete process from source evidence to final report.
+5. Explicit P0 requirements, KD order, schema validation, and traceability.
+6. First-match deterministic rules are testable and explainable.
+7. LLM scope is restricted and uses a validated file contract rather than hidden
+   direct database/model mutation.
+8. Insufficient LLM evidence preserves the deterministic verdict.
+9. Human approval remains visible in reports without blocking delivery.
+10. Bounded retries preserve evidence and automatic resume remains available.
+11. Reports, database, and presentations reconcile on synthetic data.
+12. Root workflows validate the factory and CPP project.
+13. Reusable README template standard supports new standalone projects.
+
+
+9. NEGATIVE / LIMITATION REVIEW
+--------------------------------
+1. Factory v1 supports local/manual connectors only. SQL, FTP/SFTP, cloud, and
+   remote publishers remain extension designs, not implemented connectors.
+2. CPP is bespoke and does not reuse the generic parity_core CLI end to end;
+   it has separate scripts and requires separate maintenance.
+3. Some CPP configuration fields are still TO_BE_CONFIRMED for owner and run-
+   specific files; per-run confirmation is required.
+4. Checked-in CPP data is synthetic, so it proves mechanics and controls but is
+   not evidence of measured production ROI by itself.
+5. Runtime, reviewer time, token cost, latency, agreement rate, rework, and hours
+   saved are identified as telemetry needs but are not yet collected as evidence.
+6. Human review fields are optional; the system records need-for-review but does
+   not stop report generation by design.
+7. State/task-state.json and transient outputs are local evidence and may need a
+   production retention/observability system for enterprise operations.
+8. LLM execution itself is outside the repository at the file-bridge boundary;
+   model/version, token usage, and cost therefore need external capture.
+9. Production data cannot be committed or demonstrated openly; winning-criteria
+   proof must use sanitized execution evidence and stakeholder confirmations.
+10. A future project should not copy CPP stores, products, dates, KD codes, or
+    metrics; those values are implementation-specific.
+
+
+10. DEMO TALK TRACK
+-------------------
+1. Start with the real business problem and why a repeatable factory is needed.
+2. Show the Designer asking for confirmed identity, mode, datasets, keys, rules,
+   LLM scope, reports, and telemetry.
+3. Show the saved spec and validation command.
+4. Show factory/new_project.py producing a standalone project with copied engine,
+   agents, templates, config, rules, scripts, and docs.
+5. Open the CPP standalone project and show the 13 agents plus 12-task pipeline.
+6. Show the two directional mismatch CSVs, five CPP snapshots, IMS database,
+   and explicit day map.
+7. Show database and report reconciliation: 250 mismatch rows, 250 verdicts,
+   250 workbook rows, 0 malformed rows.
+8. Show deterministic KD result distribution and confirmation columns.
+9. Show only the 50 unresolved potential issues exported to LLM.
+10. Explain that insufficient evidence preserves the deterministic verdict and
+    appears as HUMAN_APPROVAL_REQUIRED without blocking the report.
+11. Show retry control: three total attempts by default, recorded evidence, and
+    a non-blocking HUMAN_INSPECTION_REQUIRED audit marker.
+12. Close with reusable output: DB, XLSX, PPTX, tests, CI, README, and synthetic
+    evidence, with production telemetry and external integrations as next steps.
