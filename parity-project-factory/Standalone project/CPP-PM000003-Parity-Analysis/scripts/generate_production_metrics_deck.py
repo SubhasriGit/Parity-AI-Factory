@@ -126,7 +126,7 @@ rect(slide, 9.25, 1.25, 3.0, 4.2, RGBColor(
     27, 48, 65), RGBColor(62, 86, 103), True)
 metric(slide, 9.55, 1.80, 2.4, "250", "synthetic parsed rows", TEAL)
 metric(slide, 9.55, 3.15, 2.4, "100%", "reconciliation", GOLD)
-metric(slide, 9.55, 4.50, 2.4, "36", "tests passed", CORAL)
+metric(slide, 9.55, 4.50, 2.4, "42", "tests passed", CORAL)
 text(slide, "Run period • 16–20 Nov 2026", 0.84,
      6.75, 4.5, 0.25, 10, RGBColor(160, 180, 188))
 
@@ -190,7 +190,7 @@ footer(slide, 4)
 slide = new_slide(prs)
 slide_title(slide, "04 • Quality controls", "Production quality is evidenced, not assumed",
             "The run carries deterministic reconciliation, validation and backup evidence.")
-controls = [("Reconciliation", "100%", "250 rows at DB, verdict and workbook stages", GREEN), ("Malformed input", "0", "No rejected synthetic source row", GREEN), ("Test suite", "36", "Automated tests pass",
+controls = [("Reconciliation", "100%", "250 rows at DB, verdict and workbook stages", GREEN), ("Malformed input", "0", "No rejected synthetic source row", GREEN), ("Test suite", "42", "Automated tests pass",
                                                                                                                                                                     TEAL), ("Schema", "9 / 20", "Tables / required indexes", SKY), ("Human approval", "50", "Audit rows; final reporting continues", GOLD), ("Task retries", "2", "Auto resume continues after exhaustion", CORAL)]
 for index, (label, value, note, color) in enumerate(controls):
     row, col = divmod(index, 3)
@@ -216,7 +216,7 @@ metric(slide, 9.28, 2.0, 2.55, data["ai_cost"]["copilot_capture_status"].upper(
 rect(slide, 0.85, 3.75, 11.0, 2.12, WHITE, LINE, True)
 text(slide, "AI control outcome", 1.15, 4.04, 2.8, 0.3, 15, NAVY, True)
 bullet(slide, ["50/50 synthetic findings were INSUFFICIENT_EVIDENCE", "The deterministic pipeline made no model API request",
-       f"Copilot cost capture status: {data['ai_cost']['copilot_capture_status']}", "Cost is separated into pipeline model cost and external agent-development cost"], 1.15, 4.50, 10.0, 1.12, 12)
+       f"Copilot cost capture status: {data['ai_cost']['copilot_capture_status']}", f"Estimated cost if sent to an external LLM (not billed): ${data['ai_cost']['llm_estimate']['cost']:.4f} with redaction, caps and spend ceiling"], 1.15, 4.50, 10.0, 1.12, 12)
 footer(slide, 6)
 
 # 7 telemetry status

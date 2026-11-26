@@ -1,0 +1,31 @@
+{
+    "version": 1,
+    "note": "Prices are illustrative placeholders; replace with the approved provider contract price before reporting cost. Set require_salt to true and supply the salt env var for production data.",
+    "max_candidates_per_run": 500,
+    "max_rows_per_batch": 50,
+    "max_batches": 20,
+    "max_estimated_cost_per_run": 5.0,
+    "redaction": {
+        "enabled": true,
+        "fields": [
+            "store",
+            "offering_number",
+            "deal_number"
+        ],
+        "salt_env": "LLM_REDACTION_SALT",
+        "require_salt": false
+    },
+    "token_estimation": {
+        "chars_per_token": 4,
+        "prompt_overhead_tokens_per_batch": 400,
+        "assumed_output_tokens_per_candidate": 150
+    },
+    "pricing": {
+        "model": "unconfigured-illustrative",
+        "currency": "USD",
+        "input_per_million": 2.5,
+        "cached_per_million": 1.25,
+        "output_per_million": 10.0,
+        "price_source": "ILLUSTRATIVE_REPLACE_WITH_CONTRACT_PRICE"
+    }
+}

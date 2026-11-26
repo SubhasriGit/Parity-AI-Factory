@@ -319,6 +319,8 @@ This report contains synthetic values only. Store, product, deal, price, packet,
 - Recorded command steps: {metrics['telemetry']['step_count']}
 - In-pipeline model requests: {cost['in_pipeline_model_requests']}
 - In-pipeline model cost: ${cost['in_pipeline_cost']:.6f}
+- Estimated external-LLM hand-off (not billed): {cost['llm_estimate']['candidates_exported']} candidates in {cost['llm_estimate']['batches']} batch(es), ~{cost['llm_estimate']['input_tokens']}/{cost['llm_estimate']['output_tokens']} input/output tokens, ~${cost['llm_estimate']['cost']:.4f} at `{cost['llm_estimate']['price_source']}` prices
+- Guardrails: redaction {'on' if cost['llm_estimate']['redaction_enabled'] else 'off'}, skipped by cap {cost['llm_estimate']['skipped_by_limit']}, skipped by spend ceiling {cost['llm_estimate']['skipped_by_budget']}
 - Copilot capture status: `{cost['copilot_capture_status']}`
 - Copilot requests: {cost['copilot_requests']}
 - Copilot input/output tokens: {cost['copilot_input_tokens']}/{cost['copilot_output_tokens']}
@@ -407,7 +409,8 @@ def main() -> int:
     run(["cost_usage.py", "--out-dir", str(cost_dir), "--latest"])
     usage_path = cost_dir / "usage_summary.json"
     ai_usage = json.loads(usage_path.read_text(encoding="utf-8"))
-
+    llm_estimate = json.loads(
+        (ROOT / "output" / "cost" / "llm_cost_estimate.json").read_text(encoding="utf-8"))
     connection = sqlite3.connect(str(synthetic_db))
     classification_rows = connection.execute(
         "SELECT classification, count(*) FROM mismatch_verdict GROUP BY classification").fetchall()
@@ -452,6 +455,19 @@ def main() -> int:
             "copilot_output_tokens": ai_usage["output_tokens"],
             "copilot_computed_cost": ai_usage["computed_cost"],
             "copilot_logged_cost": ai_usage["logged_cost"],
+            "llm_estimate": {
+                "basis": llm_estimate["basis"],
+                "price_source": llm_estimate["price_source"],
+                "candidates_exported": llm_estimate["candidates_exported"],
+                "skipped_by_limit": llm_estimate["skipped_by_limit"],
+                "skipped_by_budget": llm_estimate["skipped_by_budget"],
+                "batches": llm_estimate["batches"],
+                "input_tokens": llm_estimate["estimated_input_tokens"],
+                "output_tokens": llm_estimate["estimated_output_tokens"],
+                "cost": llm_estimate["estimated_cost"],
+                "cost_per_candidate": llm_estimate["estimated_cost_per_candidate"],
+                "redaction_enabled": llm_estimate["redaction_enabled"],
+            },
             "currency": "as reported by Copilot models.json; verify units before external reporting",
         },
         "method": "All product, deal, store, message, and price values were generated and are unrelated to production data.",

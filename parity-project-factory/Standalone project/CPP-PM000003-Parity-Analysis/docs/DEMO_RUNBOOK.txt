@@ -29,7 +29,7 @@ PRE-DEMO CHECKLIST
    python scripts/validate_outputs.py --db pm000003_mf_packets_multi_store.db --workbook reports/pm000003_analysis.xlsx
    python cost_usage.py --out-dir output/cost --latest
 
-Expected: 36 CPP tests pass; database valid; 250 mismatch, 250 verdict, and 250
+Expected: 42 CPP tests pass; database valid; 250 mismatch, 250 verdict, and 250
 workbook rows reconcile.
 
 OPENING SCRIPT
@@ -241,7 +241,7 @@ Evidence shown:
 - 50 human-approval audit rows;
 - max 2 retries;
 - automatic resume continues;
-- 36 automated CPP tests;
+- 42 automated CPP tests;
 - 11 factory tests.
 
 DEMO CLOSE

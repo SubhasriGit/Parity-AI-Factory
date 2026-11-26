@@ -25,11 +25,13 @@ This report contains synthetic values only. Store, product, deal, price, packet,
 
 ## Runtime And Cost Telemetry
 
-- Full generator runtime: 6.329 seconds
-- Analysis pipeline duration before presentation generation: 4.592 seconds
+- Full generator runtime: 6.108 seconds
+- Analysis pipeline duration before presentation generation: 4.332 seconds
 - Recorded command steps: 10
 - In-pipeline model requests: 0
 - In-pipeline model cost: $0.000000
+- Estimated external-LLM hand-off (not billed): 50 candidates in 1 batch(es), ~7366/7500 input/output tokens, ~$0.0934 at `ILLUSTRATIVE_REPLACE_WITH_CONTRACT_PRICE` prices
+- Guardrails: redaction on, skipped by cap 0, skipped by spend ceiling 0
 - Copilot capture status: `unavailable`
 - Copilot requests: 0
 - Copilot input/output tokens: 0/0

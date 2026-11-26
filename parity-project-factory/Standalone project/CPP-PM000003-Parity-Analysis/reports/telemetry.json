@@ -1,8 +1,8 @@
 {
   "run_type": "synthetic",
-  "started_at": "2026-11-25T08:53:23+00:00",
-  "finished_at": "2026-11-25T08:53:30+00:00",
-  "duration_seconds": 6.329,
+  "started_at": "2026-11-26T14:29:40+00:00",
+  "finished_at": "2026-11-26T14:29:46+00:00",
+  "duration_seconds": 6.108,
   "steps": [
     {
       "command": [
@@ -10,7 +10,7 @@
         "--db",
         "pm000003_mf_packets_multi_store.db"
       ],
-      "duration_seconds": 0.377,
+      "duration_seconds": 0.342,
       "returncode": 0,
       "status": "SUCCESS"
     },
@@ -23,7 +23,7 @@
         "cpp_data",
         "--keep-empty-bodies"
       ],
-      "duration_seconds": 0.266,
+      "duration_seconds": 0.29,
       "returncode": 0,
       "status": "SUCCESS"
     },
@@ -37,7 +37,7 @@
         "--day-map",
         "ims_data/day-map.json"
       ],
-      "duration_seconds": 0.258,
+      "duration_seconds": 0.189,
       "returncode": 0,
       "status": "SUCCESS"
     },
@@ -49,7 +49,7 @@
         "--persist-to-db",
         "pm000003_mf_packets_multi_store.db"
       ],
-      "duration_seconds": 1.0,
+      "duration_seconds": 1.188,
       "returncode": 0,
       "status": "SUCCESS"
     },
@@ -62,7 +62,7 @@
         "--analysis-date",
         "2026-11-20"
       ],
-      "duration_seconds": 0.267,
+      "duration_seconds": 0.207,
       "returncode": 0,
       "status": "SUCCESS"
     },
@@ -75,7 +75,7 @@
         "--output",
         "output/llm_candidates.json"
       ],
-      "duration_seconds": 0.238,
+      "duration_seconds": 0.169,
       "returncode": 0,
       "status": "SUCCESS"
     },
@@ -88,7 +88,7 @@
         "--file",
         "output/llm_findings.json"
       ],
-      "duration_seconds": 0.21,
+      "duration_seconds": 0.185,
       "returncode": 0,
       "status": "SUCCESS"
     },
@@ -101,7 +101,7 @@
         "--output",
         "reports/pm000003_analysis.xlsx"
       ],
-      "duration_seconds": 0.905,
+      "duration_seconds": 0.806,
       "returncode": 0,
       "status": "SUCCESS"
     },
@@ -113,7 +113,7 @@
         "--workbook",
         "reports/pm000003_analysis.xlsx"
       ],
-      "duration_seconds": 0.761,
+      "duration_seconds": 0.687,
       "returncode": 0,
       "status": "SUCCESS"
     },
@@ -124,7 +124,7 @@
         "output/cost",
         "--latest"
       ],
-      "duration_seconds": 0.22,
+      "duration_seconds": 0.174,
       "returncode": 0,
       "status": "SUCCESS"
     },
@@ -132,7 +132,7 @@
       "command": [
         "scripts/generate_demo_deck.py"
       ],
-      "duration_seconds": 1.054,
+      "duration_seconds": 1.115,
       "returncode": 0,
       "status": "SUCCESS"
     },
@@ -140,7 +140,7 @@
       "command": [
         "scripts/generate_production_metrics_deck.py"
       ],
-      "duration_seconds": 0.677,
+      "duration_seconds": 0.646,
       "returncode": 0,
       "status": "SUCCESS"
     }
@@ -154,6 +154,19 @@
     "copilot_output_tokens": 0,
     "copilot_computed_cost": null,
     "copilot_logged_cost": null,
+    "llm_estimate": {
+      "basis": "estimate_not_billed",
+      "price_source": "ILLUSTRATIVE_REPLACE_WITH_CONTRACT_PRICE",
+      "candidates_exported": 50,
+      "skipped_by_limit": 0,
+      "skipped_by_budget": 0,
+      "batches": 1,
+      "input_tokens": 7366,
+      "output_tokens": 7500,
+      "cost": 0.093415,
+      "cost_per_candidate": 0.001868,
+      "redaction_enabled": true
+    },
     "currency": "as reported by Copilot models.json; verify units before external reporting"
   },
   "copilot_usage_summary": {

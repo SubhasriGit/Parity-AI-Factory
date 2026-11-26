@@ -38,7 +38,7 @@
     "final_report_blocked_until_approval": false
   },
   "telemetry": {
-    "analysis_pipeline_duration_seconds": 4.592,
+    "analysis_pipeline_duration_seconds": 4.332,
     "step_count": 10
   },
   "ai_cost": {
@@ -50,6 +50,19 @@
     "copilot_output_tokens": 0,
     "copilot_computed_cost": null,
     "copilot_logged_cost": null,
+    "llm_estimate": {
+      "basis": "estimate_not_billed",
+      "price_source": "ILLUSTRATIVE_REPLACE_WITH_CONTRACT_PRICE",
+      "candidates_exported": 50,
+      "skipped_by_limit": 0,
+      "skipped_by_budget": 0,
+      "batches": 1,
+      "input_tokens": 7366,
+      "output_tokens": 7500,
+      "cost": 0.093415,
+      "cost_per_candidate": 0.001868,
+      "redaction_enabled": true
+    },
     "currency": "as reported by Copilot models.json; verify units before external reporting"
   },
   "method": "All product, deal, store, message, and price values were generated and are unrelated to production data."

@@ -126,6 +126,17 @@ A task starts only when its declared prerequisite evidence is present. The drive
 
 When the LLM returns `INSUFFICIENT_EVIDENCE`, the deterministic verdict is unchanged, but the row receives `HUMAN_APPROVAL_REQUIRED` in the final report audit columns. Review columns capture a reviewed classification, notes, reviewer identity, and timestamp when provided. This status does not block the pipeline, automatic resume, or final workbook generation.
 
+### LLM Guardrails And Cost Estimate
+
+`scripts/llm_bridge.py export` applies `config/llm_guardrails.json` before anything leaves the pipeline:
+
+- Identifier redaction: `store`, `offering_number`, and `deal_number` are replaced by salted SHA-256 tokens, including inside hypothesis and evidence text. Set `LLM_REDACTION_SALT` and `require_salt: true` for production data.
+- Caps: maximum candidates per run, rows per batch, and batches per run; overflow keeps its deterministic verdict.
+- Spend ceiling: export stops adding candidates once the projected cost exceeds `max_estimated_cost_per_run`.
+- Estimate: `output/cost/llm_cost_estimate.json` records tokens (about 4 characters per token plus per-batch prompt overhead and assumed output) and cost, `((input - cached) x input price + cached x cached price + output x output price) / 1,000,000`. It is labeled `estimate_not_billed`, and prices in the shipped config are illustrative until replaced with the contract price.
+
+The estimate is reported separately from the measured in-pipeline cost (`$0.00`, no model call) and from Copilot telemetry.
+
 ## Recreate The Synthetic Run
 
 Install dependencies and recreate the complete demonstration dataset, database, outputs, and analysis workbook:
@@ -165,6 +176,7 @@ Expected demonstration reconciliation is `250` mismatch rows, `250` verdict rows
 | `reports/run_metrics.json` | Generated quality, runtime, and AI-cost metrics |
 | `reports/telemetry.json` | Per-step runtime and AI usage/cost telemetry |
 | `output/cost/usage_summary.json` | Local Copilot usage/cost summary; ignored by Git |
+| `output/cost/llm_cost_estimate.json` | Guardrail-aware LLM token/cost estimate; ignored by Git |
 | `reports/CPP_Parity_AI_Factory_Demo.pptx` | 21-slide business and AI-factory demonstration |
 | `reports/CPP_PM000003_Production_Metrics.pptx` | 8-slide production-metrics presentation |
 

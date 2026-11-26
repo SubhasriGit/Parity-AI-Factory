@@ -36,6 +36,8 @@ python scripts/validate_outputs.py --db output/pm000003.db --workbook reports/fi
 
 Manual review is performed in `All_Results`. Final output contains Summary, Summary_detail, All_Results, and directional sheets.
 
+The `llm-review` export redacts store, offering, and deal identifiers, enforces the candidate, batch, and spend limits in `config/llm_guardrails.json`, and writes a token/cost estimate to `output/cost/llm_cost_estimate.json` (override the limits with `llm_bridge.py export --guardrails <file>`). Replace the illustrative prices in that file with the contract price before quoting the estimate.
+
 ## Optional Consolidation
 
 ```powershell

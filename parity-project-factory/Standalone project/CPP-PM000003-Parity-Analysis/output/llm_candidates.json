@@ -1,13 +1,18 @@
 {
   "schema_version": 1,
+  "guardrails": {
+    "max_rows_per_batch": 50,
+    "batches": 1,
+    "redaction_enabled": true
+  },
   "records": [
     {
       "row_id": 5,
       "day": "2026-11-16",
       "direction": "CDCS_missing_in_CPP",
-      "store": "5101",
-      "offering_number": "7001007",
-      "deal_number": "7101",
+      "store": "h_b5667eceb7",
+      "offering_number": "h_d857527a73",
+      "deal_number": "h_e0c838f877",
       "price_type": "PROMO",
       "effective_date": "2026-11-15",
       "field_values": {
@@ -24,15 +29,16 @@
           "peer_row_id": 36
         },
         "missing_evidence": []
-      }
+      },
+      "batch": 1
     },
     {
       "row_id": 12,
       "day": "2026-11-16",
       "direction": "CDCS_missing_in_CPP",
-      "store": "5202",
-      "offering_number": "7001007",
-      "deal_number": "7101",
+      "store": "h_49e45db058",
+      "offering_number": "h_d857527a73",
+      "deal_number": "h_e0c838f877",
       "price_type": "PROMO",
       "effective_date": "2026-11-15",
       "field_values": {
@@ -49,15 +55,16 @@
           "peer_row_id": 39
         },
         "missing_evidence": []
-      }
+      },
+      "batch": 1
     },
     {
       "row_id": 19,
       "day": "2026-11-16",
       "direction": "CDCS_missing_in_CPP",
-      "store": "5303",
-      "offering_number": "7001007",
-      "deal_number": "7101",
+      "store": "h_ec64ad3d06",
+      "offering_number": "h_d857527a73",
+      "deal_number": "h_e0c838f877",
       "price_type": "PROMO",
       "effective_date": "2026-11-15",
       "field_values": {
@@ -74,15 +81,16 @@
           "peer_row_id": 42
         },
         "missing_evidence": []
-      }
+      },
+      "batch": 1
     },
     {
       "row_id": 26,
       "day": "2026-11-16",
       "direction": "CDCS_missing_in_CPP",
-      "store": "5404",
-      "offering_number": "7001007",
-      "deal_number": "7101",
+      "store": "h_75cc2f7770",
+      "offering_number": "h_d857527a73",
+      "deal_number": "h_e0c838f877",
       "price_type": "PROMO",
       "effective_date": "2026-11-15",
       "field_values": {
@@ -99,15 +107,16 @@
           "peer_row_id": 45
         },
         "missing_evidence": []
-      }
+      },
+      "batch": 1
     },
     {
       "row_id": 33,
       "day": "2026-11-16",
       "direction": "CDCS_missing_in_CPP",
-      "store": "5505",
-      "offering_number": "7001007",
-      "deal_number": "7101",
+      "store": "h_b09e947fe1",
+      "offering_number": "h_d857527a73",
+      "deal_number": "h_e0c838f877",
       "price_type": "PROMO",
       "effective_date": "2026-11-15",
       "field_values": {
@@ -124,14 +133,15 @@
           "peer_row_id": 48
         },
         "missing_evidence": []
-      }
+      },
+      "batch": 1
     },
     {
       "row_id": 38,
       "day": "2026-11-16",
       "direction": "CPP_missing_in_CDCS",
-      "store": "5101",
-      "offering_number": "7001018",
+      "store": "h_b5667eceb7",
+      "offering_number": "h_c8156b769e",
       "deal_number": "0000",
       "price_type": "REGULAR",
       "effective_date": "2026-11-16",
@@ -150,14 +160,15 @@
           "priceChangeEvent",
           "product_deal_store_rel"
         ]
-      }
+      },
+      "batch": 1
     },
     {
       "row_id": 41,
       "day": "2026-11-16",
       "direction": "CPP_missing_in_CDCS",
-      "store": "5202",
-      "offering_number": "7001018",
+      "store": "h_49e45db058",
+      "offering_number": "h_c8156b769e",
       "deal_number": "0000",
       "price_type": "REGULAR",
       "effective_date": "2026-11-16",
@@ -176,14 +187,15 @@
           "priceChangeEvent",
           "product_deal_store_rel"
         ]
-      }
+      },
+      "batch": 1
     },
     {
       "row_id": 44,
       "day": "2026-11-16",
       "direction": "CPP_missing_in_CDCS",
-      "store": "5303",
-      "offering_number": "7001018",
+      "store": "h_ec64ad3d06",
+      "offering_number": "h_c8156b769e",
       "deal_number": "0000",
       "price_type": "REGULAR",
       "effective_date": "2026-11-16",
@@ -202,14 +214,15 @@
           "priceChangeEvent",
           "product_deal_store_rel"
         ]
-      }
+      },
+      "batch": 1
     },
     {
       "row_id": 47,
       "day": "2026-11-16",
       "direction": "CPP_missing_in_CDCS",
-      "store": "5404",
-      "offering_number": "7001018",
+      "store": "h_75cc2f7770",
+      "offering_number": "h_c8156b769e",
       "deal_number": "0000",
       "price_type": "REGULAR",
       "effective_date": "2026-11-16",
@@ -228,14 +241,15 @@
           "priceChangeEvent",
           "product_deal_store_rel"
         ]
-      }
+      },
+      "batch": 1
     },
     {
       "row_id": 50,
       "day": "2026-11-16",
       "direction": "CPP_missing_in_CDCS",
-      "store": "5505",
-      "offering_number": "7001018",
+      "store": "h_b09e947fe1",
+      "offering_number": "h_c8156b769e",
       "deal_number": "0000",
       "price_type": "REGULAR",
       "effective_date": "2026-11-16",
@@ -254,15 +268,16 @@
           "priceChangeEvent",
           "product_deal_store_rel"
         ]
-      }
+      },
+      "batch": 1
     },
     {
       "row_id": 55,
       "day": "2026-11-17",
       "direction": "CDCS_missing_in_CPP",
-      "store": "5101",
-      "offering_number": "7001008",
-      "deal_number": "7101",
+      "store": "h_b5667eceb7",
+      "offering_number": "h_d862d22e41",
+      "deal_number": "h_e0c838f877",
       "price_type": "PROMO",
       "effective_date": "2026-11-16",
       "field_values": {
@@ -279,15 +294,16 @@
           "peer_row_id": 86
         },
         "missing_evidence": []
-      }
+      },
+      "batch": 1
     },
     {
       "row_id": 62,
       "day": "2026-11-17",
       "direction": "CDCS_missing_in_CPP",
-      "store": "5202",
-      "offering_number": "7001008",
-      "deal_number": "7101",
+      "store": "h_49e45db058",
+      "offering_number": "h_d862d22e41",
+      "deal_number": "h_e0c838f877",
       "price_type": "PROMO",
       "effective_date": "2026-11-16",
       "field_values": {
@@ -304,15 +320,16 @@
           "peer_row_id": 89
         },
         "missing_evidence": []
-      }
+      },
+      "batch": 1
     },
     {
       "row_id": 69,
       "day": "2026-11-17",
       "direction": "CDCS_missing_in_CPP",
-      "store": "5303",
-      "offering_number": "7001008",
-      "deal_number": "7101",
+      "store": "h_ec64ad3d06",
+      "offering_number": "h_d862d22e41",
+      "deal_number": "h_e0c838f877",
       "price_type": "PROMO",
       "effective_date": "2026-11-16",
       "field_values": {
@@ -329,15 +346,16 @@
           "peer_row_id": 92
         },
         "missing_evidence": []
-      }
+      },
+      "batch": 1
     },
     {
       "row_id": 76,
       "day": "2026-11-17",
       "direction": "CDCS_missing_in_CPP",
-      "store": "5404",
-      "offering_number": "7001008",
-      "deal_number": "7101",
+      "store": "h_75cc2f7770",
+      "offering_number": "h_d862d22e41",
+      "deal_number": "h_e0c838f877",
       "price_type": "PROMO",
       "effective_date": "2026-11-16",
       "field_values": {
@@ -354,15 +372,16 @@
           "peer_row_id": 95
         },
         "missing_evidence": []
-      }
+      },
+      "batch": 1
     },
     {
       "row_id": 83,
       "day": "2026-11-17",
       "direction": "CDCS_missing_in_CPP",
-      "store": "5505",
-      "offering_number": "7001008",
-      "deal_number": "7101",
+      "store": "h_b09e947fe1",
+      "offering_number": "h_d862d22e41",
+      "deal_number": "h_e0c838f877",
       "price_type": "PROMO",
       "effective_date": "2026-11-16",
       "field_values": {
@@ -379,14 +398,15 @@
           "peer_row_id": 98
         },
         "missing_evidence": []
-      }
+      },
+      "batch": 1
     },
     {
       "row_id": 88,
       "day": "2026-11-17",
       "direction": "CPP_missing_in_CDCS",
-      "store": "5101",
-      "offering_number": "7001018",
+      "store": "h_b5667eceb7",
+      "offering_number": "h_c8156b769e",
       "deal_number": "0000",
       "price_type": "REGULAR",
       "effective_date": "2026-11-17",
@@ -405,14 +425,15 @@
           "priceChangeEvent",
           "product_deal_store_rel"
         ]
-      }
+      },
+      "batch": 1
     },
     {
       "row_id": 91,
       "day": "2026-11-17",
       "direction": "CPP_missing_in_CDCS",
-      "store": "5202",
-      "offering_number": "7001018",
+      "store": "h_49e45db058",
+      "offering_number": "h_c8156b769e",
       "deal_number": "0000",
       "price_type": "REGULAR",
       "effective_date": "2026-11-17",
@@ -431,14 +452,15 @@
           "priceChangeEvent",
           "product_deal_store_rel"
         ]
-      }
+      },
+      "batch": 1
     },
     {
       "row_id": 94,
       "day": "2026-11-17",
       "direction": "CPP_missing_in_CDCS",
-      "store": "5303",
-      "offering_number": "7001018",
+      "store": "h_ec64ad3d06",
+      "offering_number": "h_c8156b769e",
       "deal_number": "0000",
       "price_type": "REGULAR",
       "effective_date": "2026-11-17",
@@ -457,14 +479,15 @@
           "priceChangeEvent",
           "product_deal_store_rel"
         ]
-      }
+      },
+      "batch": 1
     },
     {
       "row_id": 97,
       "day": "2026-11-17",
       "direction": "CPP_missing_in_CDCS",
-      "store": "5404",
-      "offering_number": "7001018",
+      "store": "h_75cc2f7770",
+      "offering_number": "h_c8156b769e",
       "deal_number": "0000",
       "price_type": "REGULAR",
       "effective_date": "2026-11-17",
@@ -483,14 +506,15 @@
           "priceChangeEvent",
           "product_deal_store_rel"
         ]
-      }
+      },
+      "batch": 1
     },
     {
       "row_id": 100,
       "day": "2026-11-17",
       "direction": "CPP_missing_in_CDCS",
-      "store": "5505",
-      "offering_number": "7001018",
+      "store": "h_b09e947fe1",
+      "offering_number": "h_c8156b769e",
       "deal_number": "0000",
       "price_type": "REGULAR",
       "effective_date": "2026-11-17",
@@ -509,15 +533,16 @@
           "priceChangeEvent",
           "product_deal_store_rel"
         ]
-      }
+      },
+      "batch": 1
     },
     {
       "row_id": 105,
       "day": "2026-11-18",
       "direction": "CDCS_missing_in_CPP",
-      "store": "5101",
-      "offering_number": "7001009",
-      "deal_number": "7101",
+      "store": "h_b5667eceb7",
+      "offering_number": "h_fb8f55d804",
+      "deal_number": "h_e0c838f877",
       "price_type": "PROMO",
       "effective_date": "2026-11-17",
       "field_values": {
@@ -534,15 +559,16 @@
           "peer_row_id": 136
         },
         "missing_evidence": []
-      }
+      },
+      "batch": 1
     },
     {
       "row_id": 112,
       "day": "2026-11-18",
       "direction": "CDCS_missing_in_CPP",
-      "store": "5202",
-      "offering_number": "7001009",
-      "deal_number": "7101",
+      "store": "h_49e45db058",
+      "offering_number": "h_fb8f55d804",
+      "deal_number": "h_e0c838f877",
       "price_type": "PROMO",
       "effective_date": "2026-11-17",
       "field_values": {
@@ -559,15 +585,16 @@
           "peer_row_id": 139
         },
         "missing_evidence": []
-      }
+      },
+      "batch": 1
     },
     {
       "row_id": 119,
       "day": "2026-11-18",
       "direction": "CDCS_missing_in_CPP",
-      "store": "5303",
-      "offering_number": "7001009",
-      "deal_number": "7101",
+      "store": "h_ec64ad3d06",
+      "offering_number": "h_fb8f55d804",
+      "deal_number": "h_e0c838f877",
       "price_type": "PROMO",
       "effective_date": "2026-11-17",
       "field_values": {
@@ -584,15 +611,16 @@
           "peer_row_id": 142
         },
         "missing_evidence": []
-      }
+      },
+      "batch": 1
     },
     {
       "row_id": 126,
       "day": "2026-11-18",
       "direction": "CDCS_missing_in_CPP",
-      "store": "5404",
-      "offering_number": "7001009",
-      "deal_number": "7101",
+      "store": "h_75cc2f7770",
+      "offering_number": "h_fb8f55d804",
+      "deal_number": "h_e0c838f877",
       "price_type": "PROMO",
       "effective_date": "2026-11-17",
       "field_values": {
@@ -609,15 +637,16 @@
           "peer_row_id": 145
         },
         "missing_evidence": []
-      }
+      },
+      "batch": 1
     },
     {
       "row_id": 133,
       "day": "2026-11-18",
       "direction": "CDCS_missing_in_CPP",
-      "store": "5505",
-      "offering_number": "7001009",
-      "deal_number": "7101",
+      "store": "h_b09e947fe1",
+      "offering_number": "h_fb8f55d804",
+      "deal_number": "h_e0c838f877",
       "price_type": "PROMO",
       "effective_date": "2026-11-17",
       "field_values": {
@@ -634,14 +663,15 @@
           "peer_row_id": 148
         },
         "missing_evidence": []
-      }
+      },
+      "batch": 1
     },
     {
       "row_id": 138,
       "day": "2026-11-18",
       "direction": "CPP_missing_in_CDCS",
-      "store": "5101",
-      "offering_number": "7001018",
+      "store": "h_b5667eceb7",
+      "offering_number": "h_c8156b769e",
       "deal_number": "0000",
       "price_type": "REGULAR",
       "effective_date": "2026-11-18",
@@ -660,14 +690,15 @@
           "priceChangeEvent",
           "product_deal_store_rel"
         ]
-      }
+      },
+      "batch": 1
     },
     {
       "row_id": 141,
       "day": "2026-11-18",
       "direction": "CPP_missing_in_CDCS",
-      "store": "5202",
-      "offering_number": "7001018",
+      "store": "h_49e45db058",
+      "offering_number": "h_c8156b769e",
       "deal_number": "0000",
       "price_type": "REGULAR",
       "effective_date": "2026-11-18",
@@ -686,14 +717,15 @@
           "priceChangeEvent",
           "product_deal_store_rel"
         ]
-      }
+      },
+      "batch": 1
     },
     {
       "row_id": 144,
       "day": "2026-11-18",
       "direction": "CPP_missing_in_CDCS",
-      "store": "5303",
-      "offering_number": "7001018",
+      "store": "h_ec64ad3d06",
+      "offering_number": "h_c8156b769e",
       "deal_number": "0000",
       "price_type": "REGULAR",
       "effective_date": "2026-11-18",
@@ -712,14 +744,15 @@
           "priceChangeEvent",
           "product_deal_store_rel"
         ]
-      }
+      },
+      "batch": 1
     },
     {
       "row_id": 147,
       "day": "2026-11-18",
       "direction": "CPP_missing_in_CDCS",
-      "store": "5404",
-      "offering_number": "7001018",
+      "store": "h_75cc2f7770",
+      "offering_number": "h_c8156b769e",
       "deal_number": "0000",
       "price_type": "REGULAR",
       "effective_date": "2026-11-18",
@@ -738,14 +771,15 @@
           "priceChangeEvent",
           "product_deal_store_rel"
         ]
-      }
+      },
+      "batch": 1
     },
     {
       "row_id": 150,
       "day": "2026-11-18",
       "direction": "CPP_missing_in_CDCS",
-      "store": "5505",
-      "offering_number": "7001018",
+      "store": "h_b09e947fe1",
+      "offering_number": "h_c8156b769e",
       "deal_number": "0000",
       "price_type": "REGULAR",
       "effective_date": "2026-11-18",
@@ -764,15 +798,16 @@
           "priceChangeEvent",
           "product_deal_store_rel"
         ]
-      }
+      },
+      "batch": 1
     },
     {
       "row_id": 155,
       "day": "2026-11-19",
       "direction": "CDCS_missing_in_CPP",
-      "store": "5101",
-      "offering_number": "7001010",
-      "deal_number": "7101",
+      "store": "h_b5667eceb7",
+      "offering_number": "h_aa00e5fa46",
+      "deal_number": "h_e0c838f877",
       "price_type": "PROMO",
       "effective_date": "2026-11-18",
       "field_values": {
@@ -789,15 +824,16 @@
           "peer_row_id": 186
         },
         "missing_evidence": []
-      }
+      },
+      "batch": 1
     },
     {
       "row_id": 162,
       "day": "2026-11-19",
       "direction": "CDCS_missing_in_CPP",
-      "store": "5202",
-      "offering_number": "7001010",
-      "deal_number": "7101",
+      "store": "h_49e45db058",
+      "offering_number": "h_aa00e5fa46",
+      "deal_number": "h_e0c838f877",
       "price_type": "PROMO",
       "effective_date": "2026-11-18",
       "field_values": {
@@ -814,15 +850,16 @@
           "peer_row_id": 189
         },
         "missing_evidence": []
-      }
+      },
+      "batch": 1
     },
     {
       "row_id": 169,
       "day": "2026-11-19",
       "direction": "CDCS_missing_in_CPP",
-      "store": "5303",
-      "offering_number": "7001010",
-      "deal_number": "7101",
+      "store": "h_ec64ad3d06",
+      "offering_number": "h_aa00e5fa46",
+      "deal_number": "h_e0c838f877",
       "price_type": "PROMO",
       "effective_date": "2026-11-18",
       "field_values": {
@@ -839,15 +876,16 @@
           "peer_row_id": 192
         },
         "missing_evidence": []
-      }
+      },
+      "batch": 1
     },
     {
       "row_id": 176,
       "day": "2026-11-19",
       "direction": "CDCS_missing_in_CPP",
-      "store": "5404",
-      "offering_number": "7001010",
-      "deal_number": "7101",
+      "store": "h_75cc2f7770",
+      "offering_number": "h_aa00e5fa46",
+      "deal_number": "h_e0c838f877",
       "price_type": "PROMO",
       "effective_date": "2026-11-18",
       "field_values": {
@@ -864,15 +902,16 @@
           "peer_row_id": 195
         },
         "missing_evidence": []
-      }
+      },
+      "batch": 1
     },
     {
       "row_id": 183,
       "day": "2026-11-19",
       "direction": "CDCS_missing_in_CPP",
-      "store": "5505",
-      "offering_number": "7001010",
-      "deal_number": "7101",
+      "store": "h_b09e947fe1",
+      "offering_number": "h_aa00e5fa46",
+      "deal_number": "h_e0c838f877",
       "price_type": "PROMO",
       "effective_date": "2026-11-18",
       "field_values": {
@@ -889,14 +928,15 @@
           "peer_row_id": 198
         },
         "missing_evidence": []
-      }
+      },
+      "batch": 1
     },
     {
       "row_id": 188,
       "day": "2026-11-19",
       "direction": "CPP_missing_in_CDCS",
-      "store": "5101",
-      "offering_number": "7001018",
+      "store": "h_b5667eceb7",
+      "offering_number": "h_c8156b769e",
       "deal_number": "0000",
       "price_type": "REGULAR",
       "effective_date": "2026-11-19",
@@ -915,14 +955,15 @@
           "priceChangeEvent",
           "product_deal_store_rel"
         ]
-      }
+      },
+      "batch": 1
     },
     {
       "row_id": 191,
       "day": "2026-11-19",
       "direction": "CPP_missing_in_CDCS",
-      "store": "5202",
-      "offering_number": "7001018",
+      "store": "h_49e45db058",
+      "offering_number": "h_c8156b769e",
       "deal_number": "0000",
       "price_type": "REGULAR",
       "effective_date": "2026-11-19",
@@ -941,14 +982,15 @@
           "priceChangeEvent",
           "product_deal_store_rel"
         ]
-      }
+      },
+      "batch": 1
     },
     {
       "row_id": 194,
       "day": "2026-11-19",
       "direction": "CPP_missing_in_CDCS",
-      "store": "5303",
-      "offering_number": "7001018",
+      "store": "h_ec64ad3d06",
+      "offering_number": "h_c8156b769e",
       "deal_number": "0000",
       "price_type": "REGULAR",
       "effective_date": "2026-11-19",
@@ -967,14 +1009,15 @@
           "priceChangeEvent",
           "product_deal_store_rel"
         ]
-      }
+      },
+      "batch": 1
     },
     {
       "row_id": 197,
       "day": "2026-11-19",
       "direction": "CPP_missing_in_CDCS",
-      "store": "5404",
-      "offering_number": "7001018",
+      "store": "h_75cc2f7770",
+      "offering_number": "h_c8156b769e",
       "deal_number": "0000",
       "price_type": "REGULAR",
       "effective_date": "2026-11-19",
@@ -993,14 +1036,15 @@
           "priceChangeEvent",
           "product_deal_store_rel"
         ]
-      }
+      },
+      "batch": 1
     },
     {
       "row_id": 200,
       "day": "2026-11-19",
       "direction": "CPP_missing_in_CDCS",
-      "store": "5505",
-      "offering_number": "7001018",
+      "store": "h_b09e947fe1",
+      "offering_number": "h_c8156b769e",
       "deal_number": "0000",
       "price_type": "REGULAR",
       "effective_date": "2026-11-19",
@@ -1019,15 +1063,16 @@
           "priceChangeEvent",
           "product_deal_store_rel"
         ]
-      }
+      },
+      "batch": 1
     },
     {
       "row_id": 205,
       "day": "2026-11-20",
       "direction": "CDCS_missing_in_CPP",
-      "store": "5101",
-      "offering_number": "7001011",
-      "deal_number": "7101",
+      "store": "h_b5667eceb7",
+      "offering_number": "h_4fcf77e619",
+      "deal_number": "h_e0c838f877",
       "price_type": "PROMO",
       "effective_date": "2026-11-19",
       "field_values": {
@@ -1044,15 +1089,16 @@
           "peer_row_id": 236
         },
         "missing_evidence": []
-      }
+      },
+      "batch": 1
     },
     {
       "row_id": 212,
       "day": "2026-11-20",
       "direction": "CDCS_missing_in_CPP",
-      "store": "5202",
-      "offering_number": "7001011",
-      "deal_number": "7101",
+      "store": "h_49e45db058",
+      "offering_number": "h_4fcf77e619",
+      "deal_number": "h_e0c838f877",
       "price_type": "PROMO",
       "effective_date": "2026-11-19",
       "field_values": {
@@ -1069,15 +1115,16 @@
           "peer_row_id": 239
         },
         "missing_evidence": []
-      }
+      },
+      "batch": 1
     },
     {
       "row_id": 219,
       "day": "2026-11-20",
       "direction": "CDCS_missing_in_CPP",
-      "store": "5303",
-      "offering_number": "7001011",
-      "deal_number": "7101",
+      "store": "h_ec64ad3d06",
+      "offering_number": "h_4fcf77e619",
+      "deal_number": "h_e0c838f877",
       "price_type": "PROMO",
       "effective_date": "2026-11-19",
       "field_values": {
@@ -1094,15 +1141,16 @@
           "peer_row_id": 242
         },
         "missing_evidence": []
-      }
+      },
+      "batch": 1
     },
     {
       "row_id": 226,
       "day": "2026-11-20",
       "direction": "CDCS_missing_in_CPP",
-      "store": "5404",
-      "offering_number": "7001011",
-      "deal_number": "7101",
+      "store": "h_75cc2f7770",
+      "offering_number": "h_4fcf77e619",
+      "deal_number": "h_e0c838f877",
       "price_type": "PROMO",
       "effective_date": "2026-11-19",
       "field_values": {
@@ -1119,15 +1167,16 @@
           "peer_row_id": 245
         },
         "missing_evidence": []
-      }
+      },
+      "batch": 1
     },
     {
       "row_id": 233,
       "day": "2026-11-20",
       "direction": "CDCS_missing_in_CPP",
-      "store": "5505",
-      "offering_number": "7001011",
-      "deal_number": "7101",
+      "store": "h_b09e947fe1",
+      "offering_number": "h_4fcf77e619",
+      "deal_number": "h_e0c838f877",
       "price_type": "PROMO",
       "effective_date": "2026-11-19",
       "field_values": {
@@ -1144,14 +1193,15 @@
           "peer_row_id": 248
         },
         "missing_evidence": []
-      }
+      },
+      "batch": 1
     },
     {
       "row_id": 238,
       "day": "2026-11-20",
       "direction": "CPP_missing_in_CDCS",
-      "store": "5101",
-      "offering_number": "7001018",
+      "store": "h_b5667eceb7",
+      "offering_number": "h_c8156b769e",
       "deal_number": "0000",
       "price_type": "REGULAR",
       "effective_date": "2026-11-20",
@@ -1170,14 +1220,15 @@
           "priceChangeEvent",
           "product_deal_store_rel"
         ]
-      }
+      },
+      "batch": 1
     },
     {
       "row_id": 241,
       "day": "2026-11-20",
       "direction": "CPP_missing_in_CDCS",
-      "store": "5202",
-      "offering_number": "7001018",
+      "store": "h_49e45db058",
+      "offering_number": "h_c8156b769e",
       "deal_number": "0000",
       "price_type": "REGULAR",
       "effective_date": "2026-11-20",
@@ -1196,14 +1247,15 @@
           "priceChangeEvent",
           "product_deal_store_rel"
         ]
-      }
+      },
+      "batch": 1
     },
     {
       "row_id": 244,
       "day": "2026-11-20",
       "direction": "CPP_missing_in_CDCS",
-      "store": "5303",
-      "offering_number": "7001018",
+      "store": "h_ec64ad3d06",
+      "offering_number": "h_c8156b769e",
       "deal_number": "0000",
       "price_type": "REGULAR",
       "effective_date": "2026-11-20",
@@ -1222,14 +1274,15 @@
           "priceChangeEvent",
           "product_deal_store_rel"
         ]
-      }
+      },
+      "batch": 1
     },
     {
       "row_id": 247,
       "day": "2026-11-20",
       "direction": "CPP_missing_in_CDCS",
-      "store": "5404",
-      "offering_number": "7001018",
+      "store": "h_75cc2f7770",
+      "offering_number": "h_c8156b769e",
       "deal_number": "0000",
       "price_type": "REGULAR",
       "effective_date": "2026-11-20",
@@ -1248,14 +1301,15 @@
           "priceChangeEvent",
           "product_deal_store_rel"
         ]
-      }
+      },
+      "batch": 1
     },
     {
       "row_id": 250,
       "day": "2026-11-20",
       "direction": "CPP_missing_in_CDCS",
-      "store": "5505",
-      "offering_number": "7001018",
+      "store": "h_b09e947fe1",
+      "offering_number": "h_c8156b769e",
       "deal_number": "0000",
       "price_type": "REGULAR",
       "effective_date": "2026-11-20",
@@ -1274,7 +1328,8 @@
           "priceChangeEvent",
           "product_deal_store_rel"
         ]
-      }
+      },
+      "batch": 1
     }
   ]
 }
