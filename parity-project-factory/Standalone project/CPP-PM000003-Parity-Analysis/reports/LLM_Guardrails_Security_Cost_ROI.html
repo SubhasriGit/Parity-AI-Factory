@@ -1,0 +1,1146 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>LLM Guardrails, Security, Cost and ROI</title>
+    <style>
+        :root {
+            --ink: #17202a;
+            --muted: #5f6b76;
+            --paper: #f6f7f4;
+            --white: #fff;
+            --navy: #17324d;
+            --teal: #087f7a;
+            --sky: #dcecf0;
+            --coral: #d95d39;
+            --gold: #b57b13;
+            --line: #d8ddd9;
+            --green: #347a55;
+            --red: #a63d40;
+            --shadow: 0 10px 28px rgba(23, 50, 77, .08)
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        html {
+            scroll-behavior: smooth
+        }
+
+        body {
+            margin: 0;
+            background: var(--paper);
+            color: var(--ink);
+            font-family: Georgia, "Times New Roman", serif;
+            line-height: 1.55;
+            letter-spacing: 0
+        }
+
+        a {
+            color: var(--teal)
+        }
+
+        header {
+            background: var(--navy);
+            color: #fff;
+            padding: 58px max(6vw, 32px) 44px;
+            position: relative;
+            overflow: hidden
+        }
+
+        header:after {
+            content: "";
+            position: absolute;
+            right: -40px;
+            top: -50px;
+            width: 280px;
+            height: 280px;
+            border: 42px solid rgba(255, 255, 255, .08);
+            transform: rotate(18deg)
+        }
+
+        .kicker {
+            text-transform: uppercase;
+            font: 700 12px/1.2 Arial, sans-serif;
+            letter-spacing: 2px;
+            color: #9ad6d2
+        }
+
+        .header-grid {
+            display: grid;
+            grid-template-columns: 1.5fr .7fr;
+            gap: 48px;
+            max-width: 1180px;
+            margin: auto;
+            position: relative;
+            z-index: 1
+        }
+
+        h1 {
+            font: 700 clamp(36px, 5vw, 64px)/1.04 Arial, sans-serif;
+            margin: 12px 0 18px;
+            max-width: 820px
+        }
+
+        header p {
+            font-size: 19px;
+            max-width: 780px;
+            color: #e5eef2;
+            margin: 0
+        }
+
+        .run-stamp {
+            align-self: end;
+            border-left: 1px solid #6b8598;
+            padding-left: 28px;
+            font-family: Arial, sans-serif
+        }
+
+        .run-stamp strong {
+            display: block;
+            font-size: 34px;
+            color: #8fe0da
+        }
+
+        .run-stamp span {
+            display: block;
+            font-size: 13px;
+            color: #c9d8e2;
+            margin-top: 4px
+        }
+
+        nav {
+            position: sticky;
+            top: 0;
+            z-index: 5;
+            background: rgba(255, 255, 255, .96);
+            border-bottom: 1px solid var(--line);
+            font: 700 12px Arial, sans-serif
+        }
+
+        nav div {
+            max-width: 1180px;
+            margin: auto;
+            display: flex;
+            gap: 8px;
+            overflow: auto;
+            padding: 12px 24px
+        }
+
+        nav a {
+            text-decoration: none;
+            color: var(--navy);
+            padding: 8px 12px;
+            border: 1px solid transparent;
+            white-space: nowrap
+        }
+
+        nav a:hover {
+            border-color: var(--line);
+            background: var(--paper)
+        }
+
+        main {
+            max-width: 1180px;
+            margin: auto;
+            padding: 44px 24px 72px
+        }
+
+        section {
+            margin: 0 0 52px;
+            scroll-margin-top: 75px
+        }
+
+        .section-head {
+            display: grid;
+            grid-template-columns: 70px 1fr;
+            gap: 18px;
+            align-items: start;
+            margin-bottom: 22px
+        }
+
+        .num {
+            font: 700 13px Arial, sans-serif;
+            color: var(--coral);
+            border-top: 3px solid var(--coral);
+            padding-top: 8px
+        }
+
+        h2 {
+            font: 700 29px/1.18 Arial, sans-serif;
+            margin: 0;
+            color: var(--navy)
+        }
+
+        h3 {
+            font: 700 18px/1.3 Arial, sans-serif;
+            color: var(--navy);
+            margin: 0 0 10px
+        }
+
+        .lead {
+            font-size: 20px;
+            color: var(--muted);
+            max-width: 920px
+        }
+
+        .metrics {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+            margin: 24px 0
+        }
+
+        .metric {
+            background: var(--white);
+            border-top: 4px solid var(--teal);
+            padding: 18px 18px 16px;
+            box-shadow: var(--shadow)
+        }
+
+        .metric b {
+            display: block;
+            font: 700 29px Arial, sans-serif;
+            color: var(--navy)
+        }
+
+        .metric span {
+            display: block;
+            font: 700 11px Arial, sans-serif;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-top: 5px
+        }
+
+        .metric small {
+            display: block;
+            margin-top: 5px;
+            color: var(--muted)
+        }
+
+        .callout {
+            background: var(--sky);
+            border-left: 5px solid var(--teal);
+            padding: 18px 22px;
+            margin: 20px 0
+        }
+
+        .warning {
+            background: #fff3df;
+            border-left-color: var(--gold)
+        }
+
+        .danger {
+            background: #fbe9e8;
+            border-left-color: var(--red)
+        }
+
+        .callout strong {
+            color: var(--navy)
+        }
+
+        .grid2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px
+        }
+
+        .grid3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px
+        }
+
+        .panel {
+            background: var(--white);
+            border: 1px solid var(--line);
+            padding: 22px;
+            box-shadow: var(--shadow)
+        }
+
+        .panel p:last-child {
+            margin-bottom: 0
+        }
+
+        .pill {
+            display: inline-block;
+            background: #e7f1ef;
+            color: var(--teal);
+            font: 700 11px Arial, sans-serif;
+            border-radius: 3px;
+            padding: 5px 8px
+        }
+
+        .pill.warn {
+            background: #fff0d6;
+            color: #8a5d00
+        }
+
+        .pill.off {
+            background: #eef0f2;
+            color: #53606a
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+            font: 14px Arial, sans-serif
+        }
+
+        th {
+            text-align: left;
+            background: var(--navy);
+            color: #fff;
+            padding: 12px
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid var(--line);
+            vertical-align: top
+        }
+
+        tr:last-child td {
+            border-bottom: 0
+        }
+
+        .right {
+            text-align: right
+        }
+
+        .formula {
+            background: #12283b;
+            color: #fff;
+            padding: 20px 24px;
+            font: 600 16px/1.7 "Courier New", monospace;
+            border-radius: 3px;
+            overflow: auto
+        }
+
+        .calc-line {
+            display: flex;
+            justify-content: space-between;
+            gap: 24px;
+            padding: 10px 0;
+            border-bottom: 1px dashed #b7c0c5
+        }
+
+        .calc-line:last-child {
+            border: 0
+        }
+
+        .calc-line b {
+            white-space: nowrap
+        }
+
+        .flow {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 0;
+            margin: 24px 0
+        }
+
+        .step {
+            position: relative;
+            background: #fff;
+            border: 1px solid var(--line);
+            padding: 18px 14px;
+            min-height: 145px
+        }
+
+        .step:not(:last-child):after {
+            content: "";
+            position: absolute;
+            right: -10px;
+            top: 50%;
+            width: 18px;
+            height: 18px;
+            background: var(--coral);
+            transform: translateY(-50%) rotate(45deg);
+            z-index: 2
+        }
+
+        .step .n {
+            font: 700 11px Arial, sans-serif;
+            color: var(--coral)
+        }
+
+        .step strong {
+            display: block;
+            font: 700 14px Arial, sans-serif;
+            color: var(--navy);
+            margin: 6px 0
+        }
+
+        .step p {
+            font-size: 13px;
+            margin: 0;
+            color: var(--muted)
+        }
+
+        .security-strip {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1px;
+            background: var(--line);
+            border: 1px solid var(--line)
+        }
+
+        .security-strip div {
+            background: #fff;
+            padding: 18px
+        }
+
+        .security-strip b {
+            display: block;
+            color: var(--green);
+            font: 700 13px Arial, sans-serif;
+            margin-bottom: 5px
+        }
+
+        .security-strip span {
+            font-size: 14px;
+            color: var(--muted)
+        }
+
+        .calculator {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            background: #fff;
+            border: 1px solid var(--line);
+            padding: 24px;
+            box-shadow: var(--shadow)
+        }
+
+        .inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px
+        }
+
+        .field label {
+            display: block;
+            font: 700 12px Arial, sans-serif;
+            color: var(--navy);
+            margin-bottom: 5px
+        }
+
+        .field input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #b8c0c4;
+            background: #fafbf9;
+            font: 16px Arial, sans-serif
+        }
+
+        .result {
+            background: var(--navy);
+            color: #fff;
+            padding: 24px
+        }
+
+        .result h3 {
+            color: #fff
+        }
+
+        .result .big {
+            font: 700 44px Arial, sans-serif;
+            color: #8fe0da
+        }
+
+        .result small {
+            color: #bdd0db
+        }
+
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid #486073;
+            padding: 10px 0;
+            font-family: Arial, sans-serif
+        }
+
+        .result-row:last-child {
+            border: 0
+        }
+
+        .bar {
+            height: 10px;
+            background: #4b6172;
+            margin: 15px 0
+        }
+
+        .bar i {
+            display: block;
+            height: 100%;
+            background: var(--coral);
+            width: 0;
+            transition: width .25s
+        }
+
+        .assumptions {
+            font-size: 13px;
+            color: var(--muted)
+        }
+
+        .checklist {
+            list-style: none;
+            padding: 0;
+            margin: 0
+        }
+
+        .checklist li {
+            padding: 10px 0 10px 30px;
+            border-bottom: 1px solid var(--line);
+            position: relative
+        }
+
+        .checklist li:before {
+            content: "✓";
+            position: absolute;
+            left: 2px;
+            color: var(--green);
+            font-weight: bold
+        }
+
+        .checklist li.blocked:before {
+            content: "!";
+            color: var(--gold)
+        }
+
+        footer {
+            background: #e9edeb;
+            padding: 28px 24px;
+            color: var(--muted);
+            font: 13px Arial, sans-serif
+        }
+
+        footer div {
+            max-width: 1180px;
+            margin: auto;
+            display: flex;
+            justify-content: space-between;
+            gap: 30px
+        }
+
+        @media(max-width:850px) {
+
+            .header-grid,
+            .grid2,
+            .calculator {
+                grid-template-columns: 1fr
+            }
+
+            .metrics,
+            .grid3 {
+                grid-template-columns: 1fr 1fr
+            }
+
+            .flow {
+                grid-template-columns: 1fr
+            }
+
+            .step:after {
+                display: none
+            }
+
+            .security-strip {
+                grid-template-columns: 1fr 1fr
+            }
+
+            .run-stamp {
+                border-left: 0;
+                border-top: 1px solid #6b8598;
+                padding: 18px 0 0
+            }
+
+            .inputs {
+                grid-template-columns: 1fr
+            }
+
+            .section-head {
+                grid-template-columns: 48px 1fr
+            }
+        }
+
+        @media(max-width:520px) {
+
+            html,
+            body {
+                overflow-x: hidden
+            }
+
+            table {
+                display: block;
+                max-width: 100%;
+                overflow-x: auto
+            }
+
+            nav {
+                overflow: hidden
+            }
+
+            nav div {
+                max-width: 100vw
+            }
+
+            .metrics,
+            .grid3,
+            .security-strip {
+                grid-template-columns: 1fr
+            }
+
+            h1 {
+                font-size: 38px
+            }
+
+            header {
+                padding: 38px 22px
+            }
+
+            main {
+                padding: 30px 18px
+            }
+
+            .section-head {
+                display: block
+            }
+
+            .num {
+                margin-bottom: 14px
+            }
+        }
+
+        @media print {
+
+            nav,
+            .no-print {
+                display: none
+            }
+
+            header {
+                padding: 28px
+            }
+
+            main {
+                padding: 20px 0
+            }
+
+            .panel,
+            .metric,
+            .calculator {
+                box-shadow: none;
+                break-inside: avoid
+            }
+
+            section {
+                margin-bottom: 28px
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="header-grid">
+            <div>
+                <div class="kicker">Executive briefing • PM000003 synthetic demonstration</div>
+                <h1>Controlled LLM review with measurable cost and visible risk</h1>
+                <p>How the pipeline protects identifiers, limits data and spend, calculates provider billing exposure,
+                    and makes the automation case understandable to business owners.</p>
+            </div>
+            <div class="run-stamp"><strong>0.093415 USD</strong><span>Illustrative estimated LLM cost for 50
+                    candidates</span><span>Latest synthetic run • 26 Nov 2026</span></div>
+        </div>
+    </header>
+    <nav>
+        <div><a href="#decision">Executive decision</a><a href="#security">Security</a><a href="#salt">Redaction
+                salt</a><a href="#guardrails">Guardrails</a><a href="#cost">Billing cost</a><a href="#roi">ROI</a><a
+                href="#go-live">Go-live checks</a></div>
+    </nav>
+    <main>
+        <section id="decision">
+            <div class="section-head">
+                <div class="num">01</div>
+                <div>
+                    <h2>Executive decision summary</h2>
+                    <p class="lead">The pipeline is designed so deterministic rules do the broad analysis first and only
+                        unresolved cases cross the controlled JSON boundary for a second opinion. The LLM can add
+                        evidence; it cannot silently overwrite the governed result.</p>
+                </div>
+            </div>
+            <div class="metrics">
+                <div class="metric"><b>250</b><span>Rows reconciled</span><small>100% database, verdict and workbook
+                        match</small></div>
+                <div class="metric"><b>50</b><span>LLM candidates</span><small>20% of classified rows required
+                        review</small></div>
+                <div class="metric"><b>$0.00</b><span>Actual pipeline model cost</span><small>No in-pipeline model API
+                        request was made</small></div>
+                <div class="metric"><b>$0.093415</b><span>Estimated external LLM cost</span><small>Illustrative pricing;
+                        not an invoice or billed amount</small></div>
+            </div>
+            <div class="callout"><strong>Business value:</strong> 200 known/expected cases were handled
+                deterministically and 50 unresolved cases were isolated for LLM review. This lowers model exposure,
+                reduces review volume, and retains a deterministic decision trail. Actual ROI depends on review time,
+                reviewer cost, monthly volume, and verified automation acceptance rate, all adjustable below.</div>
+            <div class="callout"><strong>Production-scale extrapolation:</strong> at 6 million monthly records and the
+                observed 20% candidate rate, approximately 1.2 million records would reach the LLM. The illustrative
+                model cost is <strong>$2,241.96 per month</strong>. At 7 million records, it is approximately
+                <strong>$2,615.62 per month</strong>. These are linear planning estimates, not production quotes.
+            </div>
+            <div class="callout warning"><strong>Important cost interpretation:</strong> $0.093415 is an engineering
+                estimate built from the configured token prices. The provider has not been called, the model and
+                contract prices are not finalized, and this number must not be presented as actual spend.</div>
+        </section>
+
+        <section id="security">
+            <div class="section-head">
+                <div class="num">02</div>
+                <div>
+                    <h2>What the security control actually does</h2>
+                    <p class="lead">Before candidate JSON is exported, direct store, offering and deal identifiers are
+                        replaced with deterministic tokens. References to those values inside deterministic hypothesis
+                        and evidence text are also replaced.</p>
+                </div>
+            </div>
+            <div class="flow">
+                <div class="step"><span class="n">STEP 1</span><strong>Database selection</strong>
+                    <p>Only unresolved classifications are selected.</p>
+                </div>
+                <div class="step"><span class="n">STEP 2</span><strong>Identifier redaction</strong>
+                    <p>Store, offering and deal values become <code>h_</code> tokens.</p>
+                </div>
+                <div class="step"><span class="n">STEP 3</span><strong>Volume and spend caps</strong>
+                    <p>Rows are admitted only within batch and budget limits.</p>
+                </div>
+                <div class="step"><span class="n">STEP 4</span><strong>Validated JSON hand-off</strong>
+                    <p>The boundary is file-based; no model SDK is invoked in this pipeline.</p>
+                </div>
+                <div class="step"><span class="n">STEP 5</span><strong>Controlled return</strong>
+                    <p>Findings are validated; insufficient evidence preserves the deterministic verdict.</p>
+                </div>
+            </div>
+            <div class="security-strip">
+                <div><b>Minimized exposure</b><span>Only candidate records are exported, not all 250 rows.</span></div>
+                <div><b>Pseudonymized IDs</b><span>Operational identifiers become stable, non-plain tokens.</span></div>
+                <div><b>Text consistency</b><span>Matching identifiers are also scrubbed from nested evidence.</span>
+                </div>
+                <div><b>Human accountability</b><span>Insufficient evidence is audited and never treated as
+                        approval.</span></div>
+            </div>
+            <div class="callout danger"><strong>Security boundary, not a magic claim:</strong> this is pseudonymization,
+                not complete anonymization. Prices, dates, directions, row IDs and business context remain. A person
+                must still approve the data classification, provider terms, retention, residency, training-use
+                restrictions and access controls. Sensitive free text needs a separate DLP/content-safety scan.</div>
+        </section>
+
+        <section id="salt">
+            <div class="section-head">
+                <div class="num">03</div>
+                <div>
+                    <h2><code>LLM_REDACTION_SALT</code> explained for business</h2>
+                    <p class="lead">A salt is a secret extra value mixed into the identifier before hashing. It makes
+                        the resulting token harder to reverse by trying common store or deal numbers.</p>
+                </div>
+            </div>
+            <div class="grid2">
+                <div class="panel">
+                    <h3>How the token is produced</h3>
+                    <div class="formula">token = "h_" + first10(SHA256(
+                        salt + ":" + fieldName + ":" + originalValue
+                        ))</div>
+                    <p>Example shape: <code>0035</code> becomes <code>h_b5667eceb7</code>. The first 10 hexadecimal
+                        characters are displayed to keep the exported payload compact.</p>
+                </div>
+                <div class="panel">
+                    <h3>Why the salt matters</h3>
+                    <p><strong>Without a salt:</strong> an attacker who knows the identifier space can hash likely
+                        values and compare outputs.</p>
+                    <p><strong>With a secret, rotated salt:</strong> that lookup table is no longer useful without the
+                        secret. Rotating it changes tokens, so use one approved salt for a run and retain mapping policy
+                        deliberately.</p>
+                </div>
+            </div>
+            <div class="callout warning"><strong>Current demo state:</strong> <code>require_salt</code> is
+                <code>false</code>. The demo therefore continues if the environment variable is absent, using an empty
+                salt. For production, set <code>require_salt: true</code> and provide a high-entropy secret through the
+                secret manager, not a config file, command line or source control.
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Control</th>
+                        <th>Recommended production standard</th>
+                        <th>Why it matters</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>LLM_REDACTION_SALT</code></td>
+                        <td>Secret vault injection; minimum 32 random bytes encoded safely</td>
+                        <td>Prevents dictionary-style reversal.</td>
+                    </tr>
+                    <tr>
+                        <td>Configuration</td>
+                        <td><code>require_salt: true</code></td>
+                        <td>Fails closed instead of silently weakening protection.</td>
+                    </tr>
+                    <tr>
+                        <td>Rotation</td>
+                        <td>Versioned by run or agreed period</td>
+                        <td>Limits the impact if a secret is exposed.</td>
+                    </tr>
+                    <tr>
+                        <td>Logging</td>
+                        <td>Never print the salt or raw-token mapping</td>
+                        <td>Prevents secret leakage into support logs.</td>
+                    </tr>
+                    <tr>
+                        <td>Access</td>
+                        <td>Only the export service identity</td>
+                        <td>Reduces insider and runtime exposure.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section id="guardrails">
+            <div class="section-head">
+                <div class="num">04</div>
+                <div>
+                    <h2>Guardrails and failure behavior</h2>
+                    <p class="lead">The goal is bounded autonomy: cap what can leave, cap what it can cost, validate
+                        what comes back, and continue safely when evidence is incomplete.</p>
+                </div>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Guardrail</th>
+                        <th class="right">Configured limit</th>
+                        <th>Observed run</th>
+                        <th>Business effect</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Eligible candidates</td>
+                        <td class="right">500 / run</td>
+                        <td>50 exported</td>
+                        <td>Prevents unbounded extraction.</td>
+                    </tr>
+                    <tr>
+                        <td>Batch size</td>
+                        <td class="right">50 records</td>
+                        <td>1 batch</td>
+                        <td>Bounds each request and supports audit.</td>
+                    </tr>
+                    <tr>
+                        <td>Batch count</td>
+                        <td class="right">20 / run</td>
+                        <td>1 used</td>
+                        <td>Caps API fan-out.</td>
+                    </tr>
+                    <tr>
+                        <td>Estimated spend</td>
+                        <td class="right">$5.00 / run</td>
+                        <td>$0.093415 projected</td>
+                        <td>Stops admission of further candidates when projected cost crosses the ceiling.</td>
+                    </tr>
+                    <tr>
+                        <td>Identifier redaction</td>
+                        <td class="right">On</td>
+                        <td>Store, offering, deal redacted</td>
+                        <td>Reduces unnecessary identity exposure.</td>
+                    </tr>
+                    <tr>
+                        <td>LLM classifications</td>
+                        <td class="right">Allow-list</td>
+                        <td>Unknown classes rejected</td>
+                        <td>Prevents arbitrary status writes.</td>
+                    </tr>
+                    <tr>
+                        <td>Insufficient evidence</td>
+                        <td class="right">No overwrite</td>
+                        <td>50 audit flags</td>
+                        <td>Preserves deterministic verdict and records human-approval need.</td>
+                    </tr>
+                    <tr>
+                        <td>Task retries</td>
+                        <td class="right">2</td>
+                        <td>Configured</td>
+                        <td>Exhaustion creates an inspection marker while resume remains available.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section id="cost">
+            <div class="section-head">
+                <div class="num">05</div>
+                <div>
+                    <h2>How the LLM bill is calculated</h2>
+                    <p class="lead">Providers normally bill input, cached input and output tokens separately per one
+                        million tokens. The pipeline estimates the payload before a model call and keeps that estimate
+                        separate from measured usage.</p>
+                </div>
+            </div>
+            <div class="formula">Estimated cost = [
+                (uncached input tokens × input price per 1M)
+                + (cached input tokens × cached price per 1M)
+                + (output tokens × output price per 1M)
+                ] ÷ 1,000,000</div>
+            <div class="grid2" style="margin-top:18px">
+                <div class="panel">
+                    <h3>Latest run calculation</h3>
+                    <div class="calc-line"><span>Estimated uncached input</span><b>7,366 tokens</b></div>
+                    <div class="calc-line"><span>Input cost at $2.50 / 1M</span><b>$0.018415</b></div>
+                    <div class="calc-line"><span>Estimated output</span><b>7,500 tokens</b></div>
+                    <div class="calc-line"><span>Output cost at $10.00 / 1M</span><b>$0.075000</b></div>
+                    <div class="calc-line"><span>Cached tokens in estimate</span><b>0</b></div>
+                    <div class="calc-line"><strong>Total estimate</strong><strong>$0.093415</strong></div>
+                </div>
+                <div class="panel">
+                    <h3>How tokens are estimated</h3>
+                    <p><strong>Record input:</strong> JSON character count ÷ 4, rounded up.</p>
+                    <p><strong>Batch overhead:</strong> 400 input tokens per batch.</p>
+                    <p><strong>Output:</strong> assumed 150 tokens per candidate.</p>
+                    <p><strong>Cached input:</strong> currently 0 in the estimator because no provider telemetry proves
+                        cache reuse.</p>
+                    <p>For this run: 50 candidates in 1 batch, 7,366 estimated input tokens and 7,500 output tokens.</p>
+                </div>
+            </div>
+            <div class="callout warning"><strong>Pricing governance:</strong> the configured values ($2.50 input, $1.25
+                cached, $10.00 output per million) are explicitly illustrative. Before production reporting, replace
+                them with the approved model, currency, contract rate, taxes, tool fees, API mark-up and any
+                embedding/reranking cost.</div>
+            <div class="callout"><strong>6–7 million record scale model</strong><br>
+                Assumptions: the synthetic candidate rate remains 20%; 50 records per batch; 500 candidates per governed
+                run; zero cached input; the same payload shape; and unchanged illustrative token prices. Token and cost
+                figures should be reforecast after a production data pilot.</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Monthly volume</th>
+                        <th class="right">LLM candidates</th>
+                        <th class="right">Batches / runs</th>
+                        <th class="right">Input / output tokens</th>
+                        <th class="right">Estimated LLM cost</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>6,000,000 records</td>
+                        <td class="right">1,200,000</td>
+                        <td class="right">24,000 / 2,400</td>
+                        <td class="right">176.784M / 180M</td>
+                        <td class="right"><strong>$2,241.96</strong></td>
+                    </tr>
+                    <tr>
+                        <td>7,000,000 records</td>
+                        <td class="right">1,400,000</td>
+                        <td class="right">28,000 / 2,800</td>
+                        <td class="right">206.248M / 210M</td>
+                        <td class="right"><strong>$2,615.62</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="callout warning"><strong>Scale control:</strong> the current 500-candidate limit is per run, not
+                a
+                monthly enterprise cap. A 6-million-record month requires about 2,400 governed runs. Production needs a
+                central monthly budget, concurrency/rate limit, queue priority, and a daily kill switch; otherwise the
+                aggregate bill is not operationally bounded even when each run is individually limited.</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Cost view</th>
+                        <th class="right">Latest value</th>
+                        <th>Interpretation</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Measured in-pipeline model requests</td>
+                        <td class="right">0</td>
+                        <td>No model API was called by the Python pipeline.</td>
+                    </tr>
+                    <tr>
+                        <td>Measured in-pipeline model cost</td>
+                        <td class="right">$0.00</td>
+                        <td>This is the actual pipeline boundary cost for this run.</td>
+                    </tr>
+                    <tr>
+                        <td>Estimated external LLM hand-off</td>
+                        <td class="right">$0.093415</td>
+                        <td>Forecast only; no invoice and no token receipt exists.</td>
+                    </tr>
+                    <tr>
+                        <td>Copilot agent-development cost</td>
+                        <td class="right">Unavailable</td>
+                        <td>No OpenTelemetry <code>llm_request</code> events were available.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section id="roi">
+            <div class="section-head">
+                <div class="num">06</div>
+                <div>
+                    <h2>Business ROI model</h2>
+                    <p class="lead">The economic case is labor time avoided minus LLM, platform, review and support
+                        cost. It must use approved operational assumptions rather than token cost alone.</p>
+                </div>
+            </div>
+            <div class="calculator">
+                <div class="inputs">
+                    <div class="field"><label for="cases">Cases reviewed / month</label><input id="cases" type="number"
+                            value="6000000" min="0"></div>
+                    <div class="field"><label for="minutes">Manual minutes / case</label><input id="minutes"
+                            type="number" value="8" min="0" step="0.5"></div>
+                    <div class="field"><label for="rate">Loaded labor cost / hour ($)</label><input id="rate"
+                            type="number" value="45" min="0" step="1"></div>
+                    <div class="field"><label for="eligible">Share reaching LLM (%)</label><input id="eligible"
+                            type="number" value="20" min="0" max="100"></div>
+                    <div class="field"><label for="accepted">LLM decisions accepted (%)</label><input id="accepted"
+                            type="number" value="70" min="0" max="100"></div>
+                    <div class="field"><label for="llm">LLM cost / reviewed case ($)</label><input id="llm"
+                            type="number" value="0.001868" min="0" step="0.000001"></div>
+                    <div class="field"><label for="residual">Human minutes / accepted case</label><input id="residual"
+                            type="number" value="2" min="0" step="0.5"></div>
+                    <div class="field"><label for="fixed">Monthly platform/support cost ($)</label><input id="fixed"
+                            type="number" value="250" min="0"></div>
+                </div>
+                <div class="result">
+                    <h3>Illustrative monthly outcome</h3>
+                    <div class="big" id="net">$0</div><small>estimated net monthly benefit</small>
+                    <div class="bar"><i id="roiBar"></i></div>
+                    <div class="result-row"><span>Baseline labor cost</span><b id="baseline">$0</b></div>
+                    <div class="result-row"><span>Gross labor time saved</span><b id="saved">$0</b></div>
+                    <div class="result-row"><span>LLM cost</span><b id="llmCost">$0</b></div>
+                    <div class="result-row"><span>Residual review cost</span><b id="residualCost">$0</b></div>
+                    <div class="result-row"><span>Fixed cost</span><b id="fixedCost">$0</b></div>
+                    <div class="result-row"><span>Annualized net benefit</span><b id="annual">$0</b></div>
+                    <div class="result-row"><span>Return on operating cost</span><b id="roiPercent">0%</b></div>
+                </div>
+            </div>
+            <div class="callout"><strong>Model shown:</strong> baseline labor cost − residual human review labor − LLM
+                calls − platform/support. Only the share reaching LLM and accepted without full manual investigation
+                generates full time savings. This does not claim cash savings until staffing, throughput or
+                service-level benefits are operationally realized.</div>
+            <div class="callout"><strong>6-million monthly example:</strong> 1.2 million candidates at 20% eligibility,
+                840,000 accepted LLM outcomes at 70% acceptance, an estimated <strong>$2,241.96</strong> LLM bill, and
+                approximately <strong>$3.78 million in monthly net benefit</strong>. Using the displayed defaults,
+                that means about $3,777,508 net per month after LLM, residual-review, and $250 fixed cost, or about
+                <strong>$45,330,101 annualized</strong>. The labor benefit is an illustrative capacity value and becomes
+                cash ROI only when headcount, contractor spend, or throughput gains are actually realized.
+            </div>
+            <div class="grid3">
+                <div class="panel">
+                    <h3>Direct ROI</h3>
+                    <p>Hours avoided and staffing or contractor expense reduced. Use loaded labor rates and documented
+                        actual handling time.</p>
+                </div>
+                <div class="panel">
+                    <h3>Operational ROI</h3>
+                    <p>Faster exception triage, more consistent evidence capture, and a lower queue for scarce
+                        reviewers.</p>
+                </div>
+                <div class="panel">
+                    <h3>Risk-adjusted ROI</h3>
+                    <p>Measure false acceptance, rework, incident cost and audit effort. A low LLM bill is not valuable
+                        if residual quality risk is high.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="go-live">
+            <div class="section-head">
+                <div class="num">07</div>
+                <div>
+                    <h2>Production go-live checklist</h2>
+                    <p class="lead">The control package is implementation-ready; production approval still requires
+                        ownership and evidence beyond this synthetic run.</p>
+                </div>
+            </div>
+            <div class="grid2">
+                <div class="panel">
+                    <h3>Required before production</h3>
+                    <ul class="checklist">
+                        <li class="blocked">Set <code>require_salt: true</code> and inject
+                            <code>LLM_REDACTION_SALT</code> from a secret manager.
+                        </li>
+                        <li class="blocked">Replace illustrative prices with approved model and contract rates.</li>
+                        <li class="blocked">Approve provider data retention, residency, encryption and model-training
+                            terms.</li>
+                        <li class="blocked">Complete DLP/privacy review for non-identifier fields and free text.</li>
+                        <li class="blocked">Add hard API enforcement for rate, daily spend and identity policies; this
+                            repository calculates the hand-off estimate but does not call the provider.</li>
+                        <li class="blocked">Reconcile estimated tokens to provider receipts during a controlled pilot.
+                        </li>
+                    </ul>
+                </div>
+                <div class="panel">
+                    <h3>Already implemented</h3>
+                    <ul class="checklist">
+                        <li>Only unresolved records are selected for candidate export.</li>
+                        <li>Candidate, row-per-batch, batch-count and projected-spend caps.</li>
+                        <li>Identifier and nested-text redaction.</li>
+                        <li>Classification allow-list and row existence validation on import.</li>
+                        <li>Insufficient evidence preserves the deterministic result.</li>
+                        <li>Transparent estimate artifact, report metrics and 42-test coverage.</li>
+                        <li>Human-approval audit does not block final reporting or automatic resume.</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="callout warning"><strong>Management statement:</strong> The solution demonstrates a low
+                projected LLM cost and bounded exposure, but not production security certification or an audited
+                financial saving. Approve a controlled pilot with a contract-backed rate, secret rotation, provider
+                telemetry, and measured reviewer outcomes before claiming ROI.</div>
+        </section>
+    </main>
+    <footer>
+        <div><span>Source: PM000003 synthetic run, implemented guardrail configuration and generated run metrics dated
+                26 Nov 2026.</span><span>USD • Estimate, not billed spend • All demonstration values are
+                synthetic.</span></div>
+    </footer>
+    <script>
+        (function () {
+            const ids = ['cases', 'minutes', 'rate', 'eligible', 'accepted', 'llm', 'residual', 'fixed'];
+            const money = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 2 });
+            const pct = new Intl.NumberFormat('en-US', { maximumFractionDigits: 1 });
+            function value(id) { const n = Number(document.getElementById(id).value); return Number.isFinite(n) && n >= 0 ? n : 0; }
+            function update() {
+                const cases = value('cases'), minutes = value('minutes'), rate = value('rate'), eligible = Math.min(value('eligible'), 100) / 100, accepted = Math.min(value('accepted'), 100) / 100, llm = value('llm'), residual = value('residual'), fixed = value('fixed');
+                const baseline = cases * minutes / 60 * rate;
+                const reviewed = cases * eligible;
+                const llmCost = reviewed * llm;
+                const residualCost = reviewed * accepted * residual / 60 * rate;
+                const baselineForLlm = reviewed * accepted * minutes / 60 * rate;
+                const saved = Math.max(0, baselineForLlm - residualCost);
+                const operating = llmCost + residualCost + fixed;
+                const net = saved - llmCost - fixed;
+                const roiDenominator = operating;
+                const roi = roiDenominator > 0 ? net / roiDenominator * 100 : 0;
+                document.getElementById('baseline').textContent = money.format(baseline);
+                document.getElementById('saved').textContent = money.format(saved);
+                document.getElementById('llmCost').textContent = money.format(llmCost);
+                document.getElementById('residualCost').textContent = money.format(residualCost);
+                document.getElementById('fixedCost').textContent = money.format(fixed);
+                document.getElementById('net').textContent = money.format(net);
+                document.getElementById('annual').textContent = money.format(net * 12);
+                document.getElementById('roiPercent').textContent = pct.format(roi) + '%';
+                document.getElementById('roiBar').style.width = Math.max(0, Math.min(100, roi)) + '%';
+                document.getElementById('net').style.color = net >= 0 ? '#8fe0da' : '#ff9b87';
+            }
+            ids.forEach(id => document.getElementById(id).addEventListener('input', update)); update();
+        })();
+    </script>
+</body>
+
+</html>

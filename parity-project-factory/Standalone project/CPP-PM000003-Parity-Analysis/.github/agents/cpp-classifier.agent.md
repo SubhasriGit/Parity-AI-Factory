@@ -17,3 +17,4 @@ Prerequisites: confirmed KD matrix and priority, valid DB, completed report pars
 - Do not perform LLM analysis or manual review.
 
 Return run/day, total and logical-group counts, KD distribution, unresolved queue, evidence-gate failures, and status.
+  

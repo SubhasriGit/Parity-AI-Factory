@@ -1,0 +1,1391 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>CPP PM000003 - Twelve Pipeline Steps Explained</title>
+    <style>
+        :root {
+            --navy: #102f46;
+            --navy2: #082131;
+            --ink: #17252e;
+            --muted: #62727c;
+            --paper: #f4f5f1;
+            --white: #fff;
+            --teal: #087f7a;
+            --mint: #dff0ed;
+            --coral: #d95d39;
+            --gold: #b57b13;
+            --red: #9e3c42;
+            --line: #d8dfdc;
+            --shadow: 0 12px 30px rgba(16, 47, 70, .09)
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        body {
+            margin: 0;
+            background: var(--paper);
+            color: var(--ink);
+            font: 16px/1.58 Georgia, "Times New Roman", serif
+        }
+
+        a {
+            color: var(--teal)
+        }
+
+        code {
+            font-family: Consolas, monospace;
+            font-size: .91em
+        }
+
+        .hero {
+            background: linear-gradient(125deg, var(--navy2), var(--navy) 67%, #17616a);
+            color: #fff;
+            padding: 58px max(5vw, 24px) 42px
+        }
+
+        .hero>div {
+            max-width: 1180px;
+            margin: auto
+        }
+
+        .eyebrow {
+            font: 800 12px Arial, sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #91ddd7
+        }
+
+        .hero h1 {
+            font: 800 clamp(38px, 5vw, 65px)/1.03 Arial, sans-serif;
+            margin: 12px 0 16px;
+            max-width: 900px
+        }
+
+        .hero p {
+            font-size: 19px;
+            color: #dce9ed;
+            max-width: 900px;
+            margin: 0
+        }
+
+        .strip {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1px;
+            background: #456578;
+            max-width: 1180px;
+            margin: 28px auto 0;
+            border: 1px solid #456578
+        }
+
+        .strip div {
+            background: #12374c;
+            padding: 15px
+        }
+
+        .strip b {
+            display: block;
+            color: #8fe0da;
+            font: 800 23px Arial, sans-serif
+        }
+
+        .strip span {
+            font: 700 11px Arial, sans-serif;
+            color: #c9dce3;
+            text-transform: uppercase
+        }
+
+        .nav {
+            position: sticky;
+            top: 0;
+            background: rgba(255, 255, 255, .97);
+            border-bottom: 1px solid var(--line);
+            z-index: 10
+        }
+
+        .nav div {
+            max-width: 1180px;
+            margin: auto;
+            display: flex;
+            gap: 7px;
+            overflow: auto;
+            padding: 10px 20px;
+            font: 800 12px Arial, sans-serif
+        }
+
+        .nav a {
+            text-decoration: none;
+            white-space: nowrap;
+            color: var(--navy);
+            padding: 8px 10px
+        }
+
+        .shell {
+            max-width: 1180px;
+            margin: auto;
+            padding: 42px 20px 75px
+        }
+
+        .legend {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 30px
+        }
+
+        .legend div {
+            background: #fff;
+            border-top: 4px solid var(--teal);
+            padding: 15px;
+            box-shadow: var(--shadow)
+        }
+
+        .legend b {
+            font: 800 13px Arial, sans-serif;
+            color: var(--navy);
+            display: block
+        }
+
+        .legend span {
+            font-size: 13px;
+            color: var(--muted)
+        }
+
+        .start-grid,
+        .independent-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px
+        }
+
+        .section-intro {
+            scroll-margin-top: 72px;
+            margin: 0 0 26px;
+            background: #fff;
+            border: 1px solid var(--line);
+            box-shadow: var(--shadow)
+        }
+
+        .section-intro h2 {
+            margin: 0;
+            padding: 18px 22px;
+            background: var(--navy);
+            color: #fff;
+            font: 800 25px/1.2 Arial, sans-serif
+        }
+
+        .section-content {
+            padding: 22px
+        }
+
+        .section-content .lead {
+            margin-top: 0;
+            font-size: 19px;
+            color: var(--muted)
+        }
+
+        .command {
+            margin: 10px 0 0;
+            padding: 15px 17px;
+            overflow: auto;
+            background: var(--navy2);
+            color: #eaf5f6;
+            font: 600 13px/1.7 Consolas, monospace;
+            white-space: pre-wrap
+        }
+
+        .diagram {
+            padding: 24px;
+            overflow-x: auto;
+            background: #091d2b;
+            border: 1px solid #38596c
+        }
+
+        .diagram-title {
+            margin-bottom: 16px;
+            color: #8fe0da;
+            font: 800 11px Arial, sans-serif;
+            letter-spacing: 1.5px;
+            text-transform: uppercase
+        }
+
+        .flow-row {
+            display: grid;
+            grid-template-columns: 1fr 28px 1fr 28px 1fr 28px 1fr;
+            min-width: 920px;
+            gap: 8px;
+            align-items: stretch
+        }
+
+        .flow-node {
+            min-height: 88px;
+            padding: 14px;
+            border: 1px solid #43667a;
+            background: #123348;
+            color: #d8e7ed
+        }
+
+        .flow-node b {
+            display: block;
+            margin-bottom: 5px;
+            color: #8fe0da;
+            font: 800 13px Arial, sans-serif
+        }
+
+        .flow-node span {
+            font-size: 12px
+        }
+
+        .flow-node.gate {
+            border-color: #d95d39;
+            background: #173b4c
+        }
+
+        .flow-arrow {
+            display: grid;
+            place-items: center;
+            color: var(--coral);
+            font: 800 25px Arial, sans-serif
+        }
+
+        .flow-branch {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            min-width: 920px;
+            gap: 10px;
+            margin: 10px 0 10px 31px
+        }
+
+        .flow-branch .flow-node {
+            min-height: 74px
+        }
+
+        .flow-caption {
+            margin-top: 15px;
+            color: #bfd3dc;
+            font: 12px Arial, sans-serif
+        }
+
+        .mode-list {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px
+        }
+
+        .mode {
+            padding: 16px;
+            border: 1px solid var(--line);
+            border-top: 4px solid var(--teal);
+            background: #fbfcfa
+        }
+
+        .mode b {
+            display: block;
+            color: var(--navy);
+            font: 800 15px Arial, sans-serif
+        }
+
+        .mode span {
+            color: var(--muted);
+            font-size: 13px
+        }
+
+        .step-list {
+            margin: 12px 0 0;
+            padding: 0;
+            list-style: none;
+            counter-reset: launch-step
+        }
+
+        .step-list li {
+            counter-increment: launch-step;
+            position: relative;
+            padding: 8px 0 8px 36px;
+            border-bottom: 1px solid #e8ecea
+        }
+
+        .step-list li:before {
+            content: counter(launch-step);
+            position: absolute;
+            left: 0;
+            top: 7px;
+            width: 24px;
+            height: 24px;
+            display: grid;
+            place-items: center;
+            background: var(--coral);
+            color: #fff;
+            border-radius: 50%;
+            font: 800 11px Arial, sans-serif
+        }
+
+        .task {
+            scroll-margin-top: 68px;
+            background: #fff;
+            border: 1px solid var(--line);
+            box-shadow: var(--shadow);
+            margin-bottom: 24px
+        }
+
+        .task-head {
+            display: grid;
+            grid-template-columns: 74px 1fr 230px;
+            background: var(--navy);
+            color: #fff
+        }
+
+        .task-head .n {
+            display: grid;
+            place-items: center;
+            font: 800 27px Arial, sans-serif;
+            color: #8fe0da;
+            border-right: 1px solid #527086
+        }
+
+        .task-head .title {
+            padding: 17px 20px
+        }
+
+        .task-head h2 {
+            font: 800 22px/1.2 Arial, sans-serif;
+            margin: 0
+        }
+
+        .task-head p {
+            font-size: 13px;
+            color: #cbdbe2;
+            margin: 5px 0 0
+        }
+
+        .agent {
+            padding: 18px 20px;
+            align-self: stretch;
+            border-left: 1px solid #527086;
+            font: 700 13px Arial, sans-serif
+        }
+
+        .agent span {
+            display: block;
+            color: #93d8d2;
+            text-transform: uppercase;
+            font-size: 10px;
+            letter-spacing: 1px;
+            margin-bottom: 4px
+        }
+
+        .body {
+            padding: 22px
+        }
+
+        .why {
+            font-size: 19px;
+            color: #243b47;
+            border-left: 5px solid var(--coral);
+            padding: 6px 0 6px 17px;
+            margin: 0 0 18px
+        }
+
+        .grid4 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 13px
+        }
+
+        .box {
+            border: 1px solid var(--line);
+            background: #fbfcfa;
+            padding: 16px
+        }
+
+        .box h3 {
+            font: 800 12px Arial, sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--teal);
+            margin: 0 0 8px
+        }
+
+        .box p,
+        .box ul {
+            margin: 5px 0
+        }
+
+        .box ul {
+            padding-left: 19px
+        }
+
+        .flow {
+            display: flex;
+            gap: 8px;
+            align-items: stretch;
+            margin-top: 14px;
+            flex-wrap: wrap;
+            font: 700 12px Arial, sans-serif
+        }
+
+        .flow span {
+            background: var(--mint);
+            border: 1px solid #b9d9d3;
+            padding: 8px 11px
+        }
+
+        .flow i {
+            color: var(--coral);
+            font-style: normal;
+            align-self: center;
+            font-size: 18px
+        }
+
+        .caveat {
+            margin-top: 14px;
+            padding: 12px 15px;
+            background: #fff1d6;
+            border-left: 4px solid var(--gold);
+            font: 13px Arial, sans-serif
+        }
+
+        .callout {
+            margin-top: 14px;
+            padding: 15px 18px;
+            background: var(--mint);
+            border-left: 5px solid var(--teal)
+        }
+
+        .callout.warning {
+            background: #fff1d6;
+            border-left-color: var(--gold)
+        }
+
+        .callout.danger {
+            background: #fae8e7;
+            border-left-color: var(--red)
+        }
+
+        .critical {
+            background: #fae8e7;
+            border-left-color: var(--red)
+        }
+
+        .takeaway {
+            margin-top: 14px;
+            background: var(--navy2);
+            color: #fff;
+            padding: 13px 16px;
+            font: 700 14px Arial, sans-serif
+        }
+
+        .takeaway b {
+            color: #8fe0da
+        }
+
+        .footer {
+            background: #e6ebe9;
+            padding: 25px 20px;
+            color: var(--muted);
+            font: 12px Arial, sans-serif
+        }
+
+        .footer div {
+            max-width: 1180px;
+            margin: auto;
+            display: flex;
+            justify-content: space-between;
+            gap: 25px
+        }
+
+        .top {
+            position: fixed;
+            right: 18px;
+            bottom: 18px;
+            background: var(--coral);
+            color: #fff;
+            text-decoration: none;
+            width: 42px;
+            height: 42px;
+            display: grid;
+            place-items: center;
+            font: 800 20px Arial, sans-serif;
+            box-shadow: var(--shadow)
+        }
+
+        @media(max-width:850px) {
+
+            .strip,
+            .legend {
+                grid-template-columns: 1fr 1fr
+            }
+
+            .grid4,
+            .start-grid,
+            .independent-grid,
+            .mode-list {
+                grid-template-columns: 1fr
+            }
+
+            .task-head {
+                grid-template-columns: 60px 1fr
+            }
+
+            .agent {
+                grid-column: 1/-1;
+                border-left: 0;
+                border-top: 1px solid #527086
+            }
+
+            .hero {
+                padding: 40px 20px
+            }
+
+            .shell {
+                padding: 30px 15px 60px
+            }
+        }
+
+        @media(max-width:520px) {
+
+            .strip,
+            .legend {
+                grid-template-columns: 1fr
+            }
+
+            .task-head {
+                grid-template-columns: 52px 1fr
+            }
+
+            .task-head .n {
+                font-size: 20px
+            }
+
+            .task-head h2 {
+                font-size: 18px
+            }
+
+            .footer div {
+                display: block
+            }
+        }
+
+        @media print {
+
+            .nav,
+            .top {
+                display: none
+            }
+
+            .hero {
+                padding: 24px
+            }
+
+            .shell {
+                padding: 18px 0
+            }
+
+            .task {
+                box-shadow: none;
+                break-inside: avoid;
+                margin-bottom: 14px
+            }
+        }
+    </style>
+</head>
+
+<body id="top">
+    <header class="hero">
+        <div>
+            <div class="eyebrow">CPP PM000003 operational walkthrough</div>
+            <h1>The 12 pipeline steps, explained end to end</h1>
+            <p>Why each step is required, which agent owns it, how the work is performed, and where the result is
+                persisted or passed to the next stage.</p>
+            <div class="strip">
+                <div><b>12</b><span>Declared pipeline tasks</span></div>
+                <div><b>13</b><span>CPP project agents</span></div>
+                <div><b>1</b><span>Canonical SQLite database</span></div>
+                <div><b>State</b><span>Audited in task-state.json</span></div>
+            </div>
+        </div>
+    </header>
+    <nav class="nav">
+        <div><a href="#start">Start</a><a href="#flow">Flow diagram</a><a href="#independent">Independent</a><a
+                href="#s1">1 Requirements</a><a href="#s2">2 DB</a><a href="#s3">3 CPP</a><a href="#s4">4 IMS</a><a
+                href="#s5">5 Parse</a><a href="#s6">6 Explode</a><a href="#s7">7 Classify</a><a href="#s8">8 LLM</a><a
+                href="#s9">9 Review</a><a href="#s10">10 Report</a><a href="#s11">11 Validate</a><a href="#s12">12
+                Consolidate</a></div>
+    </nav>
+    <main class="shell">
+        <div class="legend">
+            <div><b>WHY</b><span>Control or business reason for the step.</span></div>
+            <div><b>WHO</b><span>The owning specialist agent and coordinator.</span></div>
+            <div><b>HOW</b><span>Exact script and deterministic operation.</span></div>
+            <div><b>WHERE</b><span>Database, file, report or state destination.</span></div>
+        </div>
+
+        <section class="section-intro" id="start">
+            <h2>Launch the complete pipeline through one orchestrated instruction</h2>
+            <div class="section-content">
+                <p class="lead"><strong>One coordinator. Twelve governed steps. A single business instruction.</strong>
+                    The <strong>CPP PM000003 Orchestrator</strong>, represented as <strong>Archon</strong> in the
+                    architecture, translates the requested outcome into a dependency-ordered plan, verifies readiness,
+                    delegates to the appropriate specialists, and returns auditable evidence at completion.</p>
+                <div class="box" style="margin-bottom:16px; border-top:4px solid var(--coral)">
+                    <h3>Choose the intent and submit the prompt</h3>
+                    <p>Select <strong>CPP PM000003 Orchestrator</strong> as the coordinating agent, then copy the prompt
+                        that matches the outcome required.</p>
+                    <div class="mode-list">
+                        <div class="mode"><b>Run full pipeline</b><span>Runs all core executable tasks in dependency
+                                order through final validation, excluding optional consolidation.</span></div>
+                        <div class="mode"><b>Show pipeline status</b><span>Inspects task state and reports completed,
+                                blocked and unresolved tasks without running data work.</span></div>
+                        <div class="mode"><b>Resume pipeline</b><span>Finds the first unresolved task and continues only
+                                when its prerequisites remain valid.</span></div>
+                        <div class="mode"><b>Run task classify</b><span>Runs only the named task and verifies its
+                                required upstream evidence.</span></div>
+                        <div class="mode"><b>Resume failed ims-migrate task</b><span>Inspects that task's failed
+                                attempt, identifies the blocker, and retries only after it is safe.</span></div>
+                        <div class="mode"><b>Run task consolidate</b><span>Runs optional consolidation only after
+                                validated reports are explicitly identified.</span></div>
+                    </div>
+                    <div class="caveat"><strong>Important:</strong> the short prompt is the intent. Selecting the
+                        orchestrator supplies the execution contract: it still validates confirmed requirements, task
+                        prerequisites, explicit paths/mappings, and approval for destructive operations.</div>
+                </div>
+                <div class="start-grid">
+                    <div class="box">
+                        <h3>Full pipeline</h3>
+                        <p><strong>Agent:</strong> <code>CPP PM000003 Orchestrator</code> /
+                            <code>cpp-orchestrator</code>
+                        </p>
+                        <p><strong>Type in chat:</strong> <code>Run full pipeline</code></p>
+                        <div class="command">Use the CPP PM000003 Orchestrator to run the full pipeline for this
+                            project. First validate the confirmed requirements and task state. Use the CPP and IMS
+                            inputs, day map, report configuration, and database already documented for this workspace.
+                            Run in dependency order through final validation, stop on the first blocked or failed
+                            prerequisite, and return task evidence and the overall status.</div>
+                        <p>The orchestrator plans the run, checks every prerequisite, delegates to specialists, and
+                            excludes optional consolidation unless requested.</p>
+                    </div>
+                    <div class="box">
+                        <h3>Status only</h3>
+                        <p><strong>Agent:</strong> <code>CPP PM000003 Orchestrator</code></p>
+                        <p><strong>Type in chat:</strong> <code>Show pipeline status</code></p>
+                        <div class="command">Use the CPP PM000003 Orchestrator in status mode. Read pipeline.yaml and
+                            state/task-state.json. Do not execute data work. Report completed tasks, the first
+                            unresolved task, missing evidence, and the next safe action.</div>
+                        <p>Status mode is observational: it returns state and readiness information without changing the
+                            database or reports.</p>
+                    </div>
+                    <div class="box">
+                        <h3>One specific task</h3>
+                        <p><strong>Agent:</strong> Orchestrator plus the owning specialist.</p>
+                        <p><strong>Type in chat:</strong> <code>Run task classify</code></p>
+                        <div class="command">Use the CPP PM000003 Orchestrator to run task classify only. Verify
+                            successful CPP load, IMS migration, report parsing, and packet explosion evidence. Delegate
+                            the task to CPP Classifier, then return the verdict counts and task-state update. Do not
+                            rerun unrelated upstream tasks.</div>
+                        <p>Named-task execution validates only that task's prerequisites and avoids rebuilding earlier
+                            completed stages.</p>
+                    </div>
+                    <div class="box">
+                        <h3>Resume a failed or interrupted run</h3>
+                        <p><strong>Agent:</strong> <code>CPP PM000003 Orchestrator</code></p>
+                        <p><strong>Type in chat:</strong> <code>Resume pipeline</code></p>
+                        <div class="command">Use the CPP PM000003 Orchestrator to inspect state/task-state.json,
+                            identify the first failed, blocked, incomplete, or human-inspection-required task, explain
+                            the missing evidence, and resume only if its prerequisites are valid. Rerun no successful
+                            task unless necessary for the requested repair.</div>
+                        <p>For a known task, say: “Resume <code>ims-migrate</code> only; do not replace any table
+                            without explicit approval; report the blocker or evidence.”</p>
+                    </div>
+                </div>
+                <div class="caveat"><strong>What the orchestrator needs from the user:</strong> run scope,
+                    database/output intent, relevant source paths when they are not already confirmed, and any explicit
+                    approval for replacement or refresh. It must not infer store/day mappings, overwrite permission,
+                    model behavior, or report layout.</div>
+                <div class="caveat critical"><strong>Prerequisite gate:</strong> <code>requirements-confirm</code> is a
+                    documentation/configuration gate, not an executable data task. Full execution begins with database
+                    initialization only after the requirement state is confirmed.</div>
+            </div>
+        </section>
+
+        <section class="section-intro" id="flow">
+            <h2>Presentation flow: how the pipeline moves</h2>
+            <div class="section-content">
+                <p class="lead">The broad flow is deterministic first. The unresolved exception path is optional and
+                    controlled; every accepted result returns to the same canonical database and report validation
+                    boundary.</p>
+                <div class="diagram">
+                    <div class="diagram-title">Dependency-ordered operating flow</div>
+                    <div class="flow-row">
+                        <div class="flow-node gate"><b>1. Requirements</b><span>Confirmed scope, keys, rules and
+                                outputs</span></div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-node"><b>2. Database</b><span>Versioned schema, tables and indexes</span></div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-node"><b>3-5. Source evidence</b><span>CPP, IMS and mismatch inputs
+                                loaded</span></div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-node"><b>6. CPP analysis</b><span>Nested packets become cpp_data rows</span>
+                        </div>
+                    </div>
+                    <div class="flow-arrow" style="height:34px">↓</div>
+                    <div class="flow-row">
+                        <div class="flow-node gate"><b>7. Deterministic KD</b><span>Priority rules create
+                                mismatch_verdict</span></div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-node"><b>8. Optional LLM</b><span>Redacted unresolved candidates and cost
+                                estimate</span></div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-node"><b>9. Human review</b><span>Manual precedence and audit
+                                attribution</span></div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-node gate"><b>10-11. Report + validate</b><span>Workbook written and counts
+                                reconciled</span></div>
+                    </div>
+                    <div class="flow-branch">
+                        <div class="flow-node"><b>Parallel evidence input</b><span>CPP load and IMS migration can start
+                                independently after DB initialization.</span></div>
+                        <div class="flow-node"><b>Controlled exception path</b><span>LLM and human review update
+                                evidence only through validated imports.</span></div>
+                        <div class="flow-node"><b>12. Optional consolidation</b><span>Explicitly selected validated
+                                reports become a management view.</span></div>
+                    </div>
+                    <div class="flow-caption">Commands and retries → state/task-state.json &nbsp;•&nbsp; Raw and
+                        normalized evidence → SQLite &nbsp;•&nbsp; Business outputs → Excel, JSON, metrics and telemetry
+                    </div>
+                </div>
+                <div class="takeaway"><b>Presenter sequence:</b> confirm → initialize → load evidence → normalize →
+                    classify → enrich exceptions → review → report → reconcile.</div>
+            </div>
+        </section>
+
+        <section class="section-intro" id="independent">
+            <h2>Running a specialist agent or task independently</h2>
+            <div class="section-content">
+                <p class="lead">Select a specialist agent directly in Copilot Chat when the purpose is one focused task.
+                    For a pipeline-aware request, address the orchestrator and name the task ID. In both cases, the
+                    agent checks only the relevant prerequisites and does not rerun unrelated successful stages.</p>
+                <div class="independent-grid">
+                    <div class="box">
+                        <h3>CPP CPP Loader</h3>
+                        <div class="command">Use the CPP CPP Loader agent to validate and load the five confirmed CPP
+                            snapshot files into the current database. Check schema compatibility and required CSV
+                            columns first. Do not replace or refresh destructively, and report inserted, ignored,
+                            skipped, and total rows.</div>
+                        <p><strong>Task:</strong> <code>cpp-load</code></p>
+                        <p><strong>Prerequisites:</strong> confirmed requirements and valid database schema.</p>
+                    </div>
+                    <div class="box">
+                        <h3>CPP Classifier</h3>
+                        <div class="command">Use the CPP Classifier agent to rerun deterministic KD classification for
+                            the configured analysis date. Confirm CPP, IMS, report-parse, and packet-explosion evidence
+                            first. Return the classification distribution and changed verdict count.</div>
+                        <p><strong>Task:</strong> <code>classify</code></p>
+                        <p><strong>Prerequisites:</strong> all required evidence tables are complete.</p>
+                    </div>
+                    <div class="box">
+                        <h3>CPP LLM Analyst</h3>
+                        <div class="command">Use the CPP LLM Analyst agent to export unresolved candidates only. Apply
+                            the configured redaction, candidate, batch, and spend guardrails. Return candidate count,
+                            skipped count, token estimate, and estimated cost. Do not imply that a provider bill was
+                            incurred.</div>
+                        <p><strong>Task:</strong> <code>llm-review</code></p>
+                        <p><strong>Prerequisites:</strong> deterministic classification is successful.</p>
+                    </div>
+                    <div class="box">
+                        <h3>CPP Validator</h3>
+                        <div class="command">Use the CPP Validator agent to validate the latest database and final
+                            workbook. Reconcile mismatch, verdict, and All_Results row counts and verify required review
+                            sheets and columns. Do not modify the evidence.</div>
+                        <p><strong>Task:</strong> <code>validate</code></p>
+                        <p><strong>Prerequisites:</strong> a final workbook and successful final-report evidence.</p>
+                    </div>
+                    <div class="box">
+                        <h3>Run a named failed task</h3>
+                        <div class="command">Use the CPP PM000003 Orchestrator to resume only the failed ims-migrate
+                            task. Read its last attempt evidence, identify the root cause, ask for missing approval or
+                            mapping if needed, and retry only after the prerequisite defect is corrected. Do not
+                            silently refresh or replace tables.</div>
+                    </div>
+                    <div class="box">
+                        <h3>From the middle</h3>
+                        <div class="command">Use the CPP PM000003 Orchestrator to start from task final-report. Verify
+                            that human review evidence or the approved equivalent is present, generate the workbook,
+                            then validate it. Do not reload CPP, IMS, or mismatch inputs.</div>
+                    </div>
+                </div>
+
+                <div class="callout warning"><strong>Agent selection guidance:</strong> use a specialist for one clearly
+                    owned operation; use the Orchestrator for full, resume, status, from-task-X, prerequisite checking,
+                    or coordination across multiple agents.</div>
+                <div class="callout danger"><strong>Independent does not mean ungoverned:</strong> missing requirements,
+                    a stale schema, absent day mapping, missing review workbook or invalid prerequisite state must
+                    produce a named blocker or clarification request. A specialist must not bypass those gates.</div>
+
+                <div class="box" style="margin-top:16px">
+                    <h3>Is self-healing implemented?</h3>
+                    <p><strong>Partly:</strong> the pipeline has retry and resumability controls, but not unrestricted
+                        autonomous repair.</p>
+                    <ul class="clean">
+                        <li><strong>Retry:</strong> a failed executable task is attempted again up to the configured two
+                            retries, meaning up to three total attempts.</li>
+                        <li><strong>Same safe command:</strong> retry repeats the mapped task command; it does not
+                            invent a new mapping, schema, rule, or destructive repair.</li>
+                        <li><strong>Evidence:</strong> every attempt stores duration, exit code and shortened output in
+                            <code>state/task-state.json</code>.
+                        </li>
+                        <li><strong>Exhaustion:</strong> failure after retries becomes
+                            <code>HUMAN_INSPECTION_REQUIRED</code>; the overall state records that inspection is needed.
+                        </li>
+                        <li><strong>Resume:</strong> the orchestrator can identify the first unresolved task and
+                            continue after the prerequisite problem is corrected or approved.</li>
+                        <li><strong>Human control:</strong> destructive refresh, replacement, missing mapping, ambiguous
+                            requirements and production credential decisions require explicit confirmation.</li>
+                    </ul>
+                    <div class="caveat"><strong>Accurate demo statement:</strong> “The system self-recovers from
+                        transient task failures through bounded retries and persistent resume, but it does not silently
+                        self-heal a bad mapping, corrupt data, missing requirement, or unsafe configuration. Those
+                        conditions are audited and escalated for human inspection.”</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="task" id="s1">
+            <div class="task-head">
+                <div class="n">01</div>
+                <div class="title">
+                    <h2>Confirm requirements</h2>
+                    <p>The project must not execute against unstated assumptions.</p>
+                </div>
+                <div class="agent"><span>Owning agent</span>CPP Requirements Analyst</div>
+            </div>
+            <div class="body">
+                <p class="why"><strong>Why:</strong> create the approved operating contract before any data work:
+                    project identity, datasets, keys, rules, review policy, outputs and exceptions.</p>
+                <div class="grid4">
+                    <div class="box">
+                        <h3>How / who coordinates</h3>
+                        <p>The requirements analyst reads the confirmed requirements and current configuration,
+                            identifies open or contradictory points, asks focused questions, and records only explicitly
+                            approved decisions. Archon/the orchestrator treats this as the first prerequisite gate.</p>
+                    </div>
+                    <div class="box">
+                        <h3>Script and execution</h3>
+                        <p>This is a documentation/configuration task, not a normal data-processing command. The current
+                            <code>run_pipeline.py</code> does not expose an executable <code>requirements-confirm</code>
+                            command; its status is prepared and represented through the task state.
+                        </p>
+                    </div>
+                    <div class="box">
+                        <h3>Where results are stored</h3>
+                        <ul>
+                            <li><code>docs/CONFIRMED_REQUIREMENTS.md</code></li>
+                            <li><code>config/cpp.yaml</code></li>
+                            <li>Status/evidence in <code>state/task-state.json</code></li>
+                        </ul>
+                    </div>
+                    <div class="box">
+                        <h3>Passed to</h3>
+                        <p>Database initialization, CPP loading, IMS migration and mismatch-report parsing all require
+                            this gate. The recorded decisions become the source of truth for downstream configuration.
+                        </p>
+                    </div>
+                </div>
+                <div class="caveat"><strong>Demo wording:</strong> “No agent invents a missing business rule. The system
+                    asks, records the answer, and opens the implementation gate.”</div>
+            </div>
+        </section>
+        <section class="task" id="s2">
+            <div class="task-head">
+                <div class="n">02</div>
+                <div class="title">
+                    <h2>Initialize the database</h2>
+                    <p>Create and verify the canonical evidence store.</p>
+                </div>
+                <div class="agent"><span>Owning agent</span>CPP Database Migrator</div>
+            </div>
+            <div class="body">
+                <p class="why"><strong>Why:</strong> all loading, classification, review and reporting need a
+                    consistent, versioned schema and indexed storage model.</p>
+                <div class="grid4">
+                    <div class="box">
+                        <h3>Script</h3>
+                        <p><code>scripts/init_database.py --db &lt;database&gt;</code>, invoked by
+                            <code>scripts/run_pipeline.py</code>.
+                        </p>
+                    </div>
+                    <div class="box">
+                        <h3>How</h3>
+                        <p>Creates or idempotently verifies the schema from
+                            <code>schema/001_create_core_schema.sql</code>, sets the schema version and required
+                            indexes, and returns table/index counts.
+                        </p>
+                    </div>
+                    <div class="box">
+                        <h3>Where updated</h3>
+                        <p>The SQLite database, including the core CPP, master, staging, mismatch and verdict tables.
+                            Schema evidence and command output are saved in <code>state/task-state.json</code>.</p>
+                    </div>
+                    <div class="box">
+                        <h3>Passed to</h3>
+                        <p>CPP load, IMS migration and report parsing receive a valid database boundary. Later stages
+                            never need to invent their own storage.</p>
+                    </div>
+                </div>
+                <div class="flow"><span>Confirmed requirements</span><i>→</i><span>DDL/schema
+                        version</span><i>→</i><span>Indexed canonical DB</span></div>
+            </div>
+        </section>
+        <section class="task" id="s3">
+            <div class="task-head">
+                <div class="n">03</div>
+                <div class="title">
+                    <h2>Load CPP snapshots</h2>
+                    <p>Bring five controlled CPP datasets into canonical tables.</p>
+                </div>
+                <div class="agent"><span>Owning agent</span>CPP CPP Loader</div>
+            </div>
+            <div class="body">
+                <p class="why"><strong>Why:</strong> the classifier and CPP analyst need authoritative corporate packet
+                    and reference evidence rather than reading production-shaped files ad hoc.</p>
+                <div class="grid4">
+                    <div class="box">
+                        <h3>Script</h3>
+                        <p><code>scripts/load_cpp_snapshot_to_db.py --db &lt;db&gt; --csv-dir cpp_data</code>, with
+                            optional <code>--replace</code> or <code>--only</code>.</p>
+                    </div>
+                    <div class="box">
+                        <h3>How</h3>
+                        <p>Validates required files and columns, parses packet bodies, normalizes empty values, computes
+                            row hashes, batches inserts, records skipped/ignored/malformed counts, and supports
+                            idempotent reloading.</p>
+                    </div>
+                    <div class="box">
+                        <h3>Where updated</h3>
+                        <p><code>cpp_price_packets</code>, <code>deal_price_master</code>,
+                            <code>regular_price_master</code>, <code>zone_store_relation</code> and
+                            <code>staging_product_price</code> in SQLite. Load metrics go to command output and task
+                            state.
+                        </p>
+                    </div>
+                    <div class="box">
+                        <h3>Passed to</h3>
+                        <p>Task 6 consumes the packet table for explosion. Task 7 queries the packet/master/staging
+                            evidence to evaluate KD rules.</p>
+                    </div>
+                </div>
+                <div class="takeaway"><b>Evidence:</b> the synthetic run loaded 100 packet rows plus 300 deal, 100
+                    regular, 5 zone and 300 staging rows.</div>
+            </div>
+        </section>
+        <section class="task" id="s4">
+            <div class="task-head">
+                <div class="n">04</div>
+                <div class="title">
+                    <h2>Migrate IMS snapshots</h2>
+                    <p>Create store/day-specific IMS evidence inside the canonical database.</p>
+                </div>
+                <div class="agent"><span>Owning agent</span>CPP IMS Migrator</div>
+            </div>
+            <div class="body">
+                <p class="why"><strong>Why:</strong> deterministic classification needs the exact IMS state for a store
+                    and snapshot day, with an explicit provenance mapping.</p>
+                <div class="grid4">
+                    <div class="box">
+                        <h3>Script</h3>
+                        <p><code>scripts/migrate_ims_snapshot_to_db.py --source &lt;ims.db&gt; --db &lt;db&gt; --day-map &lt;map.json&gt;</code>,
+                            optionally with <code>--refresh</code>.</p>
+                    </div>
+                    <div class="box">
+                        <h3>How</h3>
+                        <p>Reads explicit source-table/store/day mappings, validates four-digit stores and ISO dates,
+                            creates one <code>mf_data_&lt;store&gt;</code> table per store, inserts rows, and records
+                            deduplication, refresh and parity counts.</p>
+                    </div>
+                    <div class="box">
+                        <h3>Where updated</h3>
+                        <p>Dynamic SQLite tables such as <code>mf_data_5101</code> through <code>mf_data_5505</code>,
+                            with indexed product, deal, price type and snapshot-day evidence. Optional backups are
+                            written outside the repository's tracked artifacts.</p>
+                    </div>
+                    <div class="box">
+                        <h3>Passed to</h3>
+                        <p>The classifier queries these tables as IMS-side evidence for effective-date, master-price and
+                            discrepancy decisions.</p>
+                    </div>
+                </div>
+                <div class="caveat critical"><strong>Never assume a day:</strong> a valid source table without an
+                    explicit approved day mapping is insufficient and must block this task.</div>
+            </div>
+        </section>
+        <section class="task" id="s5">
+            <div class="task-head">
+                <div class="n">05</div>
+                <div class="title">
+                    <h2>Parse the mismatch report</h2>
+                    <p>Convert raw directional mismatch messages into normalized candidate rows.</p>
+                </div>
+                <div class="agent"><span>Owning agent</span>CPP Report Runner</div>
+            </div>
+            <div class="body">
+                <p class="why"><strong>Why:</strong> the classifier must work from structured keys, dates and prices
+                    rather than parsing log text repeatedly.</p>
+                <div class="grid4">
+                    <div class="box">
+                        <h3>Script</h3>
+                        <p><code>pm000003_mismatch_report.py --config &lt;config.json&gt; --persist-to-db &lt;db&gt;</code>,
+                            optionally filtered by analysis date.</p>
+                    </div>
+                    <div class="box">
+                        <h3>How</h3>
+                        <p>Validates headers, applies the configured DTO regex, extracts store/product/deal/date/price
+                            values, normalizes timestamps, assigns price type and direction, accounts for malformed
+                            rows, and pairs directional records where possible.</p>
+                    </div>
+                    <div class="box">
+                        <h3>Where updated</h3>
+                        <p>Structured rows are inserted into <code>mismatch_input</code>. Daily review workbooks are
+                            generated under the configured reports directory, and parse/persistence metrics are
+                            returned.</p>
+                    </div>
+                    <div class="box">
+                        <h3>Passed to</h3>
+                        <p>The deterministic classifier consumes <code>mismatch_input</code>. The reporting stage later
+                            joins it to <code>mismatch_verdict</code>.</p>
+                    </div>
+                </div>
+                <div class="takeaway"><b>Evidence:</b> 50 source messages produced 250 parsed DTO rows in the
+                    demonstration, with zero malformed rows.</div>
+            </div>
+        </section>
+        <section class="task" id="s6">
+            <div class="task-head">
+                <div class="n">06</div>
+                <div class="title">
+                    <h2>Explode CPP packets</h2>
+                    <p>Transform nested packet JSON into queryable evidence rows.</p>
+                </div>
+                <div class="agent"><span>Owning agent</span>CPP CPP Analyst</div>
+            </div>
+            <div class="body">
+                <p class="why"><strong>Why:</strong> raw packet arrays are difficult and expensive for rule evaluation.
+                    One normalized row per price element makes evidence lookup deterministic and auditable.</p>
+                <div class="grid4">
+                    <div class="box">
+                        <h3>Script</h3>
+                        <p><code>scripts/cpp_analyst.py --db &lt;db&gt;</code>.</p>
+                    </div>
+                    <div class="box">
+                        <h3>How</h3>
+                        <p>Reads validated packet bodies, parses nested regular, promo and core-charge values,
+                            normalizes price fields, detects invalid/truncated bodies, and rebuilds the analytical table
+                            idempotently.</p>
+                    </div>
+                    <div class="box">
+                        <h3>Where updated</h3>
+                        <p><code>cpp_data</code> in SQLite. The command returns inserted, malformed and type-level
+                            explosion metrics; executable evidence is recorded by the pipeline driver.</p>
+                    </div>
+                    <div class="box">
+                        <h3>Passed to</h3>
+                        <p>The classifier uses <code>cpp_data</code> for CPP-side comparisons alongside IMS and
+                            master-data tables.</p>
+                    </div>
+                </div>
+                <div class="takeaway"><b>Evidence:</b> the synthetic run exploded 100 packets into 200 normalized
+                    evidence rows.</div>
+            </div>
+        </section>
+        <section class="task" id="s7">
+            <div class="task-head">
+                <div class="n">07</div>
+                <div class="title">
+                    <h2>Classify with deterministic KD rules</h2>
+                    <p>Establish the governed baseline before any AI review.</p>
+                </div>
+                <div class="agent"><span>Owning agent</span>CPP Classifier</div>
+            </div>
+            <div class="body">
+                <p class="why"><strong>Why:</strong> known discrepancy conditions should be decided reproducibly by
+                    ordered business rules, not inferred by a model. Only unresolved or ambiguous cases should require
+                    LLM assistance.</p>
+                <div class="grid4">
+                    <div class="box">
+                        <h3>Script</h3>
+                        <p><code>scripts/classify_kd.py run --db &lt;db&gt; [--analysis-date &lt;date&gt;]</code>.</p>
+                    </div>
+                    <div class="box">
+                        <h3>How</h3>
+                        <p>Loads each <code>mismatch_input</code> row, constructs paired and snapshot evidence, then
+                            applies the configured first-match KD priority. Each verdict includes classification, KD
+                            code, confidence, hypothesis, supporting evidence and missing evidence.</p>
+                    </div>
+                    <div class="box">
+                        <h3>Where updated</h3>
+                        <p>One row per input is written to <code>mismatch_verdict</code>, linked by <code>row_id</code>.
+                            Enriched evidence is also available for report generation.</p>
+                    </div>
+                    <div class="box">
+                        <h3>Passed to</h3>
+                        <p>Expected/known-discrepancy rows remain deterministic. <code>POTENTIAL_ISSUE</code> and
+                            <code>IMS_DATA_ISSUE</code> rows are selected by the LLM bridge.
+                        </p>
+                    </div>
+                </div>
+                <div class="flow"><span>Mismatch row</span><i>→</i><span>CPP + IMS
+                        evidence</span><i>→</i><span>First-match KD rule</span><i>→</i><span>Verdict</span></div>
+                <div class="takeaway"><b>Decision priority:</b> deterministic rules establish the baseline; AI may add
+                    supported findings but cannot silently rewrite an allowed schema.</div>
+            </div>
+        </section>
+        <section class="task" id="s8">
+            <div class="task-head">
+                <div class="n">08</div>
+                <div class="title">
+                    <h2>Review unresolved candidates</h2>
+                    <p>Bound and explain the optional LLM second pass.</p>
+                </div>
+                <div class="agent"><span>Owning agent</span>CPP LLM Analyst</div>
+            </div>
+            <div class="body">
+                <p class="why"><strong>Why:</strong> deterministic rules can leave ambiguity. A constrained second pass
+                    can propose evidence, but its data exposure and projected spend must remain bounded.</p>
+                <div class="grid4">
+                    <div class="box">
+                        <h3>Script</h3>
+                        <p>The task driver runs
+                            <code>scripts/llm_bridge.py export --db &lt;db&gt; --output output/llm_candidates.json</code>.
+                        </p>
+                    </div>
+                    <div class="box">
+                        <h3>How</h3>
+                        <p>Joins <code>mismatch_input</code> to <code>mismatch_verdict</code>, selects unresolved
+                            classes, redacts configured identifiers, batches rows, estimates token cost and applies the
+                            500 candidates / 50 rows / 20 batches / $5 per-run controls.</p>
+                    </div>
+                    <div class="box">
+                        <h3>Where updated</h3>
+                        <p><code>output/llm_candidates.json</code> and <code>output/cost/llm_cost_estimate.json</code>.
+                            No database mutation occurs during export.</p>
+                    </div>
+                    <div class="box">
+                        <h3>Passed to</h3>
+                        <p>An external LLM analyst receives the controlled JSON and may return
+                            <code>output/llm_findings.json</code>. Supported findings can be imported by
+                            <code>llm_bridge.py import</code>; this is separate from the driver's export-only task.
+                        </p>
+                    </div>
+                </div>
+                <div class="caveat critical"><strong>Implementation boundary:</strong> the current driver does not call
+                    a model API. The synthetic full-run generator separately creates/imports findings for demonstration.
+                    A real deployment must add the external submission, provider authentication, rate controls and
+                    receipt capture explicitly.</div>
+            </div>
+        </section>
+        <section class="task" id="s9">
+            <div class="task-head">
+                <div class="n">09</div>
+                <div class="title">
+                    <h2>Import optional human review</h2>
+                    <p>Apply governed manual judgment with attribution.</p>
+                </div>
+                <div class="agent"><span>Owning agent</span>CPP Review Coordinator</div>
+            </div>
+            <div class="body">
+                <p class="why"><strong>Why:</strong> operational experts remain accountable for disputed or
+                    insufficient-evidence decisions, and their rationale must be traceable.</p>
+                <div class="grid4">
+                    <div class="box">
+                        <h3>Script</h3>
+                        <p><code>scripts/review_and_report.py review-import --db &lt;db&gt; --file &lt;reviewed.xlsx&gt; --final-output &lt;final.xlsx&gt;</code>.
+                        </p>
+                    </div>
+                    <div class="box">
+                        <h3>How</h3>
+                        <p>Reads reviewed rows from <code>All_Results</code>, validates the manual classification/KD
+                            fields, compares human and automated decisions, imports allowed values, records reviewer
+                            identity/timestamp/notes, and preserves disagreements.</p>
+                    </div>
+                    <div class="box">
+                        <h3>Where updated</h3>
+                        <p>Manual precedence is persisted in <code>mismatch_verdict</code>. Disagreement and feedback
+                            detail are written to the review-feedback JSON path, and a final workbook can be
+                            regenerated.</p>
+                    </div>
+                    <div class="box">
+                        <h3>Passed to</h3>
+                        <p>The final report reads the now-governed verdict. Reports expose review and confirmation
+                            columns so missing review is visible rather than silently treated as approval.</p>
+                    </div>
+                </div>
+                <div class="caveat"><strong>Declared-versus-actual prerequisite:</strong> <code>pipeline.yaml</code>
+                    declares <code>llm-review</code>; the driver implementation currently permits human review after
+                    successful <code>classify</code>. This should be aligned if external-LLM review is mandatory.</div>
+            </div>
+        </section>
+        <section class="task" id="s10">
+            <div class="task-head">
+                <div class="n">10</div>
+                <div class="title">
+                    <h2>Generate the Excel report</h2>
+                    <p>Present one reconciled operational view to the business reviewer.</p>
+                </div>
+                <div class="agent"><span>Owning agent</span>CPP Reporter</div>
+            </div>
+            <div class="body">
+                <p class="why"><strong>Why:</strong> analysts need a usable workbook containing summary, classification,
+                    supporting evidence, exceptions and review status.</p>
+                <div class="grid4">
+                    <div class="box">
+                        <h3>Script</h3>
+                        <p><code>scripts/review_and_report.py report --db &lt;db&gt; --output &lt;workbook&gt; --final</code>.
+                        </p>
+                    </div>
+                    <div class="box">
+                        <h3>How</h3>
+                        <p>Joins <code>mismatch_input</code> and <code>mismatch_verdict</code>, creates summary/coverage
+                            breakdowns, writes detailed and directional sheets, and marks confirmation/review states in
+                            report columns.</p>
+                    </div>
+                    <div class="box">
+                        <h3>Where updated</h3>
+                        <p>The final Excel workbook under <code>reports/</code>, normally including
+                            <code>Summary</code>, <code>Classification_Summary</code>, <code>Summary_detail</code>,
+                            <code>All_Results</code> and directional worksheets.
+                        </p>
+                    </div>
+                    <div class="box">
+                        <h3>Passed to</h3>
+                        <p>The validator reconciles the workbook against the canonical database. Consolidation can later
+                            consume explicitly named validated workbooks.</p>
+                    </div>
+                </div>
+                <div class="takeaway"><b>Non-blocking audit:</b> insufficient evidence can create
+                    HUMAN_APPROVAL_REQUIRED while the report still completes and preserves the deterministic result.
+                </div>
+            </div>
+        </section>
+        <section class="task" id="s11">
+            <div class="task-head">
+                <div class="n">11</div>
+                <div class="title">
+                    <h2>Validate database and workbook counts</h2>
+                    <p>Prove that the report is a faithful representation of canonical state.</p>
+                </div>
+                <div class="agent"><span>Owning agent</span>CPP Validator</div>
+            </div>
+            <div class="body">
+                <p class="why"><strong>Why:</strong> a polished workbook is not sufficient unless its rows, required
+                    sheets and review fields reconcile to the database.</p>
+                <div class="grid4">
+                    <div class="box">
+                        <h3>Script</h3>
+                        <p><code>scripts/validate_outputs.py --db &lt;db&gt; --workbook &lt;final.xlsx&gt;</code>.</p>
+                    </div>
+                    <div class="box">
+                        <h3>How</h3>
+                        <p>Reads the database and workbook without changing them, counts mismatch/verdict/result rows,
+                            verifies required sheets and review headers, compares workbook counts and detects problems.
+                        </p>
+                    </div>
+                    <div class="box">
+                        <h3>Where updated</h3>
+                        <p>The script returns a validation JSON payload and exit code; the pipeline writes command
+                            evidence to <code>state/task-state.json</code>. Validation itself does not rewrite the
+                            business data.</p>
+                    </div>
+                    <div class="box">
+                        <h3>Passed to</h3>
+                        <p>Successful validation releases the report for final consumption and is the prerequisite for
+                            optional consolidation. Failure is a hard evidence problem, not a cosmetic warning.</p>
+                    </div>
+                </div>
+                <div class="takeaway"><b>Evidence:</b> the latest synthetic validation reported 250 mismatch, 250
+                    verdict and 250 workbook rows.</div>
+            </div>
+        </section>
+        <section class="task" id="s12">
+            <div class="task-head">
+                <div class="n">12</div>
+                <div class="title">
+                    <h2>Optionally consolidate outputs</h2>
+                    <p>Provide a multi-run management view without changing canonical evidence.</p>
+                </div>
+                <div class="agent"><span>Owning agent</span>CPP Consolidated Reporter</div>
+            </div>
+            <div class="body">
+                <p class="why"><strong>Why:</strong> a business owner may need a dated overview across explicitly
+                    approved runs, not only a single daily workbook.</p>
+                <div class="grid4">
+                    <div class="box">
+                        <h3>Script</h3>
+                        <p><code>scripts/consolidated_report.py --report &lt;file1&gt; --report &lt;file2&gt; --output &lt;consolidated.xlsx&gt;</code>,
+                            with optional date filters.</p>
+                    </div>
+                    <div class="box">
+                        <h3>How</h3>
+                        <p>Reads only explicitly supplied validated reports, extracts their summary and result sheets,
+                            filters by date if requested, and aggregates daily totals and issue breakdowns.</p>
+                    </div>
+                    <div class="box">
+                        <h3>Where updated</h3>
+                        <p>The consolidated Excel workbook, including overview, daily summary and issues-to-review
+                            sheets. Source reports remain unchanged.</p>
+                    </div>
+                    <div class="box">
+                        <h3>Passed to</h3>
+                        <p>Final management reporting. The task is explicitly optional and must not be treated as a
+                            blocker for the normal daily workflow.</p>
+                    </div>
+                </div>
+                <div class="caveat"><strong>Control:</strong> the consolidator should not scan or mix folders
+                    implicitly. Report files must be explicitly supplied or approved by the user.</div>
+            </div>
+        </section>
+        <section class="task">
+            <div class="task-head">
+                <div class="n">↻</div>
+                <div class="title">
+                    <h2>How all 12 tasks are tracked</h2>
+                    <p>One orchestration record connects commands, attempts and evidence.</p>
+                </div>
+                <div class="agent"><span>Coordinator</span>Archon / CPP Orchestrator</div>
+            </div>
+            <div class="body">
+                <div class="grid4">
+                    <div class="box">
+                        <h3>Order and prerequisites</h3>
+                        <p><code>config/pipeline.yaml</code> declares task IDs, owners, prerequisites and outputs. The
+                            orchestrator reads this configuration and validates what is ready.</p>
+                    </div>
+                    <div class="box">
+                        <h3>Execution</h3>
+                        <p><code>scripts/run_pipeline.py</code> maps executable task IDs to concrete commands, runs each
+                            with up to two retries, and supports full, task, status and resume modes.</p>
+                    </div>
+                    <div class="box">
+                        <h3>State and evidence</h3>
+                        <p><code>state/task-state.json</code> records status, command, attempts, timestamps, return
+                            codes and truncated stdout/stderr. This is execution evidence, not the canonical business
+                            database.</p>
+                    </div>
+                    <div class="box">
+                        <h3>Agent versus script</h3>
+                        <p>The agent checks intent, prerequisites and evidence. The script performs deterministic data
+                            work. The final state is updated by the orchestrator after the command result.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    <footer class="footer">
+        <div><span>Source: config/pipeline.yaml, scripts/run_pipeline.py, task-specific agents, scripts and generated
+                artifacts.</span><span>This explanation distinguishes implemented behavior from intended or
+                production-only controls.</span></div>
+    </footer><a class="top" href="#top" aria-label="Back to top">↑</a>
+</body>
+
+</html>

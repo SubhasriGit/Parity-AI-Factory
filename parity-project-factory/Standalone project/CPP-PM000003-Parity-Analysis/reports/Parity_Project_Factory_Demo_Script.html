@@ -1,0 +1,1128 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Parity Project Factory - Demo Presentation Script</title>
+    <style>
+        :root {
+            --navy: #112f46;
+            --ink: #19252d;
+            --muted: #65727c;
+            --paper: #f3f4f1;
+            --white: #fff;
+            --teal: #087f7a;
+            --coral: #d95d39;
+            --gold: #bb8117;
+            --red: #9e3c42;
+            --line: #d6ddda;
+            --shadow: 0 13px 30px rgba(16, 45, 61, .08)
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        body {
+            margin: 0;
+            background: var(--paper);
+            color: var(--ink);
+            font-family: Georgia, "Times New Roman", serif;
+            line-height: 1.6
+        }
+
+        a {
+            color: var(--teal)
+        }
+
+        code {
+            font-family: Consolas, monospace
+        }
+
+        .header {
+            background: linear-gradient(120deg, #092131, #153e55 70%, #17606b);
+            color: #fff;
+            padding: 58px max(5vw, 25px) 46px
+        }
+
+        .header-inner {
+            max-width: 1180px;
+            margin: auto;
+            display: grid;
+            grid-template-columns: 1.35fr .65fr;
+            gap: 48px
+        }
+
+        .eyebrow {
+            font: 800 12px Arial, sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #98dcd6
+        }
+
+        .header h1 {
+            font: 800 clamp(38px, 5vw, 64px)/1.04 Arial, sans-serif;
+            margin: 11px 0 17px
+        }
+
+        .header p {
+            font-size: 19px;
+            color: #dfebee;
+            margin: 0;
+            max-width: 800px
+        }
+
+        .brief {
+            border-left: 1px solid #6a899b;
+            padding-left: 24px;
+            align-self: end;
+            font-family: Arial, sans-serif
+        }
+
+        .brief b {
+            display: block;
+            color: #8fe0da;
+            font-size: 31px
+        }
+
+        .brief span {
+            display: block;
+            color: #cfdee5;
+            font-size: 13px;
+            margin-top: 5px
+        }
+
+        .nav {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background: rgba(255, 255, 255, .97);
+            border-bottom: 1px solid var(--line)
+        }
+
+        .nav div {
+            max-width: 1180px;
+            margin: auto;
+            padding: 10px 20px;
+            display: flex;
+            gap: 7px;
+            overflow: auto;
+            font: 800 12px Arial, sans-serif
+        }
+
+        .nav a {
+            text-decoration: none;
+            white-space: nowrap;
+            color: var(--navy);
+            padding: 8px 11px
+        }
+
+        .shell {
+            max-width: 1180px;
+            margin: auto;
+            padding: 45px 20px 80px
+        }
+
+        .intro {
+            display: grid;
+            grid-template-columns: 1.25fr .75fr;
+            gap: 18px;
+            margin-bottom: 30px
+        }
+
+        .panel {
+            background: #fff;
+            border: 1px solid var(--line);
+            box-shadow: var(--shadow);
+            padding: 22px
+        }
+
+        .panel h2,
+        .panel h3 {
+            font-family: Arial, sans-serif;
+            color: var(--navy);
+            margin: 0 0 10px
+        }
+
+        .panel h2 {
+            font-size: 23px
+        }
+
+        .panel h3 {
+            font-size: 17px
+        }
+
+        .callout {
+            background: #e4f1ef;
+            border-left: 5px solid var(--teal);
+            padding: 17px 20px;
+            margin: 16px 0
+        }
+
+        .callout.warn {
+            background: #fff1d8;
+            border-color: var(--gold)
+        }
+
+        .callout.red {
+            background: #fae8e8;
+            border-color: var(--red)
+        }
+
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px
+        }
+
+        .mini {
+            background: #fff;
+            border: 1px solid var(--line);
+            padding: 15px
+        }
+
+        .mini b {
+            display: block;
+            font: 800 18px Arial, sans-serif;
+            color: var(--navy)
+        }
+
+        .mini span {
+            font-size: 13px;
+            color: var(--muted)
+        }
+
+        .script-card {
+            scroll-margin-top: 72px;
+            background: #fff;
+            border: 1px solid var(--line);
+            box-shadow: var(--shadow);
+            margin-bottom: 24px
+        }
+
+        .script-head {
+            display: grid;
+            grid-template-columns: 86px 1fr 120px;
+            background: var(--navy);
+            color: #fff;
+            align-items: center
+        }
+
+        .script-head .num {
+            font: 800 30px Arial, sans-serif;
+            padding: 22px;
+            color: #8fe0da;
+            border-right: 1px solid #527086
+        }
+
+        .script-head .title {
+            padding: 18px
+        }
+
+        .script-head h2 {
+            font: 800 23px/1.2 Arial, sans-serif;
+            margin: 0
+        }
+
+        .script-head p {
+            margin: 5px 0 0;
+            color: #c7d7df;
+            font-size: 14px
+        }
+
+        .script-head .time {
+            text-align: center;
+            font: 800 13px Arial, sans-serif;
+            color: #9edfd9
+        }
+
+        .script-body {
+            padding: 22px
+        }
+
+        .story {
+            font-size: 20px;
+            color: #233943;
+            border-left: 5px solid var(--coral);
+            padding: 8px 0 8px 18px;
+            margin-bottom: 20px
+        }
+
+        .cols {
+            display: grid;
+            grid-template-columns: 1.15fr .85fr;
+            gap: 18px
+        }
+
+        .say,
+        .show {
+            padding: 18px;
+            border: 1px solid var(--line);
+            background: #fbfcfb
+        }
+
+        .say h3,
+        .show h3 {
+            font: 800 13px Arial, sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--teal);
+            margin: 0 0 10px
+        }
+
+        .say p {
+            margin: 0 0 11px
+        }
+
+        .show ul,
+        .say ul {
+            margin: 8px 0;
+            padding-left: 20px
+        }
+
+        .show li,
+        .say li {
+            margin: 7px 0
+        }
+
+        .takeaway {
+            margin-top: 17px;
+            padding: 13px 16px;
+            background: #102e42;
+            color: #fff;
+            font: 700 14px Arial, sans-serif
+        }
+
+        .takeaway b {
+            color: #8fe0da
+        }
+
+        .caveat {
+            margin-top: 10px;
+            padding: 12px 15px;
+            background: #fff1d9;
+            border: 1px solid #eed5a2;
+            font: 13px Arial, sans-serif
+        }
+
+        .transition {
+            margin-top: 10px;
+            color: var(--muted);
+            font-style: italic
+        }
+
+        .architecture {
+            background: #091b29;
+            border: 1px solid #35566a;
+            padding: 24px;
+            color: #fff;
+            margin: 20px 0
+        }
+
+        .arch-title {
+            font: 800 12px Arial, sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 1.4px;
+            color: #8fe0da
+        }
+
+        .arch-grid {
+            display: grid;
+            grid-template-columns: 1fr 38px 1.2fr 38px 1fr;
+            gap: 8px;
+            align-items: stretch;
+            margin-top: 14px
+        }
+
+        .arch-col {
+            display: flex;
+            flex-direction: column;
+            gap: 9px
+        }
+
+        .arch-box {
+            background: #123044;
+            border: 1px solid #456679;
+            padding: 14px;
+            min-height: 74px
+        }
+
+        .arch-box b {
+            display: block;
+            font: 800 13px Arial, sans-serif;
+            color: #8fe0da
+        }
+
+        .arch-box span {
+            font-size: 13px;
+            color: #c7d8df
+        }
+
+        .arch-arrow {
+            display: grid;
+            place-items: center;
+            color: var(--coral);
+            font-size: 28px;
+            font-weight: bold
+        }
+
+        .arch-hub {
+            display: grid;
+            place-items: center;
+            text-align: center;
+            background: #17485a;
+            border: 2px solid #54c4b9;
+            padding: 18px;
+            font: 800 20px Arial, sans-serif
+        }
+
+        .arch-bottom {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 7px;
+            margin-top: 14px
+        }
+
+        .arch-bottom div {
+            background: #102b3c;
+            border: 1px solid #3d5c6d;
+            padding: 10px;
+            text-align: center;
+            font: 700 11px Arial, sans-serif
+        }
+
+        .qa {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px
+        }
+
+        .q {
+            background: #fff;
+            border: 1px solid var(--line);
+            padding: 18px
+        }
+
+        .q b {
+            display: block;
+            color: var(--navy);
+            font: 800 14px Arial, sans-serif;
+            margin-bottom: 6px
+        }
+
+        .q p {
+            margin: 0
+        }
+
+        .footer {
+            background: #e5ebe8;
+            padding: 26px 22px;
+            color: var(--muted);
+            font: 12px Arial, sans-serif
+        }
+
+        .footer div {
+            max-width: 1180px;
+            margin: auto;
+            display: flex;
+            justify-content: space-between;
+            gap: 25px
+        }
+
+        @media(max-width:900px) {
+
+            .header-inner,
+            .intro,
+            .cols,
+            .qa {
+                grid-template-columns: 1fr
+            }
+
+            .steps {
+                grid-template-columns: 1fr 1fr
+            }
+
+            .brief {
+                border-left: 0;
+                border-top: 1px solid #648395;
+                padding: 18px 0 0
+            }
+
+            .arch-grid {
+                grid-template-columns: 1fr
+            }
+
+            .arch-arrow {
+                transform: rotate(90deg)
+            }
+
+            .arch-bottom {
+                grid-template-columns: 1fr 1fr
+            }
+        }
+
+        @media(max-width:560px) {
+
+            .steps,
+            .arch-bottom {
+                grid-template-columns: 1fr
+            }
+
+            .script-head {
+                grid-template-columns: 56px 1fr
+            }
+
+            .script-head .time {
+                display: none
+            }
+
+            .script-head .num {
+                padding: 15px
+            }
+
+            .shell {
+                padding: 30px 15px 60px
+            }
+
+            .header {
+                padding: 38px 20px
+            }
+
+            .footer div {
+                display: block
+            }
+        }
+
+        @media print {
+            .nav {
+                display: none
+            }
+
+            .script-card,
+            .panel {
+                box-shadow: none;
+                break-inside: avoid
+            }
+
+            .header {
+                padding: 24px
+            }
+
+            .shell {
+                padding: 18px 0
+            }
+
+            .script-card {
+                margin-bottom: 18px
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header">
+        <div class="header-inner">
+            <div>
+                <div class="eyebrow">Presenter guide aligned to the 11-slide design deck</div>
+                <h1>Parity Project Factory Demo Script</h1>
+                <p>A concise business explanation with demo actions, proof points, limitations, and transitions for
+                    every section in the executive design review.</p>
+            </div>
+            <div class="brief"><b>18-22 minutes</b><span>11 storyline moments</span><span>Audience: business,
+                    architecture, security, operations</span><span>Recommended mode: explain, show, qualify</span></div>
+        </div>
+    </header>
+    <nav class="nav">
+        <div><a href="#opening">Opening</a><a href="#s1">1-3</a><a href="#s4">4-6</a><a href="#s7">7-9</a><a
+                href="#s10">10 Review</a><a href="#self-healing">10A Self-healing</a><a
+                href="#architecture">Architecture</a><a href="#qa">Q&amp;A</a></div>
+    </nav>
+    <main class="shell">
+        <section class="intro" id="opening">
+            <div class="panel">
+                <h2>Demo promise</h2>
+                <p>"We will show how a confirmed business need becomes an owned, reproducible parity-analysis project,
+                    how deterministic rules handle the broad population, and how AI is used only as a bounded reviewer
+                    with visible cost and traceable evidence."</p>
+                <div class="callout"><strong>Anchor the audience:</strong> this is not a generic chatbot demo. It is a
+                    controlled software factory plus a concrete PM000003 operational workflow.</div>
+                <p><a href="CPP_Pipeline_12_Steps_Explained.html"><strong>Open the complete Why / How / Who / Where
+                            explanation for all 12 pipeline steps</strong></a>.</p>
+            </div>
+            <div class="panel">
+                <h2>Do not overclaim</h2>
+                <ul>
+                    <li>Synthetic evidence, not production certification.</li>
+                    <li>External LLM bill is estimated, not invoiced.</li>
+                    <li>6M ROI is capacity value, not guaranteed cash saving.</li>
+                    <li>Guardrail limits are per run, not enterprise-wide.</li>
+                </ul>
+            </div>
+        </section>
+        <div class="steps">
+            <div class="mini"><b>Explain</b><span>Use the business problem and decision.</span></div>
+            <div class="mini"><b>Show</b><span>Point to architecture or generated artifact.</span></div>
+            <div class="mini"><b>Prove</b><span>Use a number, test, output, or control.</span></div>
+            <div class="mini"><b>Qualify</b><span>Name the boundary and pilot requirement.</span></div>
+        </div>
+        <section class="script-card" id="s1" style="margin-top:28px">
+            <div class="script-head">
+                <div class="num">01</div>
+                <div class="title">
+                    <h2>Opening: two deliverables, one repeatable pattern</h2>
+                    <p>Set scope before showing technology.</p>
+                </div>
+                <div class="time">1.5 min</div>
+            </div>
+            <div class="script-body">
+                <div class="story">"Today we are showing a factory and a product: a reusable generator for parity
+                    projects, and a concrete CPP PM000003 project built through it."</div>
+                <div class="cols">
+                    <div class="say">
+                        <h3>Say</h3>
+                        <p>The factory converts a confirmed specification into a standalone project. The CPP project
+                            demonstrates directional price-parity analysis across CPP, IMS and mismatch-report evidence.
+                        </p>
+                        <p>Each generated project owns its configuration, rules, agents, scripts, database setup, tests
+                            and reports. That ownership is intentional: teams can version and upgrade the project
+                            without depending on a hidden shared runtime.</p>
+                    </div>
+                    <div class="show">
+                        <h3>Show and prove</h3>
+                        <ul>
+                            <li>Open the factory and generated project folder side by side.</li>
+                            <li>Point to <code>.parity-factory.json</code> for engine and factory versions.</li>
+                            <li>Call out the two operating modes: compare extracts or ingest a mismatch report.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="takeaway"><b>Audience takeaway:</b> this is a repeatable productization pattern, not a
+                    one-off script.</div>
+                <div class="transition">Transition: "Next, here is the system boundary that keeps that repeatability
+                    controlled."</div>
+            </div>
+        </section>
+        <section class="script-card">
+            <div class="script-head">
+                <div class="num">02</div>
+                <div class="title">
+                    <h2>Executive summary</h2>
+                    <p>Lead with value and evidence, not a feature list.</p>
+                </div>
+                <div class="time">1.5 min</div>
+            </div>
+            <div class="script-body">
+                <div class="story">"The business value is less model usage, faster exception triage, and an auditable
+                    decision trail from raw evidence to final workbook."</div>
+                <div class="cols">
+                    <div class="say">
+                        <h3>Say</h3>
+                        <p>Deterministic rules handle the broad population. Only unresolved cases cross the controlled
+                            LLM boundary. Manual decisions have explicit precedence, but audit markers do not prevent
+                            report generation.</p>
+                        <ul>
+                            <li>250 synthetic rows reconciled end to end.</li>
+                            <li>200 classified/handled through deterministic evidence in the demonstrated distribution.
+                            </li>
+                            <li>50 unresolved candidates isolated for review.</li>
+                            <li>42 CPP and 11 factory tests passing.</li>
+                        </ul>
+                    </div>
+                    <div class="show">
+                        <h3>Show and prove</h3>
+                        <ul>
+                            <li>Use the executive scorecard in the design review.</li>
+                            <li>Show the final workbook count and validation result.</li>
+                            <li>State: zero in-pipeline model requests, measured model cost $0.00.</li>
+                            <li>Separate estimated external LLM cost from actual provider billing.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="takeaway"><b>Audience takeaway:</b> AI is applied where ambiguity exists; the broad workflow
+                    remains deterministic.</div>
+                <div class="transition">Transition: "The architecture shows why these claims are possible."</div>
+            </div>
+        </section>
+        <section class="script-card">
+            <div class="script-head">
+                <div class="num">03</div>
+                <div class="title">
+                    <h2>High-level architecture</h2>
+                    <p>Describe the control, computation and governance planes.</p>
+                </div>
+                <div class="time">2.5 min</div>
+            </div>
+            <div class="script-body">
+                <div class="story">"Read the architecture left to right: confirmed intent enters the factory, a complete
+                    project is generated, deterministic work happens locally, and only controlled exceptions enter the
+                    AI review boundary."</div>
+                <div class="architecture" id="architecture">
+                    <div class="arch-title">Demo architecture walk</div>
+                    <div class="arch-grid">
+                        <div class="arch-col">
+                            <div class="arch-box"><b>Business request</b><span>Goal, data, keys, rules and evidence
+                                    requirements.</span></div>
+                            <div class="arch-box"><b>Project designer</b><span>Interview, clarify, confirm and trigger
+                                    generation.</span></div>
+                            <div class="arch-box"><b>Confirmed specification</b><span>Versioned JSON without
+                                    secrets.</span></div>
+                        </div>
+                        <div class="arch-arrow">&#8594;</div>
+                        <div class="arch-col">
+                            <div class="arch-box"><b>Factory</b><span>Template rendering, core vendoring, validation and
+                                    versioning.</span></div>
+                            <div class="arch-hub">Standalone project + Archon coordinator</div>
+                            <div class="arch-box"><b>Prerequisites and state</b><span>Dependency gates, retries, resume
+                                    and audit state.</span></div>
+                        </div>
+                        <div class="arch-arrow">&#8594;</div>
+                        <div class="arch-col">
+                            <div class="arch-box"><b>Deterministic pipeline</b><span>Parse, load, compare, classify,
+                                    report and reconcile.</span></div>
+                            <div class="arch-box"><b>Controlled LLM hand-off</b><span>Redacted JSON, caps and projected
+                                    spend.</span></div>
+                            <div class="arch-box"><b>Human review and outputs</b><span>Precedence, audit, workbook,
+                                    metrics and telemetry.</span></div>
+                        </div>
+                    </div>
+                    <div class="arch-bottom">
+                        <div>RAW INPUT</div>
+                        <div>CANONICAL DB</div>
+                        <div>KD EVIDENCE</div>
+                        <div>VALIDATED JSON</div>
+                        <div>EXCEL / METRICS / PPTX</div>
+                    </div>
+                </div>
+                <div class="takeaway"><b>Audience takeaway:</b> agents coordinate; tested scripts compute; the LLM is a
+                    bounded reviewer, not the system of record.</div>
+                <div class="caveat"><strong>Presenter caveat:</strong> the architecture uses local file connectors in
+                    the current release. SQL/SFTP/blob connectors should be described as planned, not available.</div>
+            </div>
+        </section>
+        <section class="script-card" id="s4">
+            <div class="script-head">
+                <div class="num">04</div>
+                <div class="title">
+                    <h2>Architecture flow: from request to evidence</h2>
+                    <p>Use a single example to make the diagram concrete.</p>
+                </div>
+                <div class="time">1 min</div>
+            </div>
+            <div class="script-body">
+                <div class="story">"Imagine a business owner requests directional CPP-versus-IMS reconciliation. The
+                    designer resolves datasets, keys, known discrepancy priorities, review rules and expected outputs
+                    before any project is generated."</div>
+                <div class="cols">
+                    <div class="say">
+                        <h3>Say</h3>
+                        <p>The confirmed specification becomes the contract. Generation produces assets, scripts and
+                            configuration. The run starts only when required evidence exists. Every transformation
+                            leaves auditable output for the next stage.</p>
+                    </div>
+                    <div class="show">
+                        <h3>Show</h3>
+                        <ul>
+                            <li>Point to the JSON spec.</li>
+                            <li>Point to <code>requirements-confirm</code> as the first pipeline task.</li>
+                            <li>Point to the final validation task.</li>
+                            <li>Emphasize that raw and enriched views coexist.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="transition">Transition: "Now let us walk through what a new project receives at generation
+                    time."</div>
+            </div>
+        </section>
+        <section class="script-card">
+            <div class="script-head">
+                <div class="num">05</div>
+                <div class="title">
+                    <h2>Standalone project creation steps</h2>
+                    <p>Explain reproducibility and ownership.</p>
+                </div>
+                <div class="time">2 min</div>
+            </div>
+            <div class="script-body">
+                <div class="story">"Generation is not copying a blank repository. It renders the correct mode, validates
+                    the specification, vendors the engine and verifies that the created project is runnable."</div>
+                <div class="cols">
+                    <div class="say">
+                        <h3>Say</h3>
+                        <ol>
+                            <li>Interview and confirm project identity, mode, datasets, keys, rules and outputs.</li>
+                            <li>Validate slug, supported mode and absence of embedded credentials.</li>
+                            <li>Render Mode A, Mode B or combined mode assets.</li>
+                            <li>Copy the engine so the project remains independently runnable.</li>
+                            <li>Write config, optional sample data and factory version metadata.</li>
+                            <li>Run a smoke test and return a validated project.</li>
+                        </ol>
+                    </div>
+                    <div class="show">
+                        <h3>Demo action</h3>
+                        <ul>
+                            <li>Show the generated <code>agents</code>, <code>skills</code>, <code>config</code>,
+                                <code>rules</code>, <code>scripts</code>, <code>docs</code> and <code>tests</code>
+                                folders.
+                            </li>
+                            <li>Show <code>llm_guardrails.json</code>.</li>
+                            <li>Explain that generated projects can be upgraded intentionally rather than changing under
+                                a shared runtime.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="takeaway"><b>Audience takeaway:</b> the factory controls repeatability; the project team
+                    controls the resulting artifact.</div>
+            </div>
+        </section>
+        <section class="script-card">
+            <div class="script-head">
+                <div class="num">06</div>
+                <div class="title">
+                    <h2>Agent and responsibility model</h2>
+                    <p>Keep the distinction between orchestration and computation clear.</p>
+                </div>
+                <div class="time">1.5 min</div>
+            </div>
+            <div class="script-body">
+                <div class="story">"The project designer shapes the product, Archon coordinates execution, specialists
+                    understand their domains, and deterministic scripts do the repeatable work."</div>
+                <div class="cols">
+                    <div class="say">
+                        <h3>Say</h3>
+                        <p>Loader, migrator, analyst, classifier, LLM reviewer, reporter, validator and review
+                            coordinator all operate inside explicit task boundaries. They do not gain unrestricted
+                            database or file mutation authority.</p>
+                    </div>
+                    <div class="show">
+                        <h3>Show and prove</h3>
+                        <ul>
+                            <li>Open <code>config/pipeline.yaml</code>.</li>
+                            <li>Point to prerequisites and outputs for one data task and one reporting task.</li>
+                            <li>Explain that the LLM analyst receives candidate JSON, not a database connection.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="caveat"><strong>Wording to use:</strong> "The CPP project has 13 specialist
+                    responsibilities. The generic factory can generate 7-13 based on configured mode."</div>
+                <div class="transition">Transition: "The resulting task sequence is deterministic, inspectable and
+                    testable."</div>
+            </div>
+        </section>
+        <section class="script-card" id="s7">
+            <div class="script-head">
+                <div class="num">07</div>
+                <div class="title">
+                    <h2>Generic execution flow</h2>
+                    <p>Explain the universal pattern before CPP-specific details.</p>
+                </div>
+                <div class="time">1.5 min</div>
+            </div>
+            <div class="script-body">
+                <div class="story">"Initialize, precheck, ingest, transform, compare or ingest a diff, classify, export
+                    unresolved cases, validate findings, report, and reconcile."</div>
+                <div class="cols">
+                    <div class="say">
+                        <h3>Say</h3>
+                        <p>Raw data is retained. Known discrepancies are evaluated in a defined priority order. The LLM
+                            is an optional evidence-enrichment stage. Final report generation validates what is actually
+                            persisted.</p>
+                    </div>
+                    <div class="show">
+                        <h3>Show</h3>
+                        <ul>
+                            <li>Run or display the task status output.</li>
+                            <li>Point to one deterministic KD rule result.</li>
+                            <li>Point to a mismatch candidate and final report row.</li>
+                            <li>Show that duplicate loads are handled idempotently.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="takeaway"><b>Audience takeaway:</b> AI is inserted after the deterministic baseline, never
+                    before the canonical evidence.</div>
+            </div>
+        </section>
+        <section class="script-card">
+            <div class="script-head">
+                <div class="num">08</div>
+                <div class="title">
+                    <h2>CPP standalone pipeline: 12 tasks</h2>
+                    <p>Turn the task list into a dependency story.</p>
+                </div>
+                <div class="time">2.5 min</div>
+            </div>
+            <div class="script-body">
+                <div class="story">"The CPP pipeline is twelve named tasks with explicit evidence gates, from
+                    requirements confirmation through optional consolidation."</div>
+                <div class="cols">
+                    <div class="say">
+                        <h3>Say</h3>
+                        <ol>
+                            <li>Confirm requirements.</li>
+                            <li>Initialize the database.</li>
+                            <li>Load CPP snapshots.</li>
+                            <li>Migrate IMS snapshots.</li>
+                            <li>Parse the mismatch report.</li>
+                            <li>Explode CPP packets.</li>
+                            <li>Classify with deterministic KD rules.</li>
+                            <li>Review unresolved candidates.</li>
+                            <li>Import optional human review.</li>
+                            <li>Generate the Excel report.</li>
+                            <li>Validate database and workbook counts.</li>
+                            <li>Optionally consolidate outputs.</li>
+                        </ol>
+                    </div>
+                    <div class="show">
+                        <h3>Show</h3>
+                        <ul>
+                            <li>CPP loader: five configured datasets.</li>
+                            <li>IMS migration: explicit source-table to day mappings.</li>
+                            <li>Packet explosion: 100 packets to 200 rows in the demo evidence.</li>
+                            <li>Classification: 250 verdicts.</li>
+                            <li>Validation: 250 database, 250 verdict, 250 workbook rows.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="caveat"><strong>Presenter caveat:</strong> a task can continue after review or
+                    retry-exhaustion markers, but the marker remains visible. This is audit-first non-blocking behavior,
+                    not silent approval.</div>
+            </div>
+        </section>
+        <section class="script-card">
+            <div class="script-head">
+                <div class="num">09</div>
+                <div class="title">
+                    <h2>LLM scope, security and billing</h2>
+                    <p>This is the most important architecture-and-risk moment.</p>
+                </div>
+                <div class="time">3 min</div>
+            </div>
+            <div class="script-body">
+                <div class="story">"The model receives no direct database access. It receives only eligible, redacted
+                    candidate records under candidate, batch and projected-spend limits; its findings return through
+                    validation."</div>
+                <div class="cols">
+                    <div class="say">
+                        <h3>Say</h3>
+                        <p>Direct store, offering and deal values are transformed with a salted SHA-256-derived token. A
+                            secret salt from a vault prevents dictionary-style reversal. This is pseudonymization, not
+                            anonymization, because prices, dates, direction and business context remain.</p>
+                        <p>The latest 50-candidate run estimated 7,366 input and 7,500 output tokens for $0.093415 at
+                            illustrative prices. No provider invoice exists and the measured in-pipeline model cost is
+                            $0.00.</p>
+                    </div>
+                    <div class="show">
+                        <h3>Show and prove</h3>
+                        <ul>
+                            <li><code>config/llm_guardrails.json</code>: 500 candidates, 50 rows, 20 batches, $5 per
+                                run.</li>
+                            <li><code>output/llm_candidates.json</code>: <code>h_</code> identifiers.</li>
+                            <li><code>output/cost/llm_cost_estimate.json</code>: <code>estimate_not_billed</code>.</li>
+                            <li>Explain: token cost equals input, cached input and output rates divided by one million.
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="callout warn"><strong>Security statement:</strong> "The demo has
+                    <code>require_salt: false</code> for usability. Production must require a vault-injected salt,
+                    approve provider data terms, and add DLP review."
+                </div>
+                <div class="callout warn"><strong>Scale statement:</strong> "At 6M records and a 20% candidate rate, the
+                    illustrative LLM bill is $2,241.96. The 20% rate comes from the demo and must be validated on
+                    production data."</div>
+            </div>
+        </section>
+        <section class="script-card" id="s10">
+            <div class="script-head">
+                <div class="num">10</div>
+                <div class="title">
+                    <h2>Human review and retry control</h2>
+                    <p>Demonstrate safe continuation without pretending approval happened.</p>
+                </div>
+                <div class="time">1.5 min</div>
+            </div>
+            <div class="script-body">
+                <div class="story">"Review has the highest decision precedence, but the operational workflow is
+                    resilient: an absent review becomes an audit obligation, not an indefinite system stop."</div>
+                <div class="cols">
+                    <div class="say">
+                        <h3>Say</h3>
+                        <p>Manual review can override an eligible classification. An LLM finding marked
+                            <code>INSUFFICIENT_EVIDENCE</code> leaves the deterministic verdict unchanged and records
+                            <code>HUMAN_APPROVAL_REQUIRED</code>. Each task may retry twice. Exhaustion records
+                            <code>HUMAN_INSPECTION_REQUIRED</code> and automatic resume remains possible.
+                        </p>
+                    </div>
+                    <div class="show">
+                        <h3>Show and prove</h3>
+                        <ul>
+                            <li>Open the review columns in the workbook.</li>
+                            <li>Show reviewer identity, timestamp, notes and reviewed classification fields.</li>
+                            <li>Show the task state and retry evidence.</li>
+                            <li>Emphasize that markers are traceable and remain visible in output.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="takeaway"><b>Audience takeaway:</b> resilience does not erase accountability; it changes a
+                    missing human action into an explicit auditable state.</div>
+            </div>
+        </section>
+        <section class="script-card" id="self-healing">
+            <div class="script-head">
+                <div class="num">10A</div>
+                <div class="title">
+                    <h2>Bounded self-healing and recovery</h2>
+                    <p>Show automatic resilience without presenting unsafe autonomous repair.</p>
+                </div>
+                <div class="time">2 min</div>
+            </div>
+            <div class="script-body">
+                <div class="story">"Self-healing here means controlled recovery from a transient task failure: repeat
+                    the same safe operation, preserve evidence, then resume from the first unresolved stage. It does not
+                    mean the system silently invents a mapping, changes a rule, or performs a destructive repair."</div>
+                <div class="cols">
+                    <div class="say">
+                        <h3>Explain the implemented mechanism</h3>
+                        <ol>
+                            <li>The orchestrator reads <code>state/task-state.json</code> and finds the requested or
+                                first unresolved task.</li>
+                            <li>It marks the task <code>RUNNING</code> and executes the mapped specialist command.</li>
+                            <li>A transient failure can be retried twice, producing up to three total attempts with the
+                                same bounded command.</li>
+                            <li>Every attempt records the command, start time, duration, return code, and shortened
+                                output.</li>
+                            <li>Success changes the task to <code>SUCCESS</code>. Exhaustion changes it to
+                                <code>HUMAN_INSPECTION_REQUIRED</code>.</li>
+                            <li>After the cause is corrected or approved, the orchestrator can resume from that
+                                unresolved task without rerunning successful upstream work.</li>
+                        </ol>
+                    </div>
+                    <div class="show">
+                        <h3>Show and prove</h3>
+                        <ul>
+                            <li>Open <code>state/task-state.json</code> and point to task status, attempts, maximum
+                                retries and evidence.</li>
+                            <li>Show the configured policy: two retries, explicit resume, and recorded human inspection
+                                on exhaustion.</li>
+                            <li>Use the prompt: <strong>“Resume pipeline”</strong> for the first unresolved task.</li>
+                            <li>Or use: <strong>“Resume failed ims-migrate task”</strong> for a named failure.</li>
+                            <li>Point out that <code>BLOCKED</code> is different from
+                                <code>HUMAN_INSPECTION_REQUIRED</code>: a prerequisite is missing versus an executed
+                                task
+                                exhausted its attempts.
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="callout warn"><strong>Self-healing boundary:</strong> retries and resume are automatic;
+                    diagnosis and corrective change are governed. Missing day maps, corrupt data, ambiguous
+                    requirements, schema incompatibility, production credentials, destructive refresh and replacement
+                    require explicit evidence or approval.</div>
+                <div class="takeaway"><b>Audience takeaway:</b> the pipeline recovers from transient execution failures
+                    without losing state, while unsafe or semantic failures remain visible and are escalated rather than
+                    hidden.</div>
+                <div class="transition">Transition: “That bounded resilience protects the workflow. The final section
+                    shows the measurable business case and the controls required before production.”</div>
+            </div>
+        </section>
+        <section class="script-card">
+            <div class="script-head">
+                <div class="num">11</div>
+                <div class="title">
+                    <h2>Business assurance, ROI and the ask</h2>
+                    <p>Close on the decision: controlled pilot, measurable value.</p>
+                </div>
+                <div class="time">2.5 min</div>
+            </div>
+            <div class="script-body">
+                <div class="story">"The 6-million-record planning case is economically attractive at illustrative rates,
+                    but the approval request is for a controlled pilot that validates the assumptions, not for an
+                    unbounded production rollout."</div>
+                <div class="cols">
+                    <div class="say">
+                        <h3>Say</h3>
+                        <p>At 6M records, 20% eligibility means 1.2M candidates. At 70% acceptance, 840,000 outcomes
+                            retain only two minutes of residual review instead of eight. Under the displayed $45/hour
+                            labor and $0.001868/candidate assumptions, the model produces approximately $3.78M/month and
+                            $45.33M/year of net capacity value.</p>
+                        <p>The labor result is not automatically cash. It becomes ROI only when staffing, outsourcing,
+                            throughput or service capacity changes are verified.</p>
+                    </div>
+                    <div class="show">
+                        <h3>Show the decision gates</h3>
+                        <ul>
+                            <li>Contract-backed model and currency rates.</li>
+                            <li>Provider retention, residency, encryption and training-use terms.</li>
+                            <li>Vault salt and DLP/privacy review.</li>
+                            <li>Central daily/monthly budget, concurrency and kill switch.</li>
+                            <li>Provider receipt reconciliation.</li>
+                            <li>Quality, rework and reviewer-time measurement.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="takeaway"><b>Recommended ask:</b> approve a production pilot with a fixed volume, fixed
+                    budget, named reviewers, named data owner and measurable success criteria.</div>
+            </div>
+        </section>
+        <section class="script-card">
+            <div class="script-head">
+                <div class="num">QA</div>
+                <div class="title">
+                    <h2>Expected questions and concise answers</h2>
+                    <p>Keep the close factual and confident.</p>
+                </div>
+                <div class="time">As needed</div>
+            </div>
+            <div class="script-body">
+                <div class="qa" id="qa">
+                    <div class="q"><b>Does the LLM change the database?</b>
+                        <p>No. The Python pipeline validates JSON findings before any supported field update; the model
+                            has no direct database access.</p>
+                    </div>
+                    <div class="q"><b>Is the LLM cost $0.00?</b>
+                        <p>The in-pipeline model cost is $0.00 because the pipeline makes no model API call. The
+                            estimated external hand-off cost is separate.</p>
+                    </div>
+                    <div class="q"><b>Does the salt make data anonymous?</b>
+                        <p>No. It strengthens pseudonymization of selected identifiers. Dates, prices, row IDs and
+                            business context still require privacy review.</p>
+                    </div>
+                    <div class="q"><b>Can 6M records be processed now?</b>
+                        <p>The estimate is a planning model. A production benchmark is required for throughput,
+                            concurrency, failure recovery and platform cost.</p>
+                    </div>
+                    <div class="q"><b>Does the $5 ceiling cap the monthly bill?</b>
+                        <p>No. It caps one run. An aggregate monthly budget and kill switch are production requirements.
+                        </p>
+                    </div>
+                    <div class="q"><b>What proves the economics?</b>
+                        <p>Only a pilot that compares before/after handling time, acceptance quality, rework, provider
+                            receipts and realized staffing or capacity outcomes.</p>
+                    </div>
+                    <div class="q"><b>Why use specialized agents?</b>
+                        <p>They narrow context, encode prerequisites and make ownership visible. Deterministic scripts
+                            remain the executable core.</p>
+                    </div>
+                    <div class="q"><b>What makes this reproducible?</b>
+                        <p>A confirmed spec, generated configuration, vendored core, version metadata, idempotent
+                            behavior, tests, validation and persisted artifacts.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="panel">
+            <h2>Presenter close</h2>
+            <p>"We have shown a repeatable factory, an owned standalone project, a deterministic baseline, a controlled
+                AI exception path, and evidence for every stage. The remaining work is not hidden technical debt: it is
+                the visible production checklist for secrets, provider governance, centralized spend control and
+                measured ROI. The recommendation is a controlled pilot with explicit success criteria."</p>
+        </section>
+    </main>
+    <footer class="footer">
+        <div><span>Companion to Parity_Project_Factory_Executive_Design_Review.html and the supplied 11-slide
+                PowerPoint.</span><span>Demo script is intentionally explicit about synthetic evidence, estimate
+                limitations and production gates.</span></div>
+    </footer>
+</body>
+
+</html>
